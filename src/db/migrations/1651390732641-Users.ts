@@ -7,16 +7,19 @@ export class Users1651390732641 implements MigrationInterface {
             
             CREATE TABLE Users (
                 id INTEGER DEFAULT nextval('Users_id_seq') PRIMARY KEY,
-                memberId INTEGER NOT NULL,
+                "memberId" INTEGER NOT NULL,
                 email VARCHAR(60) NOT NULL UNIQUE,
-                password VARCHAR(60) NOT NULL,
+                password CHARACTER(60) NOT NULL,
                 salt CHARACTER(5) NOT NULL,
                 status SMALLINT DEFAULT 1,
-                createdAt TIMESTAMP DEFAULT current_timestamp
-            );`);
+                "createdAt" TIMESTAMP DEFAULT current_timestamp
+            );
+
+            CREATE INDEX idx_users_member_id ON Users("memberId");`);
     }
     async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
+            DROP INDEX idx_users_member_id;
             DROP TABLE Users;
             DROP SEQUENCE Users_id_seq;`);
     }
