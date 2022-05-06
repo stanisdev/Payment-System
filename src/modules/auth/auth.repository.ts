@@ -1,46 +1,46 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager } from 'typeorm';
 import { CityEntity, UserEntity, UserInfoEntity } from '../../db/entities';
 import { BasicUserData, UserInfoData } from '../../common/types';
+import { cityRepository } from '../../db/repositories';
 
 @Injectable()
 export class AuthServiceRepository {
-    constructor(
-        @InjectRepository(CityEntity)
-        private readonly cityRepository: Repository<CityEntity>,
+    constructor() {}
 
-        @InjectRepository(UserEntity)
-        public readonly userRepository: Repository<UserEntity>,
-
-        @InjectRepository(UserInfoEntity)
-        private readonly userInfoRepository: Repository<UserInfoEntity>,
-    ) {}
-
-    async createUser(data: BasicUserData): Promise<UserEntity> {
+    async createUser(
+        transactionalEntityManager: EntityManager,
+        data: BasicUserData,
+    ): Promise<UserEntity> {
         const user = new UserEntity();
         user.memberId = data.memberId;
         user.email = data.email;
         user.password = data.password;
         user.status = data.status;
 
-        await this.userRepository.save(user);
+        await transactionalEntityManager.save(user);
         return user;
     }
 
-    async createCity(name: string): Promise<CityEntity> {
-        let city = await this.cityRepository.findOneBy({
+    async createCity(
+        transactionalEntityManager: EntityManager,
+        name: string,
+    ): Promise<CityEntity> {
+        let city = await cityRepository.findOneBy({
             name,
         });
         if (!(city instanceof Object)) {
             city = new CityEntity();
             city.name = name;
-            await this.cityRepository.save(city);
+            await transactionalEntityManager.save(city);
         }
         return city;
     }
 
-    async createUserInfo(data: UserInfoData): Promise<void> {
+    async createUserInfo(
+        transactionalEntityManager: EntityManager,
+        data: UserInfoData,
+    ): Promise<void> {
         const userInfo = new UserInfoEntity();
         userInfo.accountName = data.accountName;
         userInfo.city = data.city;
@@ -52,6 +52,6 @@ export class AuthServiceRepository {
         userInfo.zipCode = data.zipCode;
         userInfo.accountType = data.accountType;
 
-        await this.userInfoRepository.save(userInfo);
+        await transactionalEntityManager.save(userInfo);
     }
 }

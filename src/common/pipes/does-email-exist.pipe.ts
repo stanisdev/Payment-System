@@ -4,19 +4,14 @@ import {
     Injectable,
     BadRequestException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from 'src/db/entities';
-import { Repository } from 'typeorm';
+import { userRepository } from '../../db/repositories';
 
 @Injectable()
 export class DoesEmailExistPipe implements PipeTransform {
-    constructor(
-        @InjectRepository(UserEntity)
-        private readonly userRepository: Repository<UserEntity>,
-    ) {}
+    constructor() {}
 
     async transform(body: any, metadata: ArgumentMetadata) {
-        const user = await this.userRepository.findOneBy({
+        const user = await userRepository.findOneBy({
             email: body.email,
         });
         if (user instanceof Object) {

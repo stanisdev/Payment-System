@@ -1,10 +1,11 @@
 import { DataSource } from 'typeorm';
+import { UserEntity, UserInfoEntity, CityEntity } from './entities';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
 const { env } = process;
 
-export const connectionSource = new DataSource({
+export const appDataSource = new DataSource({
     type: 'postgres',
     host: env.DB_HOST,
     port: +env.DB_PORT,
@@ -14,6 +15,6 @@ export const connectionSource = new DataSource({
     logging: Boolean(env.DB_LOGGING),
     synchronize: false,
     name: 'default',
-    entities: ['src/db/entities/**{.ts,.js}'],
-    migrations: ['src/db/migrations/**/*{.ts,.js}'],
+    entities: [UserEntity, UserInfoEntity, CityEntity],
+    migrations: ['migrations/**/*{.ts,.js}'],
 });

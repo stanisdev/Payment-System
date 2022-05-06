@@ -1,7 +1,10 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { AuthServiceRepository } from './auth.repository';
+import { userRepository } from '../../db/repositories';
 import { SignUpDto } from './dto/sign-up.dto';
 import { Utils } from '../../common/utils';
+import { appDataSource } from '../../db/dataSource';
+import { EntityManager } from 'typeorm';
 
 @Injectable()
 export class AuthService {
@@ -20,14 +23,27 @@ export class AuthService {
             password: signUpDto.password,
             status: 1,
         };
-        const user = await this.repository.createUser(userData);
-        const city = await this.repository.createCity(signUpDto.city);
-        const userInfoData = {
-            ...signUpDto,
-            user,
-            city,
-        };
-        await this.repository.createUserInfo(userInfoData);
+        await appDataSource.manager.transaction(
+            async (transactionalEntityManager: EntityManager) => {
+                const user = await this.repository.createUser(
+                    transactionalEntityManager,
+                    userData,
+                );
+                const city = await this.repository.createCity(
+                    transactionalEntityManager,
+                    signUpDto.city,
+                );
+                const userInfoData = {
+                    ...signUpDto,
+                    user,
+                    city,
+                };
+                await this.repository.createUserInfo(
+                    transactionalEntityManager,
+                    userInfoData,
+                );
+            },
+        );
         return {};
     }
 
@@ -42,7 +58,7 @@ export class AuthService {
                 onlyDigits: true,
                 length: 7,
             }));
-            const user = await this.repository.userRepository.findOneBy({
+            const user = await userRepository.findOneBy({
                 memberId,
             });
             if (!(user instanceof Object)) {
