@@ -7,7 +7,7 @@ export class Users1651390732641 implements MigrationInterface {
             
             CREATE TABLE Users (
                 id INTEGER DEFAULT nextval('Users_id_seq') PRIMARY KEY,
-                "memberId" INTEGER NOT NULL,
+                "memberId" INTEGER NOT NULL UNIQUE,
                 email VARCHAR(60) NOT NULL UNIQUE,
                 password CHARACTER(60) NOT NULL,
                 salt CHARACTER(5) NOT NULL,
