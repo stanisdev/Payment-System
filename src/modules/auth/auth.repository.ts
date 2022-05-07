@@ -1,8 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
-import { CityEntity, UserEntity, UserInfoEntity } from '../../db/entities';
-import { BasicUserData, UserInfoData } from '../../common/types';
-import { cityRepository } from '../../db/repositories';
+import {
+    CityEntity,
+    UserEntity,
+    UserInfoEntity,
+    UserTokenEntity,
+} from '../../db/entities';
+import { BasicUserData, UserInfoData, UserTokenData } from '../../common/types';
+import { cityRepository, userTokenRepository } from '../../db/repositories';
 
 @Injectable()
 export class AuthServiceRepository {
@@ -53,5 +58,15 @@ export class AuthServiceRepository {
         userInfo.accountType = data.accountType;
 
         await transactionalEntityManager.save(userInfo);
+    }
+
+    async createUserToken(data: UserTokenData): Promise<void> {
+        const userToken = new UserTokenEntity();
+        userToken.user = data.user;
+        userToken.type = data.type;
+        userToken.code = data.code;
+        userToken.expireAt = data.expireAt;
+
+        await userTokenRepository.save(data);
     }
 }

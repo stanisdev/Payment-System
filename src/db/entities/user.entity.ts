@@ -7,11 +7,13 @@ import {
     BeforeUpdate,
     OneToOne,
     AfterLoad,
+    OneToMany,
 } from 'typeorm';
 import { IsInt, Min, IsEmail, IsDate, Length } from 'class-validator';
 import * as bcrypt from 'bcrypt';
 import { Utils } from '../../common/utils';
 import { UserInfoEntity } from './userInfo.entity';
+import { UserTokenEntity } from './userToken.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -42,6 +44,9 @@ export class UserEntity {
     @Column()
     @Min(0)
     status: number;
+
+    @OneToMany(() => UserTokenEntity, (userToken) => userToken.user)
+    userTokens: UserTokenEntity[];
 
     @CreateDateColumn()
     @IsDate()

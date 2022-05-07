@@ -1,6 +1,11 @@
 import { DataSource } from 'typeorm';
-import { UserEntity, UserInfoEntity, CityEntity } from './entities';
 import * as dotenv from 'dotenv';
+import {
+    UserEntity,
+    UserInfoEntity,
+    CityEntity,
+    UserTokenEntity,
+} from './entities';
 
 dotenv.config();
 const { env } = process;
@@ -15,6 +20,6 @@ export const appDataSource = new DataSource({
     logging: Boolean(env.DB_LOGGING),
     synchronize: false,
     name: 'default',
-    entities: [UserEntity, UserInfoEntity, CityEntity],
+    entities: [UserEntity, UserInfoEntity, CityEntity, UserTokenEntity],
     migrations: ['migrations/**/*{.ts,.js}'],
 });
