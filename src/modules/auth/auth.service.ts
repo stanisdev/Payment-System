@@ -16,6 +16,7 @@ import { Utils } from '../../common/utils';
 import { appDataSource } from '../../db/dataSource';
 import { JwtExpiration, SignInResponse, EmptyObject } from '../../common/types';
 import { Jwt } from '../../common/jwt';
+import { redisClient } from 'src/common/redis';
 
 @Injectable()
 export class AuthService {
@@ -109,19 +110,18 @@ export class AuthService {
      * Login a user using the given 'memberId' and password
      * then return pair of the tokens
      */
-    async login(loginDto: LoginDto): Promise<SignInResponse[]> {
-        const user = await userRepository.findOneBy({
-            memberId: loginDto.memberId,
-        });
+    async login({ memberId, password }: LoginDto): Promise<SignInResponse[]> {
+        const user = await userRepository.findOneBy({ memberId });
         try {
             if (!(user instanceof Object)) {
                 throw new Error();
             }
             const match = await bcrypt.compare(
-                loginDto.password + user.salt,
+                password + user.salt,
                 user.password,
             );
             if (!match) {
+                await redisClient.incr(`memberId:${memberId}`);
                 throw new Error();
             }
         } catch {

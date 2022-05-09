@@ -5,9 +5,11 @@ import {
     HttpStatus,
     Body,
     UsePipes,
+    UseGuards,
 } from '@nestjs/common';
 import { SignInResponse, EmptyObject } from '../../common/types';
 import { DoesEmailExistPipe } from '../../common/pipes/does-email-exist.pipe';
+import { MaxLoginAttempts } from 'src/common/guards/max-login-attempts.guard.ts';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { LoginDto } from './dto/login.dto';
@@ -24,6 +26,7 @@ export class AuthController {
     }
 
     @Post('/login')
+    @UseGuards(MaxLoginAttempts)
     @HttpCode(HttpStatus.OK)
     async login(@Body() loginDto: LoginDto): Promise<SignInResponse[]> {
         return this.authService.login(loginDto);
