@@ -5,6 +5,7 @@ import {
     Injectable,
     InternalServerErrorException,
 } from '@nestjs/common';
+import { strictEqual as equal } from 'assert';
 import { ConfigService } from '@nestjs/config';
 import { capitalize } from 'lodash';
 import { EntityManager } from 'typeorm';
@@ -125,9 +126,7 @@ export class AuthService {
     ): Promise<SignInResponse[]> {
         const user = await userRepository.findOneBy({ memberId });
         try {
-            if (!(user instanceof Object)) {
-                throw new Error();
-            }
+            equal(user instanceof Object, true);
             const match = await bcrypt.compare(
                 password + user.salt,
                 user.password,
@@ -139,7 +138,7 @@ export class AuthService {
                 const key = `memberId:${memberId}`;
                 await redisClient.incr(key);
                 await redisClient.expire(key, seconds);
-                throw new Error();
+                equal(1, 0);
             }
         } catch {
             throw new ForbiddenException('Wrong credentials');

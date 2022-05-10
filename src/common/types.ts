@@ -64,3 +64,11 @@ export type UserLogData = {
     action: UserAction;
     details: string;
 };
+
+export type UserInfoResponse = {
+    id: number;
+    memberId: number;
+    email: string;
+    status: number;
+    createdAt: Date;
+};
