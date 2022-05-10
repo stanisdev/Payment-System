@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Length } from 'class-validator';
 import { UserInfoEntity } from './userInfo.entity';
 
-@Entity('cities')
+@Entity('Cities')
 export class CityEntity {
     @PrimaryGeneratedColumn()
     id: number;

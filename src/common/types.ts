@@ -1,5 +1,5 @@
 import { UserEntity, CityEntity } from '../db/entities';
-import { UserTokenType } from './enums';
+import { UserAction, UserTokenType } from './enums';
 
 export type BasicUserData = {
     memberId: number;
@@ -58,3 +58,9 @@ export type SignInResponse = {
 };
 
 export type EmptyObject = {};
+
+export type UserLogData = {
+    user: UserEntity;
+    action: UserAction;
+    details: string;
+};

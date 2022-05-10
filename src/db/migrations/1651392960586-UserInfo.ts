@@ -8,7 +8,7 @@ export class UserInfo1651392960586 implements MigrationInterface {
             CREATE TYPE Country AS ENUM ('Australia', 'Chile', 'Greece', 'Oman', 'Pakistan'); -- and so on
             CREATE TYPE Account AS ENUM ('Personal', 'Business');
 
-            CREATE TABLE UserInfo (
+            CREATE TABLE "UserInfo" (
                 id INTEGER DEFAULT nextval('UserInfo_id_seq') PRIMARY KEY,
                 "userId" INTEGER NOT NULL UNIQUE,
                 "accountName" VARCHAR(50),
@@ -22,20 +22,20 @@ export class UserInfo1651392960586 implements MigrationInterface {
 
                 CONSTRAINT fk_user
                     FOREIGN KEY("userId")
-                    REFERENCES Users(id)
+                    REFERENCES "Users"(id)
                     ON UPDATE CASCADE
                     ON DELETE RESTRICT,
 
                 CONSTRAINT fk_city
                     FOREIGN KEY("cityId")
-                    REFERENCES Cities(id)
+                    REFERENCES "Cities"(id)
                     ON UPDATE CASCADE
                     ON DELETE RESTRICT
             );`);
     }
     async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
-            DROP TABLE UserInfo;
+            DROP TABLE "UserInfo";
             DROP TYPE Country;
             DROP TYPE Account;
             DROP SEQUENCE UserInfo_id_seq;`);

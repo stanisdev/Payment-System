@@ -6,6 +6,7 @@ import {
     Body,
     UsePipes,
     UseGuards,
+    Ip,
 } from '@nestjs/common';
 import { SignInResponse, EmptyObject } from '../../common/types';
 import { DoesEmailExistPipe } from '../../common/pipes/does-email-exist.pipe';
@@ -28,7 +29,10 @@ export class AuthController {
     @Post('/login')
     @UseGuards(MaxLoginAttempts)
     @HttpCode(HttpStatus.OK)
-    async login(@Body() loginDto: LoginDto): Promise<SignInResponse[]> {
-        return this.authService.login(loginDto);
+    async login(
+        @Body() loginDto: LoginDto,
+        @Ip() ip: string,
+    ): Promise<SignInResponse[]> {
+        return this.authService.login(loginDto, ip);
     }
 }

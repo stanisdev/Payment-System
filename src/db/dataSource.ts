@@ -5,6 +5,7 @@ import {
     UserInfoEntity,
     CityEntity,
     UserTokenEntity,
+    UserLogEntity,
 } from './entities';
 
 dotenv.config();
@@ -20,6 +21,12 @@ export const appDataSource = new DataSource({
     logging: Boolean(env.DB_LOGGING),
     synchronize: false,
     name: 'default',
-    entities: [UserEntity, UserInfoEntity, CityEntity, UserTokenEntity],
+    entities: [
+        UserEntity,
+        UserInfoEntity,
+        CityEntity,
+        UserTokenEntity,
+        UserLogEntity,
+    ],
     migrations: ['migrations/**/*{.ts,.js}'],
 });

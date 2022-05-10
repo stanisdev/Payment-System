@@ -6,6 +6,7 @@ import {
     UserTokenEntity,
 } from '../entities';
 import { appDataSource } from '../dataSource';
+import { userLogRepository } from './userLog.repository';
 
 const cityRepository: Repository<CityEntity> =
     appDataSource.getRepository(CityEntity);
@@ -21,4 +22,5 @@ export {
     userRepository,
     userInfoRepository,
     userTokenRepository,
+    userLogRepository,
 };

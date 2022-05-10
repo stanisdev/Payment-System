@@ -5,7 +5,7 @@ export class Users1651390732641 implements MigrationInterface {
         await queryRunner.query(`
             CREATE SEQUENCE Users_id_seq;
             
-            CREATE TABLE Users (
+            CREATE TABLE "Users" (
                 id INTEGER DEFAULT nextval('Users_id_seq') PRIMARY KEY,
                 "memberId" INTEGER NOT NULL UNIQUE,
                 email VARCHAR(60) NOT NULL UNIQUE,
@@ -15,12 +15,12 @@ export class Users1651390732641 implements MigrationInterface {
                 "createdAt" TIMESTAMP DEFAULT current_timestamp
             );
 
-            CREATE INDEX idx_users_member_id ON Users("memberId");`);
+            CREATE INDEX idx_users_member_id ON "Users"("memberId");`);
     }
     async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
             DROP INDEX idx_users_member_id;
-            DROP TABLE Users;
+            DROP TABLE "Users";
             DROP SEQUENCE Users_id_seq;`);
     }
 }

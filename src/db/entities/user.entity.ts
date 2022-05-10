@@ -14,8 +14,9 @@ import * as bcrypt from 'bcrypt';
 import { Utils } from '../../common/utils';
 import { UserInfoEntity } from './userInfo.entity';
 import { UserTokenEntity } from './userToken.entity';
+import { UserLogEntity } from './userLog.entity';
 
-@Entity('users')
+@Entity('Users')
 export class UserEntity {
     @PrimaryGeneratedColumn()
     id: number;
@@ -39,14 +40,17 @@ export class UserEntity {
     salt: string;
 
     @OneToOne(() => UserInfoEntity, (userInfo) => userInfo.user)
-    userInfo: UserInfoEntity;
+    info: UserInfoEntity;
 
     @Column()
     @Min(0)
     status: number;
 
     @OneToMany(() => UserTokenEntity, (userToken) => userToken.user)
-    userTokens: UserTokenEntity[];
+    tokens: UserTokenEntity[];
+
+    @OneToMany(() => UserLogEntity, (userLog) => userLog.user)
+    logs: UserLogEntity[];
 
     @CreateDateColumn()
     @IsDate()
