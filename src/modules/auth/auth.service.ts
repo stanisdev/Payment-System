@@ -1,5 +1,4 @@
 import * as bcrypt from 'bcrypt';
-import * as moment from 'moment';
 import {
     ForbiddenException,
     Injectable,
@@ -7,48 +6,31 @@ import {
 } from '@nestjs/common';
 import { strictEqual as equal } from 'assert';
 import { ConfigService } from '@nestjs/config';
-import { capitalize } from 'lodash';
 import { EntityManager } from 'typeorm';
 import { AuthServiceRepository } from './auth.repository';
-import { userRepository, userLogRepository } from '../../db/repositories';
+import {
+    userRepository,
+    userLogRepository,
+    userTokenRepository,
+} from '../../db/repositories';
 import { SignUpDto } from './dto/sign-up.dto';
 import { LoginDto } from './dto/login.dto';
 import { Utils } from '../../common/utils';
 import { appDataSource } from '../../db/dataSource';
-import { JwtExpiration, SignInResponse, EmptyObject } from '../../common/types';
+import { JwtCompleteData, EmptyObject } from '../../common/types';
 import { Jwt } from '../../common/jwt';
 import { redisClient } from 'src/common/redis';
-import { UserAction } from 'src/common/enums';
+import { UserAction, UserTokenType } from 'src/common/enums';
 import { UserEntity } from 'src/db/entities';
+import { UpdateTokenDto } from './dto/update-token.dto';
+import { UserTokenGenerator } from 'src/common/userTokenGenerator';
 
 @Injectable()
 export class AuthService {
-    private jwt: JwtExpiration;
-
-    /**
-     * The constructor of the class
-     */
     constructor(
         private readonly repository: AuthServiceRepository,
         private readonly configService: ConfigService,
-    ) {
-        const [accessDuration, accessUnit] = this.configService
-            .get('JWT_ACCESS_LIFETIME')
-            .split(' ');
-        const [refreshDuration, refreshUnit] = this.configService
-            .get('JWT_REFRESH_LIFETIME')
-            .split(' ');
-        this.jwt = {
-            access: {
-                unit: accessUnit,
-                duration: +accessDuration,
-            },
-            refresh: {
-                unit: refreshUnit,
-                duration: +refreshDuration,
-            },
-        };
-    }
+    ) {}
 
     /**
      * Register a new user by creating appropriate
@@ -123,7 +105,7 @@ export class AuthService {
     async login(
         { memberId, password }: LoginDto,
         ip: string,
-    ): Promise<SignInResponse[]> {
+    ): Promise<JwtCompleteData[]> {
         const user = await userRepository.findOneBy({ memberId });
         try {
             equal(user instanceof Object, true);
@@ -133,7 +115,7 @@ export class AuthService {
             );
             if (!match) {
                 const seconds = +this.configService.get(
-                    'MAX_ATTEMPTS_TO_LOGIN_EXPIRATION',
+                    'MAX_LOGIN_ATTEMPTS_EXPIRATION',
                 );
                 const key = `memberId:${memberId}`;
                 await redisClient.incr(key);
@@ -141,15 +123,13 @@ export class AuthService {
                 equal(1, 0);
             }
         } catch {
+            // @todo: use i18next
             throw new ForbiddenException('Wrong credentials');
         }
+        const tokens = await this.generateJwtTokens(user);
         /**
-         * Get tokens and write the appropriate log
+         * Log the executed action
          */
-        const tasks = ['access', 'refresh'].map((tokenType) =>
-            this.generateJwtToken(tokenType, user),
-        );
-        const tokens = await Promise.all(tasks);
         const logData = {
             user,
             action: UserAction.LOGIN,
@@ -160,30 +140,56 @@ export class AuthService {
     }
 
     /**
-     * Generate pairs of jwt-tokens and save the related data
+     * Generate and get pair of the 'access-token' and
+     * an appropriate 'refresh' one
      */
-    private async generateJwtToken(type: string, user: UserEntity) {
-        const code = await Utils.generateRandomString({ length: 20 });
-        const { unit, duration } = this.jwt[type];
-        const expireAt = moment().add(unit, duration).toDate();
-        const tokenData = {
+    private async generateJwtTokens(
+        user: UserEntity,
+    ): Promise<JwtCompleteData[]> {
+        /**
+         * Generate refresh token
+         */
+        const refreshTokenGenerator = new UserTokenGenerator(
             user,
-            code,
-            expireAt,
-            type: capitalize(type),
+            UserTokenType.REFRESH,
+            +this.configService.get('JWT_REFRESH_LIFETIME'),
+        );
+        await refreshTokenGenerator.generateAndSave();
+        await refreshTokenGenerator.sign();
+        /**
+         * Generate access token
+         */
+        const accessTokenGenerator = new UserTokenGenerator(
+            user,
+            UserTokenType.ACCESS,
+            +this.configService.get('JWT_ACCESS_LIFETIME'),
+            refreshTokenGenerator.record.id,
+        );
+        await accessTokenGenerator.generateAndSave();
+        await accessTokenGenerator.sign();
+
+        return [
+            accessTokenGenerator.tokenData,
+            refreshTokenGenerator.tokenData,
+        ];
+    }
+
+    /**
+     * Validate the given 'refresh-token' and then
+     * generate the new pairs of tokens
+     */
+    async updateToken({
+        refreshToken,
+    }: UpdateTokenDto): Promise<JwtCompleteData[]> {
+        const data = await Jwt.verify(refreshToken);
+        const userToken = await Jwt.findInDb(data);
+        const validationOptions = {
+            token: userToken,
+            type: UserTokenType.REFRESH,
+            data,
         };
-        await this.repository.createUserToken(tokenData);
-        const jwtOptions = {
-            data: {
-                userId: user.id,
-                code,
-            },
-            expiresIn: expireAt.getTime(),
-        };
-        return {
-            type,
-            token: await Jwt.sign(jwtOptions),
-            expireAt,
-        };
+        Jwt.validate(validationOptions);
+        await this.repository.deleteTokens(userToken);
+        return this.generateJwtTokens(userToken.user);
     }
 }

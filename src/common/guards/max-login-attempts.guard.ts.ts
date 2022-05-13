@@ -14,7 +14,7 @@ export class MaxLoginAttempts implements CanActivate {
 
         if (
             !Number.isNaN(attemptsCount) &&
-            attemptsCount >= +process.env.MAX_ATTEMPTS_TO_LOGIN
+            attemptsCount >= +process.env.MAX_LOGIN_ATTEMPTS
         ) {
             throw new ForbiddenException(
                 'You have reached maximum attempts of signing in',

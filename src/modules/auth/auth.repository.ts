@@ -6,7 +6,7 @@ import {
     UserInfoEntity,
     UserTokenEntity,
 } from '../../db/entities';
-import { BasicUserData, UserInfoData, UserTokenData } from '../../common/types';
+import { BasicUserData, UserInfoData } from '../../common/types';
 import { cityRepository, userTokenRepository } from '../../db/repositories';
 
 @Injectable()
@@ -60,13 +60,12 @@ export class AuthServiceRepository {
         await transactionalEntityManager.save(userInfo);
     }
 
-    async createUserToken(data: UserTokenData): Promise<void> {
-        const userToken = new UserTokenEntity();
-        userToken.user = data.user;
-        userToken.type = data.type;
-        userToken.code = data.code;
-        userToken.expireAt = data.expireAt;
-
-        await userTokenRepository.save(data);
+    async deleteTokens(refreshToken: UserTokenEntity): Promise<void> {
+        await userTokenRepository
+            .createQueryBuilder()
+            .delete()
+            .where('relatedTokenId = :id', { id: refreshToken.id })
+            .execute();
+        await userTokenRepository.remove(refreshToken);
     }
 }

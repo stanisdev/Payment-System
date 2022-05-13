@@ -1,4 +1,4 @@
-import { UserEntity, CityEntity } from '../db/entities';
+import { UserEntity, CityEntity, UserTokenEntity } from '../db/entities';
 import { UserAction, UserTokenType } from './enums';
 
 export type BasicUserData = {
@@ -30,16 +30,7 @@ export type UserTokenData = {
     type: UserTokenType;
     code: string;
     expireAt: Date;
-};
-
-export type TimeInterval = {
-    unit: string;
-    duration: number;
-};
-
-export type JwtExpiration = {
-    access: TimeInterval;
-    refresh: TimeInterval;
+    relatedTokenId?: number;
 };
 
 export type JwtSignOptions = {
@@ -47,11 +38,17 @@ export type JwtSignOptions = {
     expiresIn: number;
 };
 
+export type JwtValidateOptions = {
+    token: UserTokenEntity;
+    type: UserTokenType;
+    data: PlainHashMap;
+};
+
 export type PlainHashMap = {
     [key: string]: string | number;
 };
 
-export type SignInResponse = {
+export type JwtCompleteData = {
     type: string;
     token: string;
     expireAt: Date;
