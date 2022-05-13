@@ -4,15 +4,12 @@ import {
     Injectable,
     InternalServerErrorException,
 } from '@nestjs/common';
+import * as i18next from 'i18next';
 import { strictEqual as equal } from 'assert';
 import { ConfigService } from '@nestjs/config';
 import { EntityManager } from 'typeorm';
 import { AuthServiceRepository } from './auth.repository';
-import {
-    userRepository,
-    userLogRepository,
-    userTokenRepository,
-} from '../../db/repositories';
+import { userRepository, userLogRepository } from '../../db/repositories';
 import { SignUpDto } from './dto/sign-up.dto';
 import { LoginDto } from './dto/login.dto';
 import { Utils } from '../../common/utils';
@@ -94,8 +91,9 @@ export class AuthService {
                 return memberId;
             }
         }
-        // @todo: use i18next
-        throw new InternalServerErrorException('User cannot be created');
+        throw new InternalServerErrorException(
+            i18next.t('unable-to-create-user'),
+        );
     }
 
     /**
@@ -123,8 +121,7 @@ export class AuthService {
                 equal(1, 0);
             }
         } catch {
-            // @todo: use i18next
-            throw new ForbiddenException('Wrong credentials');
+            throw new ForbiddenException(i18next.t('wrong-credentials'));
         }
         const tokens = await this.generateJwtTokens(user);
         /**
