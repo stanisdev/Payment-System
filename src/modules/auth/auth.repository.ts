@@ -60,12 +60,20 @@ export class AuthServiceRepository {
         await transactionalEntityManager.save(userInfo);
     }
 
-    async deleteTokens(refreshToken: UserTokenEntity): Promise<void> {
+    async deletePairOfTokens(refreshTokenId: number): Promise<void> {
         await userTokenRepository
             .createQueryBuilder()
             .delete()
-            .where('relatedTokenId = :id', { id: refreshToken.id })
+            .where('id = :id', { id: refreshTokenId })
+            .orWhere('relatedTokenId = :id', { id: refreshTokenId })
             .execute();
-        await userTokenRepository.remove(refreshToken);
+    }
+
+    async deleteAllTokens(userId: number): Promise<void> {
+        await userTokenRepository
+            .createQueryBuilder()
+            .delete()
+            .where('userId = :userId', { userId })
+            .execute();
     }
 }

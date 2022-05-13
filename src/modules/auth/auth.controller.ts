@@ -7,6 +7,9 @@ import {
     UsePipes,
     UseGuards,
     Ip,
+    Get,
+    Query,
+    Req,
 } from '@nestjs/common';
 import { JwtCompleteData, EmptyObject } from '../../common/types';
 import { DoesEmailExistPipe } from '../../common/pipes/does-email-exist.pipe';
@@ -15,6 +18,7 @@ import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { LoginDto } from './dto/login.dto';
 import { UpdateTokenDto } from './dto/update-token.dto';
+import { Request } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -24,7 +28,8 @@ export class AuthController {
     @UsePipes(DoesEmailExistPipe)
     @HttpCode(HttpStatus.CREATED)
     async signUp(@Body() signUpDto: SignUpDto): Promise<EmptyObject> {
-        return this.authService.signUp(signUpDto);
+        await this.authService.signUp(signUpDto);
+        return {};
     }
 
     @Post('/login')
@@ -43,5 +48,18 @@ export class AuthController {
         @Body() updateTokenDto: UpdateTokenDto,
     ): Promise<JwtCompleteData[]> {
         return this.authService.updateToken(updateTokenDto);
+    }
+
+    @Get('/logout')
+    @HttpCode(HttpStatus.OK)
+    async logout(
+        @Req() { headers }: Request,
+        @Query('allDevices') allDevices?: boolean,
+    ): Promise<EmptyObject> {
+        await this.authService.logout(
+            headers.accessToken.toString(),
+            Boolean(allDevices),
+        );
+        return {};
     }
 }

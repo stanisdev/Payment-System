@@ -33,7 +33,7 @@ export class AuthService {
      * Register a new user by creating appropriate
      * records in the DB
      */
-    async signUp(signUpDto: SignUpDto): Promise<EmptyObject> {
+    async signUp(signUpDto: SignUpDto): Promise<void> {
         const memberId = await this.generateMemberId();
 
         const userData = {
@@ -70,7 +70,6 @@ export class AuthService {
             details: 'Member ID: ' + memberId,
         };
         await userLogRepository.createOne(logData);
-        return {};
     }
 
     /**
@@ -186,7 +185,26 @@ export class AuthService {
             data,
         };
         Jwt.validate(validationOptions);
-        await this.repository.deleteTokens(userToken);
+        await this.repository.deletePairOfTokens(userToken.id);
         return this.generateJwtTokens(userToken.user);
+    }
+
+    /**
+     * Disconnect the user from the server and prevent
+     * further interaction within the given token
+     */
+    async logout(accessToken: string, allDevices: boolean): Promise<void> {
+        const data = await Jwt.verify(accessToken);
+        const userToken = await Jwt.findInDb(data);
+        Jwt.validate({
+            token: userToken,
+            type: UserTokenType.ACCESS,
+            data,
+        });
+        if (allDevices) {
+            await this.repository.deleteAllTokens(userToken.user.id);
+        } else {
+            await this.repository.deletePairOfTokens(userToken.relatedTokenId);
+        }
     }
 }
