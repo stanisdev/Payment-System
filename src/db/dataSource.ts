@@ -6,6 +6,9 @@ import {
     CityEntity,
     UserTokenEntity,
     UserLogEntity,
+    WalletEntity,
+    WalletTypeEntity,
+    WalletCategoryEntity,
 } from './entities';
 
 dotenv.config();
@@ -27,6 +30,9 @@ export const appDataSource = new DataSource({
         CityEntity,
         UserTokenEntity,
         UserLogEntity,
+        WalletEntity,
+        WalletTypeEntity,
+        WalletCategoryEntity,
     ],
     migrations: ['migrations/**/*{.ts,.js}'],
 });
