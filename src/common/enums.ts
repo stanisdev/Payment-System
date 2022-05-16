@@ -9,3 +9,16 @@ export enum UserAction {
     CREATE = 'Create',
     CHANGE = 'Change',
 }
+
+export enum WalletType {
+    US_DOLLAR = 1,
+    EURO = 2,
+    GOLD = 3,
+    BITCOIN = 4,
+}
+
+export enum LoggerTemplate {
+    SIGNUP = 'Member ID: ',
+    SIGNIN = 'IP: ',
+    PLAIN = '',
+}

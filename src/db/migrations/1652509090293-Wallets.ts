@@ -13,6 +13,8 @@ export class Wallets1652509090293 implements MigrationInterface {
                 identifier INTEGER NOT NULL,
                 "createdAt" TIMESTAMP DEFAULT current_timestamp,
 
+                UNIQUE("typeId", identifier),
+
                 CONSTRAINT fk_user
                     FOREIGN KEY("userId")
                     REFERENCES "Users"(id)

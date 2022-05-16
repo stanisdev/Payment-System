@@ -1,5 +1,6 @@
-import { IsDate } from 'class-validator';
+import { IsDate, IsInt } from 'class-validator';
 import {
+    Column,
     CreateDateColumn,
     Entity,
     ManyToOne,
@@ -19,8 +20,16 @@ export class WalletEntity {
     @ManyToOne(() => WalletTypeEntity, (type) => type.wallets)
     type: WalletTypeEntity;
 
+    @Column()
+    @IsInt()
+    typeId: number;
+
+    @Column()
+    @IsInt()
     balance: number;
 
+    @Column()
+    @IsInt()
     identifier: number;
 
     @CreateDateColumn()

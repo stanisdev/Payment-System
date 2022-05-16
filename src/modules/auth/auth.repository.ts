@@ -1,11 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
-import {
-    CityEntity,
-    UserEntity,
-    UserInfoEntity,
-    UserTokenEntity,
-} from '../../db/entities';
+import { CityEntity, UserEntity, UserInfoEntity } from '../../db/entities';
 import { BasicUserData, UserInfoData } from '../../common/types';
 import { cityRepository, userTokenRepository } from '../../db/repositories';
 

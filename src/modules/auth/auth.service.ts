@@ -9,18 +9,23 @@ import { strictEqual as equal } from 'assert';
 import { ConfigService } from '@nestjs/config';
 import { EntityManager } from 'typeorm';
 import { AuthServiceRepository } from './auth.repository';
-import { userRepository, userLogRepository } from '../../db/repositories';
+import { userRepository } from '../../db/repositories';
 import { SignUpDto } from './dto/sign-up.dto';
 import { LoginDto } from './dto/login.dto';
 import { Utils } from '../../common/utils';
 import { appDataSource } from '../../db/dataSource';
-import { JwtCompleteData, EmptyObject } from '../../common/types';
+import {
+    BasicUserData,
+    JwtCompleteData,
+    UserActivityData,
+} from '../../common/types';
 import { Jwt } from '../../common/jwt';
 import { redisClient } from 'src/common/redis';
-import { UserAction, UserTokenType } from 'src/common/enums';
+import { LoggerTemplate, UserAction, UserTokenType } from 'src/common/enums';
 import { UserEntity } from 'src/db/entities';
 import { UpdateTokenDto } from './dto/update-token.dto';
 import { UserTokenGenerator } from 'src/common/userTokenGenerator';
+import { UserActivityLogger } from 'src/common/userActivityLogger';
 
 @Injectable()
 export class AuthService {
@@ -36,7 +41,7 @@ export class AuthService {
     async signUp(signUpDto: SignUpDto): Promise<void> {
         const memberId = await this.generateMemberId();
 
-        const userData = {
+        const userData: BasicUserData = {
             memberId,
             email: signUpDto.email,
             password: signUpDto.password,
@@ -64,12 +69,13 @@ export class AuthService {
                 );
             },
         );
-        const logData = {
+        const logData: UserActivityData = {
             user,
             action: UserAction.CREATE,
-            details: 'Member ID: ' + memberId,
+            template: LoggerTemplate.SIGNUP,
+            metadata: memberId.toString(),
         };
-        await userLogRepository.createOne(logData);
+        await UserActivityLogger.write(logData);
     }
 
     /**
@@ -126,12 +132,13 @@ export class AuthService {
         /**
          * Log the executed action
          */
-        const logData = {
+        const logData: UserActivityData = {
             user,
             action: UserAction.LOGIN,
-            details: 'Login IP : ' + ip,
+            template: LoggerTemplate.SIGNIN,
+            metadata: ip,
         };
-        await userLogRepository.createOne(logData);
+        await UserActivityLogger.write(logData);
         return tokens;
     }
 
@@ -206,5 +213,10 @@ export class AuthService {
         } else {
             await this.repository.deletePairOfTokens(userToken.relatedTokenId);
         }
+        await UserActivityLogger.write({
+            user: userToken.user,
+            action: UserAction.LOGOUT,
+            template: LoggerTemplate.PLAIN,
+        });
     }
 }

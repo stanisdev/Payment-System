@@ -1,11 +1,17 @@
 import { UserEntity, CityEntity, UserTokenEntity } from '../db/entities';
-import { UserAction, UserTokenType } from './enums';
+import { LoggerTemplate, UserAction, UserTokenType, WalletType } from './enums';
 
 export type BasicUserData = {
     memberId: number;
     email: string;
     password: string;
     status: number;
+};
+
+export type BasicWalletData = {
+    user: UserEntity;
+    identifier: number;
+    type: WalletType;
 };
 
 export type UserInfoData = {
@@ -31,6 +37,13 @@ export type UserTokenData = {
     code: string;
     expireAt: Date;
     relatedTokenId?: number;
+};
+
+export type UserActivityData = {
+    user: UserEntity;
+    action: UserAction;
+    template: LoggerTemplate;
+    metadata?: string;
 };
 
 export type JwtSignOptions = {

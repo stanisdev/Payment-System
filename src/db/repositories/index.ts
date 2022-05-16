@@ -4,9 +4,12 @@ import {
     UserEntity,
     UserInfoEntity,
     UserTokenEntity,
+    WalletCategoryEntity,
+    WalletTypeEntity,
+    WalletEntity,
+    UserLogEntity,
 } from '../entities';
 import { appDataSource } from '../dataSource';
-import { userLogRepository } from './userLog.repository';
 
 const cityRepository: Repository<CityEntity> =
     appDataSource.getRepository(CityEntity);
@@ -16,6 +19,14 @@ const userInfoRepository: Repository<UserInfoEntity> =
     appDataSource.getRepository(UserInfoEntity);
 const userTokenRepository: Repository<UserTokenEntity> =
     appDataSource.getRepository(UserTokenEntity);
+const userLogRepository: Repository<UserLogEntity> =
+    appDataSource.getRepository(UserLogEntity);
+const walletCategoryRepository: Repository<WalletCategoryEntity> =
+    appDataSource.getRepository(WalletCategoryEntity);
+const walletTypeRepository: Repository<WalletTypeEntity> =
+    appDataSource.getRepository(WalletTypeEntity);
+const walletRepository: Repository<WalletEntity> =
+    appDataSource.getRepository(WalletEntity);
 
 export {
     cityRepository,
@@ -23,4 +34,7 @@ export {
     userInfoRepository,
     userTokenRepository,
     userLogRepository,
+    walletCategoryRepository,
+    walletTypeRepository,
+    walletRepository,
 };
