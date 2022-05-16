@@ -21,17 +21,24 @@ import {
 } from '../../common/types';
 import { Jwt } from '../../common/jwt';
 import { redisClient } from 'src/common/redis';
-import { LoggerTemplate, UserAction, UserTokenType } from 'src/common/enums';
+import {
+    LoggerTemplate,
+    UserAction,
+    UserTokenType,
+    WalletType,
+} from 'src/common/enums';
 import { UserEntity } from 'src/db/entities';
 import { UpdateTokenDto } from './dto/update-token.dto';
 import { UserTokenGenerator } from 'src/common/userTokenGenerator';
 import { UserActivityLogger } from 'src/common/userActivityLogger';
+import { WalletService } from '../wallet/wallet.service';
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly repository: AuthServiceRepository,
         private readonly configService: ConfigService,
+        private readonly walletService: WalletService,
     ) {}
 
     /**
@@ -69,6 +76,16 @@ export class AuthService {
                 );
             },
         );
+        /**
+         * Create initial user's wallets
+         */
+        const tasks = [
+            WalletType.US_DOLLAR,
+            WalletType.EURO,
+            WalletType.GOLD,
+        ].map((walletType) => this.walletService.create(walletType, user));
+        await Promise.all(tasks);
+
         const logData: UserActivityData = {
             user,
             action: UserAction.CREATE,

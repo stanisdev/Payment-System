@@ -5,6 +5,7 @@ import { WalletServiceRepository } from './wallet.repository';
 import { WalletService } from './wallet.service';
 
 @Module({
+    exports: [WalletService],
     controllers: [WalletController],
     providers: [WalletService, WalletServiceRepository, ConfigService],
 })

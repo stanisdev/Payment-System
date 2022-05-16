@@ -82,3 +82,13 @@ export type UserInfoResponse = {
     status: number;
     createdAt: Date;
 };
+
+export type WalletsListResult = {
+    identifier: number;
+    type: string;
+};
+
+export type Pagination = {
+    limit: number;
+    page: number;
+};

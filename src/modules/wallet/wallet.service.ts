@@ -6,7 +6,12 @@ import {
 import { ConfigService } from '@nestjs/config';
 import * as i18next from 'i18next';
 import { LoggerTemplate, UserAction, WalletType } from 'src/common/enums';
-import { BasicWalletData, UserActivityData } from 'src/common/types';
+import {
+    BasicWalletData,
+    Pagination,
+    UserActivityData,
+    WalletsListResult,
+} from 'src/common/types';
 import { UserActivityLogger } from 'src/common/userActivityLogger';
 import { Utils } from 'src/common/utils';
 import { UserEntity, WalletEntity } from 'src/db/entities';
@@ -70,5 +75,18 @@ export class WalletService {
         throw new ServiceUnavailableException(
             i18next.t('unable-to-generate-identifier'),
         );
+    }
+
+    /**
+     * Get list of user's wallets
+     */
+    async getList({ limit, page }: Pagination): Promise<WalletsListResult[]> {
+        const offset = limit * page;
+        const wallets = await this.repository.getList(limit, offset);
+
+        return wallets.map((wallet) => ({
+            identifier: wallet.identifier,
+            type: wallet.type.name,
+        }));
     }
 }
