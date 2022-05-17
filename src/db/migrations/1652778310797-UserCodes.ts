@@ -1,16 +1,15 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class UserTokens1651837134325 implements MigrationInterface {
+export class UserCodes1652778310797 implements MigrationInterface {
     async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
-            CREATE SEQUENCE UserTokens_id_seq;
-            CREATE TYPE UserTokenType AS ENUM ('Access', 'Refresh');
+            CREATE SEQUENCE UserCodes_id_seq;
 
-            CREATE TABLE "UserTokens" (
-                id INTEGER DEFAULT nextval('UserTokens_id_seq') PRIMARY KEY,
+            CREATE TABLE "UserCodes" (
+                id INTEGER DEFAULT nextval('UserCodes_id_seq') PRIMARY KEY,
                 "userId" INTEGER NOT NULL,
-                type UserTokenType NOT NULL,
                 code VARCHAR(20) NOT NULL,
+                action VARCHAR(100) NOT NULL,
                 "expireAt" TIMESTAMP NOT NULL,
 
                 CONSTRAINT fk_user
@@ -23,9 +22,8 @@ export class UserTokens1651837134325 implements MigrationInterface {
     }
     async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
-            DROP TABLE "UserTokens";
-            DROP TYPE UserTokenType;
-            DROP SEQUENCE UserTokens_id_seq;
+            DROP TABLE "UserCodes";
+            DROP SEQUENCE UserCodes_id_seq;
         `);
     }
 }

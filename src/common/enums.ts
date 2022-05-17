@@ -8,6 +8,8 @@ export enum UserAction {
     LOGOUT = 'Logout',
     CREATE = 'Create',
     CHANGE = 'Change',
+    RESTORE_PASSWORD_INITIATE = 'RestoreRasswordInitiate',
+    RESTORE_PASSWORD_COMPLETE = 'RestorePasswordComplete',
 }
 
 export enum WalletType {

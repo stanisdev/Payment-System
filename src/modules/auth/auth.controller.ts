@@ -10,6 +10,7 @@ import {
     Get,
     Query,
     Req,
+    Put,
 } from '@nestjs/common';
 import { JwtCompleteData, EmptyObject } from '../../common/types';
 import { DoesEmailExistPipe } from '../../common/pipes/does-email-exist.pipe';
@@ -19,6 +20,7 @@ import { SignUpDto } from './dto/sign-up.dto';
 import { LoginDto } from './dto/login.dto';
 import { UpdateTokenDto } from './dto/update-token.dto';
 import { Request } from 'express';
+import { RestorePasswordInitiateDto } from './dto/restore-password-initiate.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -61,5 +63,25 @@ export class AuthController {
             Boolean(allDevices),
         );
         return {};
+    }
+
+    @Post('/restore-password:initiate')
+    @HttpCode(HttpStatus.OK)
+    async restorePassword(
+        @Body() dto: RestorePasswordInitiateDto,
+    ): Promise<EmptyObject> {
+        return this.authService.restorePasswordInitiate(dto);
+    }
+
+    @Post('/restore-password:confirm-code')
+    @HttpCode(HttpStatus.OK)
+    async restorePasswordConfirmCode() {
+        return this.authService.restorePasswordConfirmCode();
+    }
+
+    @Put('/restore-password:complete')
+    @HttpCode(HttpStatus.OK)
+    async restorePasswordComplete() {
+        return this.authService.restorePasswordComplete();
     }
 }

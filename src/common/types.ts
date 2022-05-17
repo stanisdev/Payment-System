@@ -92,3 +92,10 @@ export type Pagination = {
     limit: number;
     page: number;
 };
+
+export type BasicUserCodeData = {
+    user: UserEntity;
+    code: string;
+    action: UserAction;
+    expireAt: Date;
+};

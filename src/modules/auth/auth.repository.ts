@@ -1,8 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
 import { CityEntity, UserEntity, UserInfoEntity } from '../../db/entities';
-import { BasicUserData, UserInfoData } from '../../common/types';
-import { cityRepository, userTokenRepository } from '../../db/repositories';
+import {
+    BasicUserCodeData,
+    BasicUserData,
+    UserInfoData,
+} from '../../common/types';
+import {
+    cityRepository,
+    userCodeRepository,
+    userTokenRepository,
+} from '../../db/repositories';
 
 @Injectable()
 export class AuthServiceRepository {
@@ -41,18 +49,12 @@ export class AuthServiceRepository {
         transactionalEntityManager: EntityManager,
         data: UserInfoData,
     ): Promise<void> {
-        const userInfo = new UserInfoEntity();
-        userInfo.accountName = data.accountName;
-        userInfo.city = data.city;
-        userInfo.user = data.user;
-        userInfo.fullName = data.fullName;
-        userInfo.country = data.country;
-        userInfo.address = data.address;
-        userInfo.phone = data.phone;
-        userInfo.zipCode = data.zipCode;
-        userInfo.accountType = data.accountType;
-
-        await transactionalEntityManager.save(userInfo);
+        transactionalEntityManager
+            .createQueryBuilder()
+            .insert()
+            .into(UserInfoEntity)
+            .values(data)
+            .execute();
     }
 
     async deletePairOfTokens(refreshTokenId: number): Promise<void> {
@@ -69,6 +71,24 @@ export class AuthServiceRepository {
             .createQueryBuilder()
             .delete()
             .where('userId = :userId', { userId })
+            .execute();
+    }
+
+    async createUserCode({
+        user,
+        code,
+        action,
+        expireAt,
+    }: BasicUserCodeData): Promise<void> {
+        await userCodeRepository
+            .createQueryBuilder()
+            .insert()
+            .values({
+                user,
+                code,
+                action,
+                expireAt,
+            })
             .execute();
     }
 }

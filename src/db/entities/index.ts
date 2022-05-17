@@ -6,6 +6,7 @@ import { UserLogEntity } from './userLog.entity';
 import { WalletEntity } from './wallet.entity';
 import { WalletCategoryEntity } from './walletCategory.entity';
 import { WalletTypeEntity } from './walletType.entity';
+import { UserCodeEntity } from './userCode.entity';
 
 export {
     CityEntity,
@@ -13,6 +14,7 @@ export {
     UserInfoEntity,
     UserTokenEntity,
     UserLogEntity,
+    UserCodeEntity,
     WalletEntity,
     WalletTypeEntity,
     WalletCategoryEntity,

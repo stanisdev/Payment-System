@@ -1,4 +1,5 @@
 import * as bcrypt from 'bcrypt';
+import * as moment from 'moment';
 import {
     ForbiddenException,
     Injectable,
@@ -15,7 +16,9 @@ import { LoginDto } from './dto/login.dto';
 import { Utils } from '../../common/utils';
 import { appDataSource } from '../../db/dataSource';
 import {
+    BasicUserCodeData,
     BasicUserData,
+    EmptyObject,
     JwtCompleteData,
     UserActivityData,
 } from '../../common/types';
@@ -32,6 +35,7 @@ import { UpdateTokenDto } from './dto/update-token.dto';
 import { UserTokenGenerator } from 'src/common/userTokenGenerator';
 import { UserActivityLogger } from 'src/common/userActivityLogger';
 import { WalletService } from '../wallet/wallet.service';
+import { RestorePasswordInitiateDto } from './dto/restore-password-initiate.dto';
 
 @Injectable()
 export class AuthService {
@@ -236,4 +240,51 @@ export class AuthService {
             template: LoggerTemplate.PLAIN,
         });
     }
+
+    /**
+     * Initiate the process of restoring a user password by
+     * validating the given 'memberId' and 'email'
+     * and then creating a confirmation code
+     */
+    async restorePasswordInitiate({
+        email,
+        memberId,
+    }: RestorePasswordInitiateDto): Promise<EmptyObject> {
+        const user = await userRepository.findOneBy({ email, memberId });
+        if (!(user instanceof UserEntity)) {
+            return;
+        }
+        const code = await Utils.generateRandomString({
+            onlyDigits: true,
+            length: 8,
+        });
+        const lifetime = +this.configService.get(
+            'RESTORE_PASSWORD_INITIATE_CODE_EXPIRATION',
+        );
+        const expireAt = moment().add(lifetime, 'minute').toDate();
+
+        const userCodeData: BasicUserCodeData = {
+            user,
+            code,
+            action: UserAction.RESTORE_PASSWORD_INITIATE,
+            expireAt,
+        };
+        await this.repository.createUserCode(userCodeData);
+        /**
+         * It's assumed an email with the code has been sent
+         */
+        return {};
+    }
+
+    /**
+     * The next step is to validate the confirmation code
+     * and allow a user to follow the last step
+     */
+    async restorePasswordConfirmCode() {}
+
+    /**
+     * Update the user's password by passing the new one
+     * as well as a special validation code.
+     */
+    async restorePasswordComplete() {}
 }
