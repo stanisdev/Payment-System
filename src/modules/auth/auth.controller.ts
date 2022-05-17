@@ -21,6 +21,7 @@ import { LoginDto } from './dto/login.dto';
 import { UpdateTokenDto } from './dto/update-token.dto';
 import { Request } from 'express';
 import { RestorePasswordInitiateDto } from './dto/restore-password-initiate.dto';
+import { RestorePasswordConfirmCodeDto } from './dto/restore-password-confirm-code.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -65,7 +66,7 @@ export class AuthController {
         return {};
     }
 
-    @Post('/restore-password:initiate')
+    @Post('/restore-password-initiate')
     @HttpCode(HttpStatus.OK)
     async restorePassword(
         @Body() dto: RestorePasswordInitiateDto,
@@ -73,13 +74,15 @@ export class AuthController {
         return this.authService.restorePasswordInitiate(dto);
     }
 
-    @Post('/restore-password:confirm-code')
+    @Post('/restore-password-confirm-code')
     @HttpCode(HttpStatus.OK)
-    async restorePasswordConfirmCode() {
-        return this.authService.restorePasswordConfirmCode();
+    async restorePasswordConfirmCode(
+        @Body() dto: RestorePasswordConfirmCodeDto,
+    ): Promise<string> {
+        return this.authService.restorePasswordConfirmCode(dto);
     }
 
-    @Put('/restore-password:complete')
+    @Put('/restore-password-complete')
     @HttpCode(HttpStatus.OK)
     async restorePasswordComplete() {
         return this.authService.restorePasswordComplete();

@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from 'typeorm';
-import { CityEntity, UserEntity, UserInfoEntity } from '../../db/entities';
+import {
+    CityEntity,
+    UserCodeEntity,
+    UserEntity,
+    UserInfoEntity,
+} from '../../db/entities';
 import {
     BasicUserCodeData,
     BasicUserData,
@@ -11,6 +16,7 @@ import {
     userCodeRepository,
     userTokenRepository,
 } from '../../db/repositories';
+import { UserAction } from 'src/common/enums';
 
 @Injectable()
 export class AuthServiceRepository {
@@ -90,5 +96,17 @@ export class AuthServiceRepository {
                 expireAt,
             })
             .execute();
+    }
+
+    async findUserCode(
+        code: string,
+        action: UserAction,
+    ): Promise<UserCodeEntity> {
+        return userCodeRepository
+            .createQueryBuilder('userCode')
+            .leftJoinAndSelect('userCode.user', 'user')
+            .where('userCode.code = :code', { code })
+            .andWhere('userCode.action = :action', { action })
+            .getOne();
     }
 }

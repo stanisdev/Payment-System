@@ -1,16 +1,17 @@
 import * as bcrypt from 'bcrypt';
 import * as moment from 'moment';
 import {
+    BadRequestException,
     ForbiddenException,
     Injectable,
     InternalServerErrorException,
 } from '@nestjs/common';
 import * as i18next from 'i18next';
-import { strictEqual as equal } from 'assert';
+import { strictEqual as equal, strictEqual } from 'assert';
 import { ConfigService } from '@nestjs/config';
 import { EntityManager } from 'typeorm';
 import { AuthServiceRepository } from './auth.repository';
-import { userRepository } from '../../db/repositories';
+import { userCodeRepository, userRepository } from '../../db/repositories';
 import { SignUpDto } from './dto/sign-up.dto';
 import { LoginDto } from './dto/login.dto';
 import { Utils } from '../../common/utils';
@@ -30,12 +31,13 @@ import {
     UserTokenType,
     WalletType,
 } from 'src/common/enums';
-import { UserEntity } from 'src/db/entities';
+import { UserCodeEntity, UserEntity } from 'src/db/entities';
 import { UpdateTokenDto } from './dto/update-token.dto';
 import { UserTokenGenerator } from 'src/common/userTokenGenerator';
 import { UserActivityLogger } from 'src/common/userActivityLogger';
 import { WalletService } from '../wallet/wallet.service';
 import { RestorePasswordInitiateDto } from './dto/restore-password-initiate.dto';
+import { RestorePasswordConfirmCodeDto } from './dto/restore-password-confirm-code.dto';
 
 @Injectable()
 export class AuthService {
@@ -278,9 +280,51 @@ export class AuthService {
 
     /**
      * The next step is to validate the confirmation code
-     * and allow a user to follow the last step
+     * and allow a user to follow the last step.
+     * The being returned code is used in the last
+     * step of the procedure
      */
-    async restorePasswordConfirmCode() {}
+    async restorePasswordConfirmCode({
+        code,
+    }: RestorePasswordConfirmCodeDto): Promise<string> {
+        const userCode = await this.repository.findUserCode(
+            code,
+            UserAction.RESTORE_PASSWORD_INITIATE,
+        );
+        try {
+            strictEqual(userCode instanceof UserCodeEntity, true);
+            strictEqual(userCode.expireAt > new Date(), true);
+        } catch {
+            throw new BadRequestException(
+                i18next.t('wrong-restore-password-code'),
+            );
+        }
+        /**
+         * Generate the last code that is used to complete
+         * the whole process of restoring the password
+         */
+        const completeCode = await Utils.generateRandomString({
+            length: 8,
+            onlyDigits: true,
+        });
+        const lifetime = +this.configService.get(
+            'RESTORE_PASSWORD_COMPLETE_CODE_EXPIRATION',
+        );
+        const expireAt = moment().add(lifetime, 'minute').toDate();
+
+        console.log(userCode);
+        const userCodeData: BasicUserCodeData = {
+            user: userCode.user,
+            code: completeCode,
+            action: UserAction.RESTORE_PASSWORD_COMPLETE,
+            expireAt,
+        };
+        await Promise.all([
+            this.repository.createUserCode(userCodeData),
+            userCodeRepository.remove(userCode),
+        ]);
+        return completeCode;
+    }
 
     /**
      * Update the user's password by passing the new one

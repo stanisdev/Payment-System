@@ -7,4 +7,5 @@ export const translation = {
         'Unable to generate an identifier of the wallet',
     'exceeded-amount-of-wallets':
         'You are limited to creating maximum 3 wallets per currency',
+    'wrong-restore-password-code': 'The given code is wrong or expired',
 };
