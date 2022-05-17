@@ -22,6 +22,7 @@ import { UpdateTokenDto } from './dto/update-token.dto';
 import { Request } from 'express';
 import { RestorePasswordInitiateDto } from './dto/restore-password-initiate.dto';
 import { RestorePasswordConfirmCodeDto } from './dto/restore-password-confirm-code.dto';
+import { RestorePasswordCompleteDto } from './dto/restore-password-complete.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -84,7 +85,9 @@ export class AuthController {
 
     @Put('/restore-password-complete')
     @HttpCode(HttpStatus.OK)
-    async restorePasswordComplete() {
-        return this.authService.restorePasswordComplete();
+    async restorePasswordComplete(
+        @Body() dto: RestorePasswordCompleteDto,
+    ): Promise<EmptyObject> {
+        return this.authService.restorePasswordComplete(dto);
     }
 }

@@ -38,6 +38,7 @@ import { UserActivityLogger } from 'src/common/userActivityLogger';
 import { WalletService } from '../wallet/wallet.service';
 import { RestorePasswordInitiateDto } from './dto/restore-password-initiate.dto';
 import { RestorePasswordConfirmCodeDto } from './dto/restore-password-confirm-code.dto';
+import { RestorePasswordCompleteDto } from './dto/restore-password-complete.dto';
 
 @Injectable()
 export class AuthService {
@@ -287,22 +288,10 @@ export class AuthService {
     async restorePasswordConfirmCode({
         code,
     }: RestorePasswordConfirmCodeDto): Promise<string> {
-        const userCode = await this.repository.findUserCode(
+        const userCode = await this.getAndValidateUserCode(
             code,
             UserAction.RESTORE_PASSWORD_INITIATE,
         );
-        try {
-            strictEqual(userCode instanceof UserCodeEntity, true);
-            strictEqual(userCode.expireAt > new Date(), true);
-        } catch {
-            throw new BadRequestException(
-                i18next.t('wrong-restore-password-code'),
-            );
-        }
-        /**
-         * Generate the last code that is used to complete
-         * the whole process of restoring the password
-         */
         const completeCode = await Utils.generateRandomString({
             length: 8,
             onlyDigits: true,
@@ -330,5 +319,46 @@ export class AuthService {
      * Update the user's password by passing the new one
      * as well as a special validation code.
      */
-    async restorePasswordComplete() {}
+    async restorePasswordComplete({
+        code,
+        password,
+    }: RestorePasswordCompleteDto): Promise<EmptyObject> {
+        const userCode = await this.getAndValidateUserCode(
+            code,
+            UserAction.RESTORE_PASSWORD_COMPLETE,
+        );
+        const { user } = userCode;
+
+        user.password = password;
+        const logData: UserActivityData = {
+            user,
+            action: UserAction.CHANGE,
+            template: LoggerTemplate.PASSWORD_CHANGED,
+        };
+        await Promise.all([
+            userRepository.save(user),
+            userCodeRepository.remove(userCode),
+            UserActivityLogger.write(logData),
+        ]);
+        return {};
+    }
+
+    /**
+     * Find 'userCode' record and validate it
+     */
+    private async getAndValidateUserCode(
+        code: string,
+        action: UserAction,
+    ): Promise<UserCodeEntity> {
+        const userCode = await this.repository.findUserCode(code, action);
+        try {
+            strictEqual(userCode instanceof UserCodeEntity, true);
+            strictEqual(userCode.expireAt > new Date(), true);
+        } catch {
+            throw new BadRequestException(
+                i18next.t('wrong-restore-password-code'),
+            );
+        }
+        return userCode;
+    }
 }

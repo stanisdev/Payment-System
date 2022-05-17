@@ -22,5 +22,6 @@ export enum WalletType {
 export enum LoggerTemplate {
     SIGNUP = 'Member ID: ',
     SIGNIN = 'IP: ',
+    PASSWORD_CHANGED = 'Password has been changed',
     PLAIN = '',
 }
