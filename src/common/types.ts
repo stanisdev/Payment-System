@@ -1,4 +1,9 @@
-import { UserEntity, CityEntity, UserTokenEntity } from '../db/entities';
+import {
+    UserEntity,
+    CityEntity,
+    UserTokenEntity,
+    WalletEntity,
+} from '../db/entities';
 import { LoggerTemplate, UserAction, UserTokenType, WalletType } from './enums';
 
 export type BasicUserData = {
@@ -98,4 +103,12 @@ export type BasicUserCodeData = {
     code: string;
     action: UserAction;
     expireAt: Date;
+};
+
+export type BasicPayeeData = {
+    user: UserEntity;
+    wallet: WalletEntity;
+    name: string;
+    email?: string;
+    phone?: string;
 };

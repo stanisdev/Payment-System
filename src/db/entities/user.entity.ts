@@ -17,6 +17,7 @@ import { UserTokenEntity } from './userToken.entity';
 import { UserLogEntity } from './userLog.entity';
 import { WalletEntity } from './wallet.entity';
 import { UserCodeEntity } from './userCode.entity';
+import { PayeeEntity } from './payee.entity';
 
 @Entity('Users')
 export class UserEntity {
@@ -59,6 +60,9 @@ export class UserEntity {
 
     @OneToMany(() => UserCodeEntity, (code) => code.user)
     codes: UserCodeEntity[];
+
+    @OneToMany(() => PayeeEntity, (payee) => payee.user)
+    payees: PayeeEntity[];
 
     @CreateDateColumn()
     @IsDate()

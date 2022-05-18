@@ -12,8 +12,6 @@ import { ConfigService } from '@nestjs/config';
 import { EntityManager } from 'typeorm';
 import { AuthServiceRepository } from './auth.repository';
 import { userCodeRepository, userRepository } from '../../db/repositories';
-import { SignUpDto } from './dto/sign-up.dto';
-import { LoginDto } from './dto/login.dto';
 import { Utils } from '../../common/utils';
 import { appDataSource } from '../../db/dataSource';
 import {
@@ -23,22 +21,26 @@ import {
     JwtCompleteData,
     UserActivityData,
 } from '../../common/types';
-import { Jwt } from '../../common/jwt';
-import { redisClient } from 'src/common/redis';
 import {
     LoggerTemplate,
     UserAction,
     UserTokenType,
     WalletType,
 } from 'src/common/enums';
+import { Jwt } from '../../common/jwt';
+import { redisClient } from 'src/common/redis';
 import { UserCodeEntity, UserEntity } from 'src/db/entities';
-import { UpdateTokenDto } from './dto/update-token.dto';
 import { UserTokenGenerator } from 'src/common/userTokenGenerator';
 import { UserActivityLogger } from 'src/common/userActivityLogger';
 import { WalletService } from '../wallet/wallet.service';
-import { RestorePasswordInitiateDto } from './dto/restore-password-initiate.dto';
-import { RestorePasswordConfirmCodeDto } from './dto/restore-password-confirm-code.dto';
-import { RestorePasswordCompleteDto } from './dto/restore-password-complete.dto';
+import {
+    LoginDto,
+    RestorePasswordCompleteDto,
+    RestorePasswordConfirmCodeDto,
+    RestorePasswordInitiateDto,
+    SignUpDto,
+    UpdateTokenDto,
+} from './dto';
 
 @Injectable()
 export class AuthService {

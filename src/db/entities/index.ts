@@ -7,6 +7,7 @@ import { WalletEntity } from './wallet.entity';
 import { WalletCategoryEntity } from './walletCategory.entity';
 import { WalletTypeEntity } from './walletType.entity';
 import { UserCodeEntity } from './userCode.entity';
+import { PayeeEntity } from './payee.entity';
 
 export {
     CityEntity,
@@ -18,4 +19,5 @@ export {
     WalletEntity,
     WalletTypeEntity,
     WalletCategoryEntity,
+    PayeeEntity,
 };

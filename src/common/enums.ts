@@ -23,5 +23,6 @@ export enum LoggerTemplate {
     SIGNUP = 'Member ID: ',
     SIGNIN = 'IP: ',
     PASSWORD_CHANGED = 'Password has been changed',
+    PAYEE_ADDED = 'Added a payee: ',
     PLAIN = '',
 }

@@ -9,6 +9,7 @@ import {
     WalletEntity,
     UserLogEntity,
     UserCodeEntity,
+    PayeeEntity,
 } from '../entities';
 import { appDataSource } from '../dataSource';
 
@@ -30,6 +31,8 @@ const walletTypeRepository: Repository<WalletTypeEntity> =
     appDataSource.getRepository(WalletTypeEntity);
 const walletRepository: Repository<WalletEntity> =
     appDataSource.getRepository(WalletEntity);
+const payeeRepository: Repository<PayeeEntity> =
+    appDataSource.getRepository(PayeeEntity);
 
 export {
     cityRepository,
@@ -41,4 +44,5 @@ export {
     walletCategoryRepository,
     walletTypeRepository,
     walletRepository,
+    payeeRepository,
 };

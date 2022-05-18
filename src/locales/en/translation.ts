@@ -8,4 +8,6 @@ export const translation = {
     'exceeded-amount-of-wallets':
         'You are limited to creating maximum 3 wallets per currency',
     'wrong-restore-password-code': 'The given code is wrong or expired',
+    'wrong-wallet-details': 'Wallet details is incorrect',
+    'payee-already-exist': 'A payee with this wallet is already added',
 };

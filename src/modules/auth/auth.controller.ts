@@ -16,13 +16,15 @@ import { JwtCompleteData, EmptyObject } from '../../common/types';
 import { DoesEmailExistPipe } from '../../common/pipes/does-email-exist.pipe';
 import { MaxLoginAttempts } from 'src/common/guards/max-login-attempts.guard.ts';
 import { AuthService } from './auth.service';
-import { SignUpDto } from './dto/sign-up.dto';
-import { LoginDto } from './dto/login.dto';
-import { UpdateTokenDto } from './dto/update-token.dto';
 import { Request } from 'express';
-import { RestorePasswordInitiateDto } from './dto/restore-password-initiate.dto';
-import { RestorePasswordConfirmCodeDto } from './dto/restore-password-confirm-code.dto';
-import { RestorePasswordCompleteDto } from './dto/restore-password-complete.dto';
+import {
+    LoginDto,
+    RestorePasswordCompleteDto,
+    RestorePasswordConfirmCodeDto,
+    RestorePasswordInitiateDto,
+    SignUpDto,
+    UpdateTokenDto,
+} from './dto';
 
 @Controller('auth')
 export class AuthController {
