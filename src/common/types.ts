@@ -112,3 +112,11 @@ export type BasicPayeeData = {
     email?: string;
     phone?: string;
 };
+
+export type Payee = {
+    id: string;
+    wallet: string;
+    name: string;
+    email: string;
+    phone: string;
+};

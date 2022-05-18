@@ -14,7 +14,7 @@ import { WalletEntity } from './wallet.entity';
 @Entity('Payees')
 export class PayeeEntity {
     @PrimaryGeneratedColumn('uuid')
-    id: number;
+    id: string;
 
     @ManyToOne(() => UserEntity, (user) => user.payees)
     user: UserEntity;

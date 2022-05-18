@@ -41,10 +41,33 @@ export class PayeeServiceRepository {
     ): Promise<boolean> {
         const payeeRecord = await payeeRepository
             .createQueryBuilder()
-            .select()
+            .select('id')
             .where('"userId" = :userId', { userId: user.id })
             .andWhere('"walletId" = :walletId', { walletId: wallet.id })
             .getOne();
         return payeeRecord instanceof PayeeEntity;
+    }
+
+    async getPayees(
+        user: UserEntity,
+        limit: number,
+        offset: number,
+    ): Promise<PayeeEntity[]> {
+        return payeeRepository
+            .createQueryBuilder('payee')
+            .select([
+                'payee.id',
+                'payee.name',
+                'payee.email',
+                'payee.phone',
+                'wallet.identifier',
+                'walletType.name',
+            ])
+            .leftJoinAndSelect('payee.wallet', 'wallet')
+            .leftJoinAndSelect('wallet.type', 'walletType')
+            .where('payee."userId" = :userId', { userId: user.id })
+            .limit(limit)
+            .offset(offset)
+            .getMany();
     }
 }
