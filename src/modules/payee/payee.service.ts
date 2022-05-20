@@ -7,6 +7,7 @@ import {
     BasicPayeeData,
     Pagination,
     Payee,
+    UpdatePayeeData,
     UserActivityData,
 } from 'src/common/types';
 import { UserActivityLogger } from 'src/common/userActivityLogger';
@@ -71,8 +72,7 @@ export class PayeeService {
      */
     async update(
         dto: PayeeDto,
-        wallet: WalletEntity,
-        payee: PayeeEntity,
+        { wallet, payee, user }: UpdatePayeeData,
     ): Promise<void> {
         if (wallet.getFullIdentifier() !== payee.getWalletIdentifier()) {
             payee.wallet = wallet;
@@ -81,12 +81,27 @@ export class PayeeService {
         payee.email = dto.email;
         payee.phone = dto.phone;
         await payeeRepository.save(payee);
+
+        const logData: UserActivityData = {
+            user,
+            action: UserAction.CHANGE,
+            template: LoggerTemplate.PAYEE_UPDATED,
+            metadata: wallet.getFullIdentifier(),
+        };
+        await UserActivityLogger.write(logData);
     }
 
     /**
      * Remove user's payee
      */
-    async remove(payee: PayeeEntity): Promise<void> {
+    async remove(payee: PayeeEntity, user: UserEntity): Promise<void> {
+        const logData: UserActivityData = {
+            user,
+            action: UserAction.REMOVE,
+            template: LoggerTemplate.PAYEE_REMOVED,
+            metadata: payee.wallet.getFullIdentifier(),
+        };
         await payeeRepository.remove(payee);
+        await UserActivityLogger.write(logData);
     }
 }

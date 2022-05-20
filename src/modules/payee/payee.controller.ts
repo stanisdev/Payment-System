@@ -14,7 +14,11 @@ import { GetPayee } from 'src/common/decorators/payee.decorator';
 import { User } from 'src/common/decorators/user.decorator';
 import { GetWallet } from 'src/common/decorators/wallet.decorator';
 import { AuthGuard } from 'src/common/guards/auth.guard';
-import { EmptyObject, Pagination, Payee } from 'src/common/types';
+import {
+    EmptyObject,
+    Pagination,
+    Payee,
+} from 'src/common/types';
 import { PayeeEntity, UserEntity, WalletEntity } from 'src/db/entities';
 import { PayeeDto } from './dto/create.dto';
 import { PayeeService } from './payee.service';
@@ -49,16 +53,21 @@ export class PayeeController {
     async edit(
         @GetPayee() payee: PayeeEntity,
         @GetWallet() wallet: WalletEntity,
+        @User() user: UserEntity,
         @Body() dto: PayeeDto,
     ): Promise<EmptyObject> {
-        await this.payeeService.update(dto, wallet, payee);
+        const data = { wallet, payee, user };
+        await this.payeeService.update(dto, data);
         return {};
     }
 
     @Delete('/:id')
     @HttpCode(HttpStatus.OK)
-    async remove(@GetPayee() payee: PayeeEntity): Promise<EmptyObject> {
-        await this.payeeService.remove(payee);
+    async remove(
+        @GetPayee() payee: PayeeEntity,
+        @User() user: UserEntity,
+    ): Promise<EmptyObject> {
+        await this.payeeService.remove(payee, user);
         return {};
     }
 }

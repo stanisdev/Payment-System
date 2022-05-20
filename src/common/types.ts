@@ -3,6 +3,7 @@ import {
     CityEntity,
     UserTokenEntity,
     WalletEntity,
+    PayeeEntity,
 } from '../db/entities';
 import { LoggerTemplate, UserAction, UserTokenType, WalletType } from './enums';
 
@@ -119,4 +120,10 @@ export type Payee = {
     name: string;
     email: string;
     phone: string;
+};
+
+export type UpdatePayeeData = {
+    wallet: WalletEntity;
+    payee: PayeeEntity;
+    user: UserEntity;
 };

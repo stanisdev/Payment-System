@@ -8,6 +8,7 @@ export enum UserAction {
     LOGOUT = 'Logout',
     CREATE = 'Create',
     CHANGE = 'Change',
+    REMOVE = 'Remove',
     RESTORE_PASSWORD_INITIATE = 'RestoreRasswordInitiate',
     RESTORE_PASSWORD_COMPLETE = 'RestorePasswordComplete',
 }
@@ -24,5 +25,7 @@ export enum LoggerTemplate {
     SIGNIN = 'IP: ',
     PASSWORD_CHANGED = 'Password has been changed',
     PAYEE_ADDED = 'Added a payee: ',
+    PAYEE_UPDATED = 'Payee updated: ',
+    PAYEE_REMOVED = 'Payee removed: ',
     PLAIN = '',
 }
