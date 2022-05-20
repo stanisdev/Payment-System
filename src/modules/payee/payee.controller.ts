@@ -1,6 +1,7 @@
 import {
     Body,
     Controller,
+    Delete,
     Get,
     HttpCode,
     HttpStatus,
@@ -44,12 +45,20 @@ export class PayeeController {
     }
 
     @Put('/:id')
+    @HttpCode(HttpStatus.OK)
     async edit(
         @GetPayee() payee: PayeeEntity,
         @GetWallet() wallet: WalletEntity,
         @Body() dto: PayeeDto,
     ): Promise<EmptyObject> {
         await this.payeeService.update(dto, wallet, payee);
+        return {};
+    }
+
+    @Delete('/:id')
+    @HttpCode(HttpStatus.OK)
+    async remove(@GetPayee() payee: PayeeEntity): Promise<EmptyObject> {
+        await this.payeeService.remove(payee);
         return {};
     }
 }

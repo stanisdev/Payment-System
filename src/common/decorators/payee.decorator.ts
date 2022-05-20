@@ -17,6 +17,7 @@ export const GetPayee = createParamDecorator(async function (
         .leftJoinAndSelect('payee.wallet', 'wallet')
         .leftJoinAndSelect('wallet.type', 'walletType')
         .where('payee.id = :id', { id: request.params.id })
+        .andWhere('payee.userId = :userId', { userId: request.user.id })
         .getOne();
 
     if (!(payee instanceof PayeeEntity)) {

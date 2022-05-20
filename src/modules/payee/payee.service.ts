@@ -82,4 +82,11 @@ export class PayeeService {
         payee.phone = dto.phone;
         await payeeRepository.save(payee);
     }
+
+    /**
+     * Remove user's payee
+     */
+    async remove(payee: PayeeEntity): Promise<void> {
+        await payeeRepository.remove(payee);
+    }
 }
