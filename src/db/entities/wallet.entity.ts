@@ -31,6 +31,10 @@ export class WalletEntity {
 
     @Column()
     @IsInt()
+    userId: number;
+
+    @Column()
+    @IsInt()
     balance: number;
 
     @Column()
@@ -40,4 +44,8 @@ export class WalletEntity {
     @CreateDateColumn()
     @IsDate()
     createdAt: Date;
+
+    getFullIdentifier(): string {
+        return this.type.name.substring(0, 1) + this.identifier;
+    }
 }

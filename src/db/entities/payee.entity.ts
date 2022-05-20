@@ -42,4 +42,9 @@ export class PayeeEntity {
     @CreateDateColumn()
     @IsDate()
     createdAt: Date;
+
+    getWalletIdentifier(): string {
+        const { wallet } = this;
+        return wallet.type.name.substring(0, 1) + wallet.identifier;
+    }
 }

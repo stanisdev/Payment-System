@@ -10,4 +10,7 @@ export const translation = {
     'wrong-restore-password-code': 'The given code is wrong or expired',
     'wrong-wallet-details': 'Wallet details is incorrect',
     'payee-already-exist': 'A payee with this wallet is already added',
+    'wrong-payee-id': 'Payee not found',
+    'binding-own-wallet-is-prohibited':
+        'You are not permitted to bind an own wallet',
 };

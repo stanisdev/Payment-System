@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { BasicPayeeData } from 'src/common/types';
 import { PayeeEntity, UserEntity, WalletEntity } from 'src/db/entities';
-import { payeeRepository, walletRepository } from 'src/db/repositories';
+import { payeeRepository } from 'src/db/repositories';
 import { InsertResult } from 'typeorm';
 
 @Injectable()
@@ -24,15 +24,6 @@ export class PayeeServiceRepository {
                 phone,
             })
             .execute();
-    }
-
-    async findWallet(typeId: number, identifier: number) {
-        return walletRepository
-            .createQueryBuilder('wallet')
-            .leftJoinAndSelect('wallet.type', 'type')
-            .where('wallet."typeId" = :typeId', { typeId })
-            .andWhere('wallet.identifier = :identifier', { identifier })
-            .getOne();
     }
 
     async doesPayeeExist(

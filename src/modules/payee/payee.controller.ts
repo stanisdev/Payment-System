@@ -5,13 +5,16 @@ import {
     HttpCode,
     HttpStatus,
     Post,
+    Put,
     UseGuards,
 } from '@nestjs/common';
 import { ParsePagination } from 'src/common/decorators/parse-pagination.decorator';
+import { GetPayee } from 'src/common/decorators/payee.decorator';
 import { User } from 'src/common/decorators/user.decorator';
+import { GetWallet } from 'src/common/decorators/wallet.decorator';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { EmptyObject, Pagination, Payee } from 'src/common/types';
-import { UserEntity } from 'src/db/entities';
+import { PayeeEntity, UserEntity, WalletEntity } from 'src/db/entities';
 import { PayeeDto } from './dto/create.dto';
 import { PayeeService } from './payee.service';
 
@@ -23,10 +26,11 @@ export class PayeeController {
     @Post('/')
     @HttpCode(HttpStatus.CREATED)
     async create(
-        @Body() payeeDto: PayeeDto,
+        @GetWallet() wallet: WalletEntity,
+        @Body() dto: PayeeDto,
         @User() user: UserEntity,
     ): Promise<EmptyObject> {
-        await this.payeeService.create(user, payeeDto);
+        await this.payeeService.create(dto, wallet, user);
         return {};
     }
 
@@ -37,5 +41,15 @@ export class PayeeController {
         @User() user: UserEntity,
     ): Promise<Payee[]> {
         return this.payeeService.getList(user, pagination);
+    }
+
+    @Put('/:id')
+    async edit(
+        @GetPayee() payee: PayeeEntity,
+        @GetWallet() wallet: WalletEntity,
+        @Body() dto: PayeeDto,
+    ): Promise<EmptyObject> {
+        await this.payeeService.update(dto, wallet, payee);
+        return {};
     }
 }
