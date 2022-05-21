@@ -12,11 +12,16 @@ export const GetPayee = createParamDecorator(async function (
     ctx: ExecutionContext,
 ): Promise<PayeeEntity | never> {
     const request = ctx.switchToHttp().getRequest();
+
+    let payeeId = request.params.id;
+    if (typeof payeeId !== 'string') {
+        payeeId = request.body.payeeId;
+    }
     const payee = await payeeRepository
         .createQueryBuilder('payee')
         .leftJoinAndSelect('payee.wallet', 'wallet')
         .leftJoinAndSelect('wallet.type', 'walletType')
-        .where('payee.id = :id', { id: request.params.id })
+        .where('payee.id = :id', { id: payeeId })
         .andWhere('payee.userId = :userId', { userId: request.user.id })
         .getOne();
 

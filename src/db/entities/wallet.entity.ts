@@ -4,10 +4,12 @@ import {
     CreateDateColumn,
     Entity,
     ManyToOne,
+    OneToMany,
     OneToOne,
     PrimaryGeneratedColumn,
 } from 'typeorm';
 import { PayeeEntity } from './payee.entity';
+import { TransferEntity } from './transfer.entity';
 import { UserEntity } from './user.entity';
 import { WalletTypeEntity } from './walletType.entity';
 
@@ -24,6 +26,12 @@ export class WalletEntity {
 
     @OneToOne(() => PayeeEntity, (payee) => payee.wallet)
     payee: PayeeEntity;
+
+    @OneToMany(() => TransferEntity, (transfer) => transfer.walletSender)
+    sentTransfer: TransferEntity[];
+
+    @OneToMany(() => TransferEntity, (transfer) => transfer.walletRecipient)
+    receivedTransfer: TransferEntity[];
 
     @Column()
     @IsInt()

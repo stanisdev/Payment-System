@@ -14,11 +14,7 @@ import { GetPayee } from 'src/common/decorators/payee.decorator';
 import { User } from 'src/common/decorators/user.decorator';
 import { GetWallet } from 'src/common/decorators/wallet.decorator';
 import { AuthGuard } from 'src/common/guards/auth.guard';
-import {
-    EmptyObject,
-    Pagination,
-    Payee,
-} from 'src/common/types';
+import { EmptyObject, Pagination, Payee } from 'src/common/types';
 import { PayeeEntity, UserEntity, WalletEntity } from 'src/db/entities';
 import { PayeeDto } from './dto/create.dto';
 import { PayeeService } from './payee.service';

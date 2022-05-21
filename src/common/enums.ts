@@ -29,3 +29,9 @@ export enum LoggerTemplate {
     PAYEE_REMOVED = 'Payee removed: ',
     PLAIN = '',
 }
+
+export enum TransferType {
+    INTERNAL = 'Internal',
+    WITHDRAW = 'Withdraw',
+    REPLENISHMENT = 'Replenishment',
+}

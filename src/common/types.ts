@@ -5,7 +5,13 @@ import {
     WalletEntity,
     PayeeEntity,
 } from '../db/entities';
-import { LoggerTemplate, UserAction, UserTokenType, WalletType } from './enums';
+import {
+    LoggerTemplate,
+    TransferType,
+    UserAction,
+    UserTokenType,
+    WalletType,
+} from './enums';
 
 export type BasicUserData = {
     memberId: number;
@@ -126,4 +132,38 @@ export type UpdatePayeeData = {
     wallet: WalletEntity;
     payee: PayeeEntity;
     user: UserEntity;
+};
+
+export type InternalTransferResult = {
+    id: string;
+    walletSender: string;
+    walletRecipient: string;
+    payeeName: string;
+    amount: number;
+    comment?: string;
+    createdAt: Date;
+};
+
+export type FindWalletCriteria = {
+    user: UserEntity;
+    typeId: number;
+    identifier: number;
+};
+
+export type UpdateWalletBalanceData = {
+    walletId: number;
+    balance: number;
+};
+
+export type TransferData = {
+    walletSenderId: number;
+    walletRecipientId: number;
+    amount: number;
+    type: TransferType;
+    comment?: string;
+};
+
+export type TransferRecord = {
+    id: string;
+    createdAt: Date;
 };
