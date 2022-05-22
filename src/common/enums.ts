@@ -32,6 +32,6 @@ export enum LoggerTemplate {
 
 export enum TransferType {
     INTERNAL = 'Internal',
-    WITHDRAW = 'Withdraw',
+    WITHDRAWAL = 'Withdrawal',
     REPLENISHMENT = 'Replenishment',
 }

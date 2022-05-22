@@ -2,11 +2,12 @@ import { Injectable } from '@nestjs/common';
 import {
     FindWalletCriteria,
     TransferData,
+    TransferRecord,
     UpdateWalletBalanceData,
 } from 'src/common/types';
-import { TransferEntity, UserEntity, WalletEntity } from 'src/db/entities';
+import { TransferEntity, WalletEntity } from 'src/db/entities';
 import { walletRepository } from 'src/db/repositories';
-import { EntityManager, InsertResult } from 'typeorm';
+import { EntityManager } from 'typeorm';
 
 @Injectable()
 export class TransferServiceRepository {
@@ -39,12 +40,13 @@ export class TransferServiceRepository {
     async createTransfer(
         data: TransferData,
         transactionalEntityManager: EntityManager,
-    ): Promise<InsertResult> {
-        return transactionalEntityManager
+    ): Promise<TransferRecord> {
+        const insertedData = await transactionalEntityManager
             .createQueryBuilder()
             .insert()
             .into(TransferEntity)
             .values(data)
             .execute();
+        return insertedData.raw[0];
     }
 }

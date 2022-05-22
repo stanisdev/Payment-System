@@ -9,9 +9,10 @@ import {
 import { GetPayee } from 'src/common/decorators/payee.decorator';
 import { User } from 'src/common/decorators/user.decorator';
 import { AuthGuard } from 'src/common/guards/auth.guard';
-import { InternalTransferResult } from 'src/common/types';
+import { InternalTransferResult, WithdrawalResult } from 'src/common/types';
 import { PayeeEntity, UserEntity } from 'src/db/entities';
 import { InternalTransferDto } from './dto/internal.dto';
+import { WithdrawalDto } from './dto/withdrawal.dto';
 import { TransferService } from './transfer.service';
 
 @Controller('transfer')
@@ -27,5 +28,15 @@ export class TransferController {
         @GetPayee() payee: PayeeEntity,
     ): Promise<InternalTransferResult> {
         return this.transferService.internal(dto, user, payee);
+    }
+
+    @Post('/withdrawal')
+    @UseGuards(AuthGuard)
+    @HttpCode(HttpStatus.OK)
+    async withdrawal(
+        @Body() dto: WithdrawalDto,
+        @User() user: UserEntity,
+    ): Promise<WithdrawalResult> {
+        return this.transferService.withdrawal(dto, user);
     }
 }

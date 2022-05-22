@@ -156,8 +156,8 @@ export type UpdateWalletBalanceData = {
 };
 
 export type TransferData = {
-    walletSenderId: number;
-    walletRecipientId: number;
+    walletSenderId?: number;
+    walletRecipientId?: number;
     amount: number;
     type: TransferType;
     comment?: string;
@@ -165,5 +165,14 @@ export type TransferData = {
 
 export type TransferRecord = {
     id: string;
+    createdAt: Date;
+};
+
+export type WithdrawalResult = {
+    id: string;
+    wallet: string;
+    amount: number;
+    direction: string;
+    comment?: string;
     createdAt: Date;
 };
