@@ -145,7 +145,7 @@ export type InternalTransferResult = {
 };
 
 export type FindWalletCriteria = {
-    user: UserEntity;
+    user?: UserEntity;
     typeId: number;
     identifier: number;
 };
@@ -174,5 +174,12 @@ export type WithdrawalResult = {
     amount: number;
     direction: string;
     comment?: string;
+    createdAt: Date;
+};
+
+export type ReplenishmentResult = {
+    id: string;
+    wallet: string;
+    amount: number;
     createdAt: Date;
 };

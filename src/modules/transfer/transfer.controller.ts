@@ -6,12 +6,18 @@ import {
     Post,
     UseGuards,
 } from '@nestjs/common';
+import { GetClient } from 'src/common/decorators/client.decorator';
 import { GetPayee } from 'src/common/decorators/payee.decorator';
 import { User } from 'src/common/decorators/user.decorator';
 import { AuthGuard } from 'src/common/guards/auth.guard';
-import { InternalTransferResult, WithdrawalResult } from 'src/common/types';
-import { PayeeEntity, UserEntity } from 'src/db/entities';
+import {
+    InternalTransferResult,
+    ReplenishmentResult,
+    WithdrawalResult,
+} from 'src/common/types';
+import { ClientEntity, PayeeEntity, UserEntity } from 'src/db/entities';
 import { InternalTransferDto } from './dto/internal.dto';
+import { ReplenishmentDto } from './dto/replenishment.dto';
 import { WithdrawalDto } from './dto/withdrawal.dto';
 import { TransferService } from './transfer.service';
 
@@ -38,5 +44,14 @@ export class TransferController {
         @User() user: UserEntity,
     ): Promise<WithdrawalResult> {
         return this.transferService.withdrawal(dto, user);
+    }
+
+    @Post('/replenishment')
+    @HttpCode(HttpStatus.OK)
+    async replenishment(
+        @Body() dto: ReplenishmentDto,
+        @GetClient() client: ClientEntity,
+    ): Promise<ReplenishmentResult> {
+        return this.transferService.replenishment(dto, client);
     }
 }

@@ -11,6 +11,7 @@ import {
     UserCodeEntity,
     PayeeEntity,
     TransferEntity,
+    ClientEntity,
 } from '../entities';
 import { appDataSource } from '../dataSource';
 
@@ -36,6 +37,8 @@ const payeeRepository: Repository<PayeeEntity> =
     appDataSource.getRepository(PayeeEntity);
 const transferRepository: Repository<TransferEntity> =
     appDataSource.getRepository(TransferEntity);
+const clientRepository: Repository<ClientEntity> =
+    appDataSource.getRepository(ClientEntity);
 
 export {
     cityRepository,
@@ -49,4 +52,5 @@ export {
     walletRepository,
     payeeRepository,
     transferRepository,
+    clientRepository,
 };

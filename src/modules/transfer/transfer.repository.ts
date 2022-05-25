@@ -5,7 +5,7 @@ import {
     TransferRecord,
     UpdateWalletBalanceData,
 } from 'src/common/types';
-import { TransferEntity, WalletEntity } from 'src/db/entities';
+import { TransferEntity, UserEntity, WalletEntity } from 'src/db/entities';
 import { walletRepository } from 'src/db/repositories';
 import { EntityManager } from 'typeorm';
 
@@ -16,13 +16,15 @@ export class TransferServiceRepository {
         typeId,
         identifier,
     }: FindWalletCriteria): Promise<WalletEntity> {
-        return walletRepository
+        const query = walletRepository
             .createQueryBuilder('wallet')
             .leftJoinAndSelect('wallet.type', 'type')
             .where('wallet."typeId" = :typeId', { typeId })
-            .andWhere('wallet.identifier = :identifier', { identifier })
-            .andWhere('wallet.userId = :userId', { userId: user.id })
-            .getOne();
+            .andWhere('wallet.identifier = :identifier', { identifier });
+        if (user instanceof UserEntity) {
+            query.andWhere('wallet.userId = :userId', { userId: user.id });
+        }
+        return query.getOne();
     }
 
     async updateWalletBalance(

@@ -2,14 +2,22 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import * as i18next from 'i18next';
 import { TransferType } from 'src/common/enums';
 import {
+    FindWalletCriteria,
     InternalTransferResult,
+    ReplenishmentResult,
     TransferRecord,
     WithdrawalResult,
 } from 'src/common/types';
 import { appDataSource } from 'src/db/dataSource';
-import { PayeeEntity, UserEntity, WalletEntity } from 'src/db/entities';
+import {
+    ClientEntity,
+    PayeeEntity,
+    UserEntity,
+    WalletEntity,
+} from 'src/db/entities';
 import { EntityManager } from 'typeorm';
 import { InternalTransferDto } from './dto/internal.dto';
+import { ReplenishmentDto } from './dto/replenishment.dto';
 import { WithdrawalDto } from './dto/withdrawal.dto';
 import { TransferServiceRepository } from './transfer.repository';
 
@@ -26,14 +34,11 @@ export class TransferService {
         user: UserEntity,
         payee: PayeeEntity,
     ): Promise<InternalTransferResult> {
-        const senderWallet = await this.repository.getWallet({
+        const senderWallet = await this.getWallet({
             user,
             typeId: dto.walletType,
             identifier: dto.walletIdentifier,
         });
-        if (!(senderWallet instanceof WalletEntity)) {
-            throw new BadRequestException(i18next.t('wallet-not-found'));
-        }
         const recipientWallet = payee.wallet;
         if (recipientWallet.typeId !== senderWallet.typeId) {
             throw new BadRequestException(i18next.t('incorrect-wallets-type'));
@@ -96,14 +101,11 @@ export class TransferService {
         dto: WithdrawalDto,
         user: UserEntity,
     ): Promise<WithdrawalResult> {
-        const wallet = await this.repository.getWallet({
+        const wallet = await this.getWallet({
             user,
             typeId: dto.walletType,
             identifier: dto.walletIdentifier,
         });
-        if (!(wallet instanceof WalletEntity)) {
-            throw new BadRequestException(i18next.t('wallet-not-found'));
-        }
         if (wallet.balance < dto.amount) {
             throw new BadRequestException(i18next.t('no-enough-money'));
         }
@@ -138,5 +140,62 @@ export class TransferService {
                 direction: dto.direction,
             },
         };
+    }
+
+    /**
+     * Replenish the balance through a client
+     * (external source)
+     */
+    async replenishment(
+        dto: ReplenishmentDto,
+        client: ClientEntity,
+    ): Promise<ReplenishmentResult> {
+        const wallet = await this.getWallet({
+            typeId: dto.walletType,
+            identifier: dto.walletIdentifier,
+        });
+        let transferInfo: TransferRecord;
+        await appDataSource.transaction(
+            async (transactionalEntityManager: EntityManager) => {
+                const updateWalletData = {
+                    walletId: wallet.id,
+                    balance: wallet.balance + dto.amount,
+                };
+                await this.repository.updateWalletBalance(
+                    updateWalletData,
+                    transactionalEntityManager,
+                );
+                const transferData = {
+                    walletRecipientId: wallet.id,
+                    amount: dto.amount,
+                    type: TransferType.REPLENISHMENT,
+                    comment: client.name,
+                };
+                transferInfo = await this.repository.createTransfer(
+                    transferData,
+                    transactionalEntityManager,
+                );
+            },
+        );
+        return {
+            ...transferInfo,
+            ...{
+                wallet: wallet.getFullIdentifier(),
+                amount: dto.amount,
+            },
+        };
+    }
+
+    /**
+     * Find and get a wallet by the given search criteria
+     */
+    private async getWallet(
+        data: FindWalletCriteria,
+    ): Promise<WalletEntity | never> {
+        const wallet = await this.repository.getWallet(data);
+        if (!(wallet instanceof WalletEntity)) {
+            throw new BadRequestException(i18next.t('wallet-not-found'));
+        }
+        return wallet;
     }
 }
