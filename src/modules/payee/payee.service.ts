@@ -51,9 +51,8 @@ export class PayeeService {
      */
     async getList(
         user: UserEntity,
-        { limit, page }: Pagination,
+        { limit, offset }: Pagination,
     ): Promise<Payee[]> {
-        const offset = limit * page;
         const payees = await this.repository.getPayees(user, limit, offset);
         return payees.map((payee) => {
             const { id, name, email, phone } = payee;

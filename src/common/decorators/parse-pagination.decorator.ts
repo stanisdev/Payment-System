@@ -23,5 +23,8 @@ export const ParsePagination = createParamDecorator(function (
     if (limit > limitRestriction) {
         limit = limitRestriction;
     }
-    return { limit, page };
+    return {
+        limit,
+        offset: limit * (page - 1),
+    };
 });

@@ -46,6 +46,8 @@ export class PayeeServiceRepository {
     ): Promise<PayeeEntity[]> {
         return payeeRepository
             .createQueryBuilder('payee')
+            .leftJoinAndSelect('payee.wallet', 'wallet')
+            .leftJoinAndSelect('wallet.type', 'walletType')
             .select([
                 'payee.id',
                 'payee.name',
@@ -54,8 +56,6 @@ export class PayeeServiceRepository {
                 'wallet.identifier',
                 'walletType.name',
             ])
-            .leftJoinAndSelect('payee.wallet', 'wallet')
-            .leftJoinAndSelect('wallet.type', 'walletType')
             .where('payee."userId" = :userId', { userId: user.id })
             .limit(limit)
             .offset(offset)

@@ -6,7 +6,7 @@ import {
     UpdateWalletBalanceData,
 } from 'src/common/types';
 import { TransferEntity, UserEntity, WalletEntity } from 'src/db/entities';
-import { walletRepository } from 'src/db/repositories';
+import { transferRepository, walletRepository } from 'src/db/repositories';
 import { EntityManager } from 'typeorm';
 
 @Injectable()
@@ -50,5 +50,36 @@ export class TransferServiceRepository {
             .values(data)
             .execute();
         return insertedData.raw[0];
+    }
+
+    getList(
+        limit: number,
+        offset: number,
+        user: UserEntity,
+    ): Promise<TransferEntity[]> {
+        return transferRepository
+            .createQueryBuilder('transfer')
+            .leftJoinAndSelect('transfer.walletSender', 'walletSender')
+            .leftJoinAndSelect('transfer.walletRecipient', 'walletRecipient')
+            .leftJoinAndSelect('walletSender.type', 'walletSenderType')
+            .leftJoinAndSelect('walletRecipient.type', 'walletRecipientType')
+            .select([
+                'transfer.id',
+                'transfer.amount',
+                'transfer.comment',
+                'transfer."createdAt"',
+                'walletSender.identifier',
+                'walletRecipient.identifier',
+                'walletSenderType.name',
+                'walletRecipientType.name',
+            ])
+            .where('"walletSender"."userId" = :userId', { userId: user.id })
+            .orWhere('"walletRecipient"."userId" = :userId', {
+                userId: user.id,
+            })
+            .limit(limit)
+            .offset(offset)
+            .orderBy('transfer.createdAt', 'DESC')
+            .getMany();
     }
 }

@@ -1,18 +1,22 @@
 import {
     Body,
     Controller,
+    Get,
     HttpCode,
     HttpStatus,
     Post,
     UseGuards,
 } from '@nestjs/common';
 import { GetClient } from 'src/common/decorators/client.decorator';
+import { ParsePagination } from 'src/common/decorators/parse-pagination.decorator';
 import { GetPayee } from 'src/common/decorators/payee.decorator';
 import { User } from 'src/common/decorators/user.decorator';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import {
     InternalTransferResult,
+    Pagination,
     ReplenishmentResult,
+    TransferReport,
     WithdrawalResult,
 } from 'src/common/types';
 import { ClientEntity, PayeeEntity, UserEntity } from 'src/db/entities';
@@ -53,5 +57,15 @@ export class TransferController {
         @GetClient() client: ClientEntity,
     ): Promise<ReplenishmentResult> {
         return this.transferService.replenishment(dto, client);
+    }
+
+    @Get('/')
+    @UseGuards(AuthGuard)
+    @HttpCode(HttpStatus.OK)
+    async list(
+        @ParsePagination() pagination: Pagination,
+        @User() user: UserEntity,
+    ): Promise<TransferReport[]> {
+        return this.transferService.list(pagination, user);
     }
 }

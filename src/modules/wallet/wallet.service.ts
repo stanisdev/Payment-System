@@ -80,8 +80,7 @@ export class WalletService {
     /**
      * Get list of user's wallets
      */
-    async getList({ limit, page }: Pagination): Promise<WalletsListResult[]> {
-        const offset = limit * page;
+    async getList({ limit, offset }: Pagination): Promise<WalletsListResult[]> {
         const wallets = await this.repository.getList(limit, offset);
 
         return wallets.map((wallet) => ({

@@ -102,7 +102,7 @@ export type WalletsListResult = {
 
 export type Pagination = {
     limit: number;
-    page: number;
+    offset: number;
 };
 
 export type BasicUserCodeData = {
@@ -181,5 +181,14 @@ export type ReplenishmentResult = {
     id: string;
     wallet: string;
     amount: number;
+    createdAt: Date;
+};
+
+export type TransferReport = {
+    id: string;
+    walletSender: string | null;
+    walletRecipient: string | null;
+    amount: number;
+    comment: string;
     createdAt: Date;
 };

@@ -4,8 +4,10 @@ import { TransferType } from 'src/common/enums';
 import {
     FindWalletCriteria,
     InternalTransferResult,
+    Pagination,
     ReplenishmentResult,
     TransferRecord,
+    TransferReport,
     WithdrawalResult,
 } from 'src/common/types';
 import { appDataSource } from 'src/db/dataSource';
@@ -184,6 +186,47 @@ export class TransferService {
                 amount: dto.amount,
             },
         };
+    }
+
+    /**
+     * Get the list of transfers that relate to
+     * user wallets
+     */
+    async list(
+        pagination: Pagination,
+        user: UserEntity,
+    ): Promise<TransferReport[]> {
+        const { limit, offset } = pagination;
+        const transfers = await this.repository.getList(limit, offset, user);
+
+        return transfers.map(
+            ({
+                id,
+                amount,
+                comment,
+                createdAt,
+                walletSender: walletSenderRecord,
+                walletRecipient: walletRecipientRecord,
+            }) => {
+                let walletSender: string | null = null;
+                let walletRecipient: string | null = null;
+
+                if (walletSenderRecord instanceof WalletEntity) {
+                    walletSender = walletSenderRecord.getFullIdentifier();
+                }
+                if (walletRecipientRecord instanceof WalletEntity) {
+                    walletRecipient = walletRecipientRecord.getFullIdentifier();
+                }
+                return {
+                    id,
+                    walletSender,
+                    walletRecipient,
+                    amount,
+                    comment,
+                    createdAt,
+                };
+            },
+        );
     }
 
     /**
