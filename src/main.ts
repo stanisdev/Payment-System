@@ -1,10 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
+import { init as i18nextInit } from './common/i18next';
 import { AppModule } from './modules/app.module';
 import { appDataSource } from './db/dataSource';
 import { redisClient } from './common/redis';
-import { init as i18nextInit } from './common/i18next';
+import { Mailer } from './common/mailer/index';
 
 async function bootstrap() {
     await appDataSource.initialize();
@@ -13,6 +14,8 @@ async function bootstrap() {
 
     const app = await NestFactory.create(AppModule);
     const configService = app.get(ConfigService);
+    const mailer = app.get(Mailer);
+    mailer.setTransporter();
 
     app.setGlobalPrefix(configService.get('API_PREFIX'));
     app.useGlobalPipes(new ValidationPipe());

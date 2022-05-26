@@ -35,3 +35,7 @@ export enum TransferType {
     WITHDRAWAL = 'Withdrawal',
     REPLENISHMENT = 'Replenishment',
 }
+
+export enum MailerTemplate {
+    SIGNUP = 'signUp',
+}
