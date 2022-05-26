@@ -9,6 +9,7 @@ import {
     LoggerTemplate,
     TransferType,
     UserAction,
+    UserStatus,
     UserTokenType,
     WalletType,
 } from './enums';
@@ -17,7 +18,7 @@ export type BasicUserData = {
     memberId: number;
     email: string;
     password: string;
-    status: number;
+    status: UserStatus;
 };
 
 export type BasicWalletData = {

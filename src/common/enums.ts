@@ -9,6 +9,7 @@ export enum UserAction {
     CREATE = 'Create',
     CHANGE = 'Change',
     REMOVE = 'Remove',
+    CONFIRM_EMAIL = 'ConfirmEmail',
     RESTORE_PASSWORD_INITIATE = 'RestoreRasswordInitiate',
     RESTORE_PASSWORD_COMPLETE = 'RestorePasswordComplete',
 }
@@ -38,4 +39,10 @@ export enum TransferType {
 
 export enum MailerTemplate {
     SIGNUP = 'signUp',
+}
+
+export enum UserStatus {
+    BLOCKED = -1,
+    EMAIL_NOT_CONFIRMED = 0,
+    EMAIL_CONFIRMED = 1,
 }

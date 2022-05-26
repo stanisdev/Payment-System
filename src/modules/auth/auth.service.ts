@@ -23,7 +23,9 @@ import {
 } from '../../common/types';
 import {
     LoggerTemplate,
+    MailerTemplate,
     UserAction,
+    UserStatus,
     UserTokenType,
     WalletType,
 } from 'src/common/enums';
@@ -33,6 +35,7 @@ import { UserCodeEntity, UserEntity } from 'src/db/entities';
 import { UserTokenGenerator } from 'src/common/userTokenGenerator';
 import { UserActivityLogger } from 'src/common/userActivityLogger';
 import { WalletService } from '../wallet/wallet.service';
+import { Mailer } from 'src/common/mailer/index';
 import {
     LoginDto,
     RestorePasswordCompleteDto,
@@ -48,40 +51,54 @@ export class AuthService {
         private readonly repository: AuthServiceRepository,
         private readonly configService: ConfigService,
         private readonly walletService: WalletService,
+        private readonly mailer: Mailer,
     ) {}
 
     /**
      * Register a new user by creating appropriate
      * records in the DB
      */
-    async signUp(signUpDto: SignUpDto): Promise<void> {
+    async signUp(dto: SignUpDto): Promise<void> {
         const memberId = await this.generateMemberId();
 
         const userData: BasicUserData = {
             memberId,
-            email: signUpDto.email,
-            password: signUpDto.password,
-            status: 1,
+            email: dto.email,
+            password: dto.password,
+            status: UserStatus.EMAIL_NOT_CONFIRMED,
         };
+        const confirmCode = await Utils.generateRandomString({
+            length: 10,
+        });
         let user: UserEntity;
         await appDataSource.manager.transaction(
             async (transactionalEntityManager: EntityManager) => {
                 user = await this.repository.createUser(
-                    transactionalEntityManager,
                     userData,
+                    transactionalEntityManager,
                 );
                 const city = await this.repository.createCity(
+                    dto.city,
                     transactionalEntityManager,
-                    signUpDto.city,
                 );
                 const userInfoData = {
-                    ...signUpDto,
+                    ...dto,
                     user,
                     city,
                 };
                 await this.repository.createUserInfo(
-                    transactionalEntityManager,
                     userInfoData,
+                    transactionalEntityManager,
+                );
+                const userCodeData: BasicUserCodeData = {
+                    user,
+                    code: confirmCode,
+                    action: UserAction.CONFIRM_EMAIL,
+                    expireAt: new Date(),
+                };
+                await this.repository.createUserCode(
+                    userCodeData,
+                    transactionalEntityManager,
                 );
             },
         );
@@ -102,6 +119,14 @@ export class AuthService {
             metadata: memberId.toString(),
         };
         await UserActivityLogger.write(logData);
+        this.mailer.sendMail({
+            to: dto.email,
+            subject: i18next.t('mailer.signup-subject'),
+            template: MailerTemplate.SIGNUP,
+            data: {
+                code: confirmCode,
+            },
+        });
     }
 
     /**

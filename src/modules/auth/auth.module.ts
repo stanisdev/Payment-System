@@ -5,11 +5,12 @@ import { AuthServiceRepository } from './auth.repository';
 import { ConfigService } from '@nestjs/config';
 import { getJwtTokenMiddleware } from 'src/common/middlewares/get-jwt-token.middleware';
 import { WalletModule } from '../wallet/wallet.module';
+import { Mailer } from 'src/common/mailer/index';
 
 @Module({
     imports: [WalletModule],
     controllers: [AuthController],
-    providers: [AuthService, AuthServiceRepository, ConfigService],
+    providers: [AuthService, AuthServiceRepository, ConfigService, Mailer],
 })
 export class AuthModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {

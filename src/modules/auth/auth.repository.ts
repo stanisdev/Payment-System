@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { EntityManager } from 'typeorm';
+import { EntityManager, InsertQueryBuilder, SelectQueryBuilder } from 'typeorm';
 import {
     CityEntity,
     UserCodeEntity,
@@ -23,8 +23,8 @@ export class AuthServiceRepository {
     constructor() {}
 
     async createUser(
-        transactionalEntityManager: EntityManager,
         data: BasicUserData,
+        transactionalEntityManager: EntityManager,
     ): Promise<UserEntity> {
         const user = new UserEntity();
         user.memberId = data.memberId;
@@ -37,8 +37,8 @@ export class AuthServiceRepository {
     }
 
     async createCity(
-        transactionalEntityManager: EntityManager,
         name: string,
+        transactionalEntityManager: EntityManager,
     ): Promise<CityEntity> {
         let city = await cityRepository.findOneBy({
             name,
@@ -52,8 +52,8 @@ export class AuthServiceRepository {
     }
 
     async createUserInfo(
-        transactionalEntityManager: EntityManager,
         data: UserInfoData,
+        transactionalEntityManager: EntityManager,
     ): Promise<void> {
         transactionalEntityManager
             .createQueryBuilder()
@@ -80,15 +80,20 @@ export class AuthServiceRepository {
             .execute();
     }
 
-    async createUserCode({
-        user,
-        code,
-        action,
-        expireAt,
-    }: BasicUserCodeData): Promise<void> {
-        await userCodeRepository
-            .createQueryBuilder()
+    async createUserCode(
+        { user, code, action, expireAt }: BasicUserCodeData,
+        transactionalEntityManager?: EntityManager,
+    ): Promise<void> {
+        let queryBuilder: SelectQueryBuilder<UserCodeEntity>;
+
+        if (transactionalEntityManager) {
+            queryBuilder = transactionalEntityManager.createQueryBuilder()
+        } else {
+            queryBuilder = userCodeRepository.createQueryBuilder()
+        }
+        await queryBuilder
             .insert()
+            .into(UserCodeEntity)
             .values({
                 user,
                 code,
