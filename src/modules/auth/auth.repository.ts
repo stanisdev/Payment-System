@@ -103,10 +103,7 @@ export class AuthServiceRepository {
             .execute();
     }
 
-    async findUserCode(
-        code: string,
-        action: UserAction,
-    ): Promise<UserCodeEntity> {
+    findUserCode(code: string, action: UserAction): Promise<UserCodeEntity> {
         return userCodeRepository
             .createQueryBuilder('userCode')
             .leftJoinAndSelect('userCode.user', 'user')
@@ -123,5 +120,20 @@ export class AuthServiceRepository {
             .where('userCode.code = :code', { code })
             .andWhere('userCode.action = :action', { action })
             .getOne();
+    }
+
+    async countUserCodesBy(data: {
+        user: UserEntity;
+        attemptsRestriction: Date;
+    }): Promise<number> {
+        const result = await userCodeRepository
+            .createQueryBuilder('userCode')
+            .select('COUNT(userCode.id) as count')
+            .where('"userCode"."userId" = :userId', { userId: data.user.id })
+            .andWhere('"userCode"."expireAt" > :expireAt', {
+                expireAt: data.attemptsRestriction,
+            })
+            .getRawOne();
+        return +result.count;
     }
 }

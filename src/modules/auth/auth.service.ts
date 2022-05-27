@@ -310,15 +310,34 @@ export class AuthService {
         email,
         memberId,
     }: RestorePasswordInitiateDto): Promise<void> {
+        const { configService } = this;
         const user = await userRepository.findOneBy({ email, memberId });
         if (!(user instanceof UserEntity)) {
             return;
         }
+        const attemptsRestriction = +configService.get(
+            'MAX_RESET_PASSWORD_ATTEMPTS_EXPIRATION',
+        );
+        const recordsCount = await this.repository.countUserCodesBy({
+            user,
+            attemptsRestriction: moment()
+                .subtract(attemptsRestriction, 'minute')
+                .toDate(),
+        });
+        if (recordsCount >= +configService.get('MAX_RESET_PASSWORD_ATTEMPTS')) {
+            throw new ForbiddenException(
+                i18next.t('exceeded-attempts-to-restore-password'),
+            );
+        }
+        /**
+         * Generate and save the code to proceed the process
+         * of resetting a password
+         */
         const code = await Utils.generateRandomString({
             onlyDigits: true,
-            length: +this.configService.get('RESTORE_PASSWORD_CODE_LENGTH'),
+            length: +configService.get('RESTORE_PASSWORD_CODE_LENGTH'),
         });
-        const lifetime = +this.configService.get(
+        const lifetime = +configService.get(
             'RESTORE_PASSWORD_INITIATE_CODE_EXPIRATION',
         );
         const expireAt = moment().add(lifetime, 'minute').toDate();

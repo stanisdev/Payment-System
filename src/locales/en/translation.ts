@@ -24,4 +24,6 @@ export const translation = {
     },
     'email-not-confirmed': 'You have not confirmed your email',
     'confirm-code-expired': 'The confirm code expired',
+    'exceeded-attempts-to-restore-password':
+        'You have exceeded the maximum attempts to restore the password',
 };
