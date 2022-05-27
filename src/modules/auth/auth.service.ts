@@ -67,9 +67,20 @@ export class AuthService {
             password: dto.password,
             status: UserStatus.EMAIL_NOT_CONFIRMED,
         };
-        const confirmCode = await Utils.generateRandomString({
-            length: 10,
-        });
+        const confirmCode = {
+            code: await Utils.generateRandomString({
+                length: +this.configService.get('EMAIL_CONFIRM_CODE_LENGTH'),
+            }),
+            expireAt: moment()
+                .add(
+                    +this.configService.get('CONFIRM_EMAIL_EXPIRATION'),
+                    'minute',
+                )
+                .toDate(),
+        };
+        /**
+         * Save primary user data within a transaction
+         */
         let user: UserEntity;
         await appDataSource.manager.transaction(
             async (transactionalEntityManager: EntityManager) => {
@@ -91,10 +102,8 @@ export class AuthService {
                     transactionalEntityManager,
                 );
                 const userCodeData: BasicUserCodeData = {
-                    user,
-                    code: confirmCode,
-                    action: UserAction.CONFIRM_EMAIL,
-                    expireAt: new Date(),
+                    ...confirmCode,
+                    ...{ user, action: UserAction.CONFIRM_EMAIL },
                 };
                 await this.repository.createUserCode(
                     userCodeData,
@@ -123,9 +132,7 @@ export class AuthService {
             to: dto.email,
             subject: i18next.t('mailer.signup-subject'),
             template: MailerTemplate.SIGNUP,
-            data: {
-                code: confirmCode,
-            },
+            data: confirmCode,
         });
     }
 
@@ -163,6 +170,7 @@ export class AuthService {
         const user = await userRepository.findOneBy({ memberId });
         try {
             equal(user instanceof Object, true);
+            equal(user.status < UserStatus.EMAIL_NOT_CONFIRMED, true);
             const match = await bcrypt.compare(
                 password + user.salt,
                 user.password,
@@ -178,6 +186,9 @@ export class AuthService {
             }
         } catch {
             throw new ForbiddenException(i18next.t('wrong-credentials'));
+        }
+        if (user.status == UserStatus.EMAIL_NOT_CONFIRMED) {
+            throw new ForbiddenException(i18next.t('email-not-confirmed'));
         }
         const tokens = await this.generateJwtTokens(user);
         /**
@@ -269,6 +280,25 @@ export class AuthService {
             action: UserAction.LOGOUT,
             template: LoggerTemplate.PLAIN,
         });
+    }
+
+    /**
+     * Confirm an email by passing the confirmation code
+     */
+    async confirmEmail(code: string): Promise<void> {
+        const userCode = await this.repository.findUserCode(
+            code,
+            UserAction.CONFIRM_EMAIL,
+        );
+        if (userCode.expireAt <= new Date()) {
+            throw new BadRequestException(i18next.t('confirm-code-expired'));
+        }
+        const { user } = userCode;
+        user.status = UserStatus.EMAIL_CONFIRMED;
+        await Promise.all([
+            userRepository.save(user),
+            userCodeRepository.remove(userCode),
+        ]);
     }
 
     /**

@@ -21,4 +21,6 @@ export const translation = {
     mailer: {
         'signup-subject': 'Welcome to the "Perfect Money" service',
     },
+    'email-not-confirmed': 'You have not confirmed your email',
+    'confirm-code-expired': 'The confirm code expired',
 };

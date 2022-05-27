@@ -87,9 +87,9 @@ export class AuthServiceRepository {
         let queryBuilder: SelectQueryBuilder<UserCodeEntity>;
 
         if (transactionalEntityManager) {
-            queryBuilder = transactionalEntityManager.createQueryBuilder()
+            queryBuilder = transactionalEntityManager.createQueryBuilder();
         } else {
-            queryBuilder = userCodeRepository.createQueryBuilder()
+            queryBuilder = userCodeRepository.createQueryBuilder();
         }
         await queryBuilder
             .insert()
@@ -110,6 +110,16 @@ export class AuthServiceRepository {
         return userCodeRepository
             .createQueryBuilder('userCode')
             .leftJoinAndSelect('userCode.user', 'user')
+            .select([
+                'userCode.id',
+                'userCode.code',
+                'userCode.action',
+                'userCode.expireAt',
+                'user.id',
+                'user.status',
+                'user.password',
+                'user.salt',
+            ])
             .where('userCode.code = :code', { code })
             .andWhere('userCode.action = :action', { action })
             .getOne();

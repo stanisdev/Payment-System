@@ -11,6 +11,7 @@ import {
     Query,
     Req,
     Put,
+    Param,
 } from '@nestjs/common';
 import { JwtCompleteData, EmptyObject } from '../../common/types';
 import { DoesEmailExistPipe } from '../../common/pipes/does-email-exist.pipe';
@@ -46,6 +47,13 @@ export class AuthController {
         @Ip() ip: string,
     ): Promise<JwtCompleteData[]> {
         return this.authService.login(loginDto, ip);
+    }
+
+    @Get('/confirm-email/:code')
+    @HttpCode(HttpStatus.OK)
+    async confirmEmail(@Param('code') code: string): Promise<EmptyObject> {
+        await this.authService.confirmEmail(code);
+        return {};
     }
 
     @Post('/update-token')
