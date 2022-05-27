@@ -20,6 +20,7 @@ export const translation = {
     'wrong-client-token': 'The passed client token is incorrect',
     mailer: {
         'signup-subject': 'Welcome to the "Perfect Money" service',
+        'reset-password': 'Request of resetting password',
     },
     'email-not-confirmed': 'You have not confirmed your email',
     'confirm-code-expired': 'The confirm code expired',

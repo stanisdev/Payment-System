@@ -39,6 +39,7 @@ export enum TransferType {
 
 export enum MailerTemplate {
     SIGNUP = 'signUp',
+    RESTORE_PASSWORD = 'restorePassword',
 }
 
 export enum UserStatus {

@@ -82,7 +82,8 @@ export class AuthController {
     async restorePassword(
         @Body() dto: RestorePasswordInitiateDto,
     ): Promise<EmptyObject> {
-        return this.authService.restorePasswordInitiate(dto);
+        await this.authService.restorePasswordInitiate(dto);
+        return {};
     }
 
     @Post('/restore-password-confirm-code')
@@ -98,6 +99,7 @@ export class AuthController {
     async restorePasswordComplete(
         @Body() dto: RestorePasswordCompleteDto,
     ): Promise<EmptyObject> {
-        return this.authService.restorePasswordComplete(dto);
+        await this.authService.restorePasswordComplete(dto);
+        return {};
     }
 }

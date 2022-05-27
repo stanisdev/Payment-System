@@ -309,20 +309,19 @@ export class AuthService {
     async restorePasswordInitiate({
         email,
         memberId,
-    }: RestorePasswordInitiateDto): Promise<EmptyObject> {
+    }: RestorePasswordInitiateDto): Promise<void> {
         const user = await userRepository.findOneBy({ email, memberId });
         if (!(user instanceof UserEntity)) {
             return;
         }
         const code = await Utils.generateRandomString({
             onlyDigits: true,
-            length: 8,
+            length: +this.configService.get('RESTORE_PASSWORD_CODE_LENGTH'),
         });
         const lifetime = +this.configService.get(
             'RESTORE_PASSWORD_INITIATE_CODE_EXPIRATION',
         );
         const expireAt = moment().add(lifetime, 'minute').toDate();
-
         const userCodeData: BasicUserCodeData = {
             user,
             code,
@@ -331,9 +330,14 @@ export class AuthService {
         };
         await this.repository.createUserCode(userCodeData);
         /**
-         * It's assumed an email with the code has been sent
+         * Send an email
          */
-        return {};
+        this.mailer.sendMail({
+            to: email,
+            subject: i18next.t('mailer.reset-password'),
+            template: MailerTemplate.RESTORE_PASSWORD,
+            data: { code },
+        });
     }
 
     /**
@@ -358,7 +362,6 @@ export class AuthService {
         );
         const expireAt = moment().add(lifetime, 'minute').toDate();
 
-        console.log(userCode);
         const userCodeData: BasicUserCodeData = {
             user: userCode.user,
             code: completeCode,
@@ -379,7 +382,7 @@ export class AuthService {
     async restorePasswordComplete({
         code,
         password,
-    }: RestorePasswordCompleteDto): Promise<EmptyObject> {
+    }: RestorePasswordCompleteDto): Promise<void> {
         const userCode = await this.getAndValidateUserCode(
             code,
             UserAction.RESTORE_PASSWORD_COMPLETE,
@@ -397,7 +400,6 @@ export class AuthService {
             userCodeRepository.remove(userCode),
             UserActivityLogger.write(logData),
         ]);
-        return {};
     }
 
     /**
