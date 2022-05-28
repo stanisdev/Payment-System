@@ -8,8 +8,6 @@ import { userRepository } from '../../db/repositories';
 
 @Injectable()
 export class DoesEmailExistPipe implements PipeTransform {
-    constructor() {}
-
     async transform(body: any, metadata: ArgumentMetadata) {
         const user = await userRepository.findOneBy({
             email: body.email,

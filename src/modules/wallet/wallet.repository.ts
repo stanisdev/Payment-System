@@ -1,14 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { WalletType } from 'src/common/enums';
-import { BasicWalletData, Pagination } from 'src/common/types';
+import { BasicWalletData } from 'src/common/types';
 import { UserEntity, WalletEntity } from 'src/db/entities';
 import { walletRepository } from 'src/db/repositories';
 import { InsertResult } from 'typeorm';
 
 @Injectable()
 export class WalletServiceRepository {
-    constructor() {}
-
     create(data: BasicWalletData): Promise<InsertResult> {
         return walletRepository
             .createQueryBuilder()
@@ -32,7 +30,7 @@ export class WalletServiceRepository {
         return +count;
     }
 
-    getList(limit, offset): Promise<WalletEntity[]> {
+    getList(limit: number, offset: number): Promise<WalletEntity[]> {
         return walletRepository
             .createQueryBuilder('wallet')
             .leftJoinAndSelect('wallet.type', 'type')

@@ -1,4 +1,5 @@
-import { Controller, Get, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { pick } from 'lodash';
 import { User } from 'src/common/decorators/user.decorator';
 import { AuthGuard } from 'src/common/guards/auth.guard';
@@ -6,6 +7,8 @@ import { UserInfoResponse } from 'src/common/types';
 import { UserEntity } from 'src/db/entities';
 import { UserService } from './user.service';
 
+@ApiTags('User')
+@ApiBearerAuth()
 @Controller('user')
 @UseGuards(AuthGuard)
 export class UserController {

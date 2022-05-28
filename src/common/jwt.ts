@@ -6,7 +6,7 @@ import { userTokenRepository } from 'src/db/repositories';
 import {
     JwtSignOptions,
     JwtValidateOptions,
-    PlainHashMap,
+    PlainRecord,
 } from '../common/types';
 
 export class Jwt {
@@ -25,7 +25,7 @@ export class Jwt {
         );
     }
 
-    static async verify(token: string): Promise<PlainHashMap> {
+    static async verify(token: string): Promise<PlainRecord> {
         const { data } = await Jwt.methods.verify(
             token,
             process.env.JWT_SECRET,
@@ -33,7 +33,7 @@ export class Jwt {
         return data;
     }
 
-    static async findInDb(data: PlainHashMap): Promise<UserTokenEntity> {
+    static async findInDb(data: PlainRecord): Promise<UserTokenEntity> {
         return userTokenRepository
             .createQueryBuilder('userToken')
             .leftJoinAndSelect('userToken.user', 'user')

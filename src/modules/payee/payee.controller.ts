@@ -9,6 +9,7 @@ import {
     Put,
     UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ParsePagination } from 'src/common/decorators/parse-pagination.decorator';
 import { GetPayee } from 'src/common/decorators/payee.decorator';
 import { User } from 'src/common/decorators/user.decorator';
@@ -19,6 +20,8 @@ import { PayeeEntity, UserEntity, WalletEntity } from 'src/db/entities';
 import { PayeeDto } from './dto/create.dto';
 import { PayeeService } from './payee.service';
 
+@ApiTags('Payee')
+@ApiBearerAuth()
 @Controller('payee')
 @UseGuards(AuthGuard)
 export class PayeeController {
@@ -37,6 +40,8 @@ export class PayeeController {
 
     @Get('/')
     @HttpCode(HttpStatus.OK)
+    @ApiQuery({ name: 'limit', type: 'number' })
+    @ApiQuery({ name: 'page', type: 'number' })
     async list(
         @ParsePagination() pagination: Pagination,
         @User() user: UserEntity,
@@ -46,6 +51,7 @@ export class PayeeController {
 
     @Put('/:id')
     @HttpCode(HttpStatus.OK)
+    @ApiParam({ name: 'id', type: 'number' })
     async edit(
         @GetPayee() payee: PayeeEntity,
         @GetWallet() wallet: WalletEntity,
@@ -58,6 +64,7 @@ export class PayeeController {
     }
 
     @Delete('/:id')
+    @ApiParam({ name: 'id', type: 'number' })
     @HttpCode(HttpStatus.OK)
     async remove(
         @GetPayee() payee: PayeeEntity,

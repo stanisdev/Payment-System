@@ -13,6 +13,7 @@ import {
     Put,
     Param,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { JwtCompleteData, EmptyObject } from '../../common/types';
 import { DoesEmailExistPipe } from '../../common/pipes/does-email-exist.pipe';
 import { MaxLoginAttempts } from 'src/common/guards/max-login-attempts.guard.ts';
@@ -27,6 +28,7 @@ import {
     UpdateTokenDto,
 } from './dto';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) {}

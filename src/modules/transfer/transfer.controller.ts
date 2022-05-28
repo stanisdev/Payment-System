@@ -7,6 +7,7 @@ import {
     Post,
     UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { GetClient } from 'src/common/decorators/client.decorator';
 import { ParsePagination } from 'src/common/decorators/parse-pagination.decorator';
 import { GetPayee } from 'src/common/decorators/payee.decorator';
@@ -25,11 +26,13 @@ import { ReplenishmentDto } from './dto/replenishment.dto';
 import { WithdrawalDto } from './dto/withdrawal.dto';
 import { TransferService } from './transfer.service';
 
+@ApiTags('Transfer')
 @Controller('transfer')
 export class TransferController {
     constructor(private readonly transferService: TransferService) {}
 
     @Post('/internal')
+    @ApiBearerAuth()
     @UseGuards(AuthGuard)
     @HttpCode(HttpStatus.OK)
     async internal(
@@ -41,6 +44,7 @@ export class TransferController {
     }
 
     @Post('/withdrawal')
+    @ApiBearerAuth()
     @UseGuards(AuthGuard)
     @HttpCode(HttpStatus.OK)
     async withdrawal(
@@ -60,6 +64,9 @@ export class TransferController {
     }
 
     @Get('/')
+    @ApiBearerAuth()
+    @ApiQuery({ name: 'limit', type: 'number' })
+    @ApiQuery({ name: 'page', type: 'number' })
     @UseGuards(AuthGuard)
     @HttpCode(HttpStatus.OK)
     async list(

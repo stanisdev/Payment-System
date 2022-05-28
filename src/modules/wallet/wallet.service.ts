@@ -28,7 +28,10 @@ export class WalletService {
     /**
      * Create a new user wallet
      */
-    async create(walletType: WalletType, user: UserEntity) {
+    async create(walletType: WalletType, user: UserEntity): Promise<void> {
+        if (typeof walletType != 'number') {
+            throw new BadRequestException(i18next.t('wrong-wallet-type'));
+        }
         const walletsCount = await this.repository.count(user, walletType);
 
         if (walletsCount >= +this.configService.get('MAX_WALLETS_PER_USER')) {
@@ -58,7 +61,6 @@ export class WalletService {
     private async generateIdentifier(
         walletType: WalletType,
     ): Promise<number | never> {
-        let result: number;
         for (let a = 0; a < 100; a++) {
             const identifier = +(await Utils.generateRandomString({
                 length: 8,

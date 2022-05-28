@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 
-export class RestorePasswordConfirmCodeDto {
-    @ApiProperty({})
+export class CreateWalletDto {
+    @ApiProperty()
     @IsNotEmpty()
-    code: string;
+    type: string;
 }

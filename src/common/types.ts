@@ -60,19 +60,17 @@ export type UserActivityData = {
 };
 
 export type JwtSignOptions = {
-    data: PlainHashMap;
+    data: PlainRecord;
     expiresIn: number;
 };
 
 export type JwtValidateOptions = {
     token: UserTokenEntity;
     type: UserTokenType;
-    data: PlainHashMap;
+    data: PlainRecord;
 };
 
-export type PlainHashMap = {
-    [key: string]: string | number;
-};
+export type PlainRecord = Record<string, string | number>;
 
 export type JwtCompleteData = {
     type: string;
@@ -80,7 +78,7 @@ export type JwtCompleteData = {
     expireAt: Date;
 };
 
-export type EmptyObject = {};
+export type EmptyObject = Record<string, never>;
 
 export type UserLogData = {
     user: UserEntity;

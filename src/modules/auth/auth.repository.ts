@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { EntityManager, InsertQueryBuilder, SelectQueryBuilder } from 'typeorm';
+import { EntityManager, SelectQueryBuilder } from 'typeorm';
 import {
     CityEntity,
     UserCodeEntity,
@@ -20,8 +20,6 @@ import { UserAction } from 'src/common/enums';
 
 @Injectable()
 export class AuthServiceRepository {
-    constructor() {}
-
     async createUser(
         data: BasicUserData,
         transactionalEntityManager: EntityManager,

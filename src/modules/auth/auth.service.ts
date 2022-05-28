@@ -17,7 +17,6 @@ import { appDataSource } from '../../db/dataSource';
 import {
     BasicUserCodeData,
     BasicUserData,
-    EmptyObject,
     JwtCompleteData,
     UserActivityData,
 } from '../../common/types';
