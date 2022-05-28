@@ -15,6 +15,7 @@ import { GetPayee } from 'src/common/decorators/payee.decorator';
 import { User } from 'src/common/decorators/user.decorator';
 import { GetWallet } from 'src/common/decorators/wallet.decorator';
 import { AuthGuard } from 'src/common/guards/auth.guard';
+import { LimitQuery, PageQuery } from 'src/common/objects';
 import { EmptyObject, Pagination, Payee } from 'src/common/types';
 import { PayeeEntity, UserEntity, WalletEntity } from 'src/db/entities';
 import { PayeeDto } from './dto/create.dto';
@@ -40,8 +41,8 @@ export class PayeeController {
 
     @Get('/')
     @HttpCode(HttpStatus.OK)
-    @ApiQuery({ name: 'limit', type: 'number' })
-    @ApiQuery({ name: 'page', type: 'number' })
+    @ApiQuery(LimitQuery)
+    @ApiQuery(PageQuery)
     async list(
         @ParsePagination() pagination: Pagination,
         @User() user: UserEntity,

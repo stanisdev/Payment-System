@@ -10,6 +10,7 @@ import {
     BasicWalletData,
     Pagination,
     UserActivityData,
+    WalletCategory,
     WalletsListResult,
 } from 'src/common/types';
 import { UserActivityLogger } from 'src/common/userActivityLogger';
@@ -89,5 +90,16 @@ export class WalletService {
             identifier: wallet.identifier,
             type: wallet.type.name,
         }));
+    }
+
+    /**
+     * Get the list of wallet categories and their
+     * related types
+     */
+    async getCategories({
+        limit,
+        offset,
+    }: Pagination): Promise<WalletCategory[]> {
+        return this.repository.getCategories(limit, offset);
     }
 }

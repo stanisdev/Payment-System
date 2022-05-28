@@ -191,3 +191,14 @@ export type TransferReport = {
     comment: string;
     createdAt: Date;
 };
+
+export type WalletCategory = {
+    id: number;
+    name: string;
+    types: WalletTypeRecord[];
+};
+
+export type WalletTypeRecord = {
+    id: number;
+    name: string;
+};

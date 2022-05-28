@@ -12,7 +12,13 @@ import { ParsePagination } from 'src/common/decorators/parse-pagination.decorato
 import { User } from 'src/common/decorators/user.decorator';
 import { WalletType } from 'src/common/enums';
 import { AuthGuard } from 'src/common/guards/auth.guard';
-import { EmptyObject, Pagination, WalletsListResult } from 'src/common/types';
+import { LimitQuery, PageQuery } from 'src/common/objects';
+import {
+    EmptyObject,
+    Pagination,
+    WalletCategory,
+    WalletsListResult,
+} from 'src/common/types';
 import { UserEntity } from 'src/db/entities';
 import { CreateWalletDto } from './dto/create.dto';
 import { WalletService } from './wallet.service';
@@ -36,11 +42,21 @@ export class WalletController {
 
     @Get('/')
     @HttpCode(HttpStatus.OK)
-    @ApiQuery({ name: 'limit', type: 'number' })
-    @ApiQuery({ name: 'page', type: 'number' })
+    @ApiQuery(LimitQuery)
+    @ApiQuery(PageQuery)
     async list(
         @ParsePagination() pagination: Pagination,
     ): Promise<WalletsListResult[]> {
         return this.walletService.getList(pagination);
+    }
+
+    @Get('/categories')
+    @HttpCode(HttpStatus.OK)
+    @ApiQuery(LimitQuery)
+    @ApiQuery(PageQuery)
+    async categories(
+        @ParsePagination() pagination: Pagination,
+    ): Promise<WalletCategory[]> {
+        return this.walletService.getCategories(pagination);
     }
 }

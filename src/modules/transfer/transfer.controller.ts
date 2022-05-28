@@ -13,6 +13,7 @@ import { ParsePagination } from 'src/common/decorators/parse-pagination.decorato
 import { GetPayee } from 'src/common/decorators/payee.decorator';
 import { User } from 'src/common/decorators/user.decorator';
 import { AuthGuard } from 'src/common/guards/auth.guard';
+import { LimitQuery, PageQuery } from 'src/common/objects';
 import {
     InternalTransferResult,
     Pagination,
@@ -65,8 +66,8 @@ export class TransferController {
 
     @Get('/')
     @ApiBearerAuth()
-    @ApiQuery({ name: 'limit', type: 'number' })
-    @ApiQuery({ name: 'page', type: 'number' })
+    @ApiQuery(LimitQuery)
+    @ApiQuery(PageQuery)
     @UseGuards(AuthGuard)
     @HttpCode(HttpStatus.OK)
     async list(

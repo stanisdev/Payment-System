@@ -16,7 +16,7 @@ export const ParsePagination = createParamDecorator(function (
         limit = +limit;
     }
     if (typeof page != 'string') {
-        page = 0;
+        page = 1;
     } else {
         page = +page;
     }
