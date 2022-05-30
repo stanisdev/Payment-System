@@ -4,8 +4,8 @@ import {
     ExecutionContext,
 } from '@nestjs/common';
 import * as i18next from 'i18next';
-import { ClientEntity } from 'src/db/entities';
-import { clientRepository } from 'src/db/repositories';
+import { ClientEntity } from '../../db/entities';
+import { clientRepository } from '../../db/repositories';
 
 export const GetClient = createParamDecorator(async function (
     data: unknown,

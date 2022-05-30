@@ -15,8 +15,11 @@ import {
     ClientEntity,
 } from './entities';
 
-dotenv.config();
 const { env } = process;
+
+dotenv.config({
+    path: `.${env.NODE_ENV}.env`
+});
 
 export const appDataSource = new DataSource({
     type: 'postgres',
@@ -25,7 +28,7 @@ export const appDataSource = new DataSource({
     username: env.DB_USER,
     password: env.DB_PASSWORD,
     database: env.DB_NAME,
-    logging: Boolean(env.DB_LOGGING),
+    logging: Boolean(+env.DB_LOGGING),
     synchronize: false,
     name: 'default',
     entities: [

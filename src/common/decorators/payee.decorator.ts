@@ -4,8 +4,8 @@ import {
     createParamDecorator,
     ExecutionContext,
 } from '@nestjs/common';
-import { PayeeEntity } from 'src/db/entities';
-import { payeeRepository } from 'src/db/repositories';
+import { PayeeEntity } from '../../db/entities';
+import { payeeRepository } from '../../db/repositories';
 
 export const GetPayee = createParamDecorator(async function (
     data: unknown,

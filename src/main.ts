@@ -32,6 +32,8 @@ async function bootstrap() {
     app.useGlobalPipes(new ValidationPipe());
 
     const port = configService.get<number>('APP_PORT');
-    await app.listen(port);
+    app.listen(port, () => {
+        console.log('App started at ', port); // @todo: use a logger
+    });
 }
 bootstrap();

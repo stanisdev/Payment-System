@@ -8,20 +8,20 @@ import {
     UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { GetClient } from 'src/common/decorators/client.decorator';
-import { ParsePagination } from 'src/common/decorators/parse-pagination.decorator';
-import { GetPayee } from 'src/common/decorators/payee.decorator';
-import { User } from 'src/common/decorators/user.decorator';
-import { AuthGuard } from 'src/common/guards/auth.guard';
-import { LimitQuery, PageQuery } from 'src/common/objects';
+import { GetClient } from '../../common/decorators/client.decorator';
+import { ParsePagination } from '../../common/decorators/parse-pagination.decorator';
+import { GetPayee } from '../../common/decorators/payee.decorator';
+import { User } from '../../common/decorators/user.decorator';
+import { AuthGuard } from '../../common/guards/auth.guard';
+import { LimitQuery, PageQuery } from '../../common/objects';
 import {
     InternalTransferResult,
     Pagination,
     ReplenishmentResult,
     TransferReport,
     WithdrawalResult,
-} from 'src/common/types';
-import { ClientEntity, PayeeEntity, UserEntity } from 'src/db/entities';
+} from '../../common/types';
+import { ClientEntity, PayeeEntity, UserEntity } from '../../db/entities';
 import { InternalTransferDto } from './dto/internal.dto';
 import { ReplenishmentDto } from './dto/replenishment.dto';
 import { WithdrawalDto } from './dto/withdrawal.dto';

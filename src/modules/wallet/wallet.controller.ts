@@ -8,18 +8,18 @@ import {
     UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { ParsePagination } from 'src/common/decorators/parse-pagination.decorator';
-import { User } from 'src/common/decorators/user.decorator';
-import { WalletType } from 'src/common/enums';
-import { AuthGuard } from 'src/common/guards/auth.guard';
-import { LimitQuery, PageQuery } from 'src/common/objects';
+import { ParsePagination } from '../../common/decorators/parse-pagination.decorator';
+import { User } from '../../common/decorators/user.decorator';
+import { WalletType } from '../../common/enums';
+import { AuthGuard } from '../../common/guards/auth.guard';
+import { LimitQuery, PageQuery } from '../../common/objects';
 import {
     EmptyObject,
     Pagination,
     WalletCategory,
     WalletsListResult,
-} from 'src/common/types';
-import { UserEntity } from 'src/db/entities';
+} from '../../common/types';
+import { UserEntity } from '../../db/entities';
 import { CreateWalletDto } from './dto/create.dto';
 import { WalletService } from './wallet.service';
 

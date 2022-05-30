@@ -16,7 +16,7 @@ import {
     userCodeRepository,
     userTokenRepository,
 } from '../../db/repositories';
-import { UserAction } from 'src/common/enums';
+import { UserAction } from '../../common/enums';
 
 @Injectable()
 export class AuthServiceRepository {

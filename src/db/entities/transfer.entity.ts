@@ -1,5 +1,5 @@
 import { IsDate, IsInt, Length } from 'class-validator';
-import { TransferType } from 'src/common/enums';
+import { TransferType } from '../../common/enums';
 import {
     Column,
     CreateDateColumn,

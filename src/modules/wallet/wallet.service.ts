@@ -5,18 +5,18 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as i18next from 'i18next';
-import { LoggerTemplate, UserAction, WalletType } from 'src/common/enums';
+import { LoggerTemplate, UserAction, WalletType } from '../../common/enums';
 import {
     BasicWalletData,
     Pagination,
     UserActivityData,
     WalletCategory,
     WalletsListResult,
-} from 'src/common/types';
-import { UserActivityLogger } from 'src/common/userActivityLogger';
-import { Utils } from 'src/common/utils';
-import { UserEntity, WalletEntity } from 'src/db/entities';
-import { walletRepository } from 'src/db/repositories';
+} from '../../common/types';
+import { UserActivityLogger } from '../../common/userActivityLogger';
+import { Utils } from '../../common/utils';
+import { UserEntity, WalletEntity } from '../../db/entities';
+import { walletRepository } from '../../db/repositories';
 import { WalletServiceRepository } from './wallet.repository';
 
 @Injectable()

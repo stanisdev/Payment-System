@@ -10,14 +10,14 @@ import {
     UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { ParsePagination } from 'src/common/decorators/parse-pagination.decorator';
-import { GetPayee } from 'src/common/decorators/payee.decorator';
-import { User } from 'src/common/decorators/user.decorator';
-import { GetWallet } from 'src/common/decorators/wallet.decorator';
-import { AuthGuard } from 'src/common/guards/auth.guard';
-import { LimitQuery, PageQuery } from 'src/common/objects';
-import { EmptyObject, Pagination, Payee } from 'src/common/types';
-import { PayeeEntity, UserEntity, WalletEntity } from 'src/db/entities';
+import { ParsePagination } from '../../common/decorators/parse-pagination.decorator';
+import { GetPayee } from '../../common/decorators/payee.decorator';
+import { User } from '../../common/decorators/user.decorator';
+import { GetWallet } from '../../common/decorators/wallet.decorator';
+import { AuthGuard } from '../../common/guards/auth.guard';
+import { LimitQuery, PageQuery } from '../../common/objects';
+import { EmptyObject, Pagination, Payee } from '../../common/types';
+import { PayeeEntity, UserEntity, WalletEntity } from '../../db/entities';
 import { PayeeDto } from './dto/create.dto';
 import { PayeeService } from './payee.service';
 

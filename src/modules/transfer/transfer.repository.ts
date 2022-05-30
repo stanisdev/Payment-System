@@ -4,9 +4,9 @@ import {
     TransferData,
     TransferRecord,
     UpdateWalletBalanceData,
-} from 'src/common/types';
-import { TransferEntity, UserEntity, WalletEntity } from 'src/db/entities';
-import { transferRepository, walletRepository } from 'src/db/repositories';
+} from '../../common/types';
+import { TransferEntity, UserEntity, WalletEntity } from '../../db/entities';
+import { transferRepository, walletRepository } from '../../db/repositories';
 import { EntityManager } from 'typeorm';
 
 @Injectable()

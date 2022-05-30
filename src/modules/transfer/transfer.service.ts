@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import * as i18next from 'i18next';
-import { TransferType } from 'src/common/enums';
+import { TransferType } from '../../common/enums';
 import {
     FindWalletCriteria,
     InternalTransferResult,
@@ -9,14 +9,14 @@ import {
     TransferRecord,
     TransferReport,
     WithdrawalResult,
-} from 'src/common/types';
-import { appDataSource } from 'src/db/dataSource';
+} from '../../common/types';
+import { appDataSource } from '../../db/dataSource';
 import {
     ClientEntity,
     PayeeEntity,
     UserEntity,
     WalletEntity,
-} from 'src/db/entities';
+} from '../../db/entities';
 import { EntityManager } from 'typeorm';
 import { InternalTransferDto } from './dto/internal.dto';
 import { ReplenishmentDto } from './dto/replenishment.dto';

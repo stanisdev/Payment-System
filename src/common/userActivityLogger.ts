@@ -1,4 +1,4 @@
-import { userLogRepository } from 'src/db/repositories';
+import { userLogRepository } from '../db/repositories';
 import { LoggerTemplate } from './enums';
 import { UserActivityData } from './types';
 

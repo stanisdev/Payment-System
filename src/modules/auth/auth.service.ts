@@ -27,14 +27,14 @@ import {
     UserStatus,
     UserTokenType,
     WalletType,
-} from 'src/common/enums';
+} from '../../common/enums';
 import { Jwt } from '../../common/jwt';
-import { redisClient } from 'src/common/redis';
-import { UserCodeEntity, UserEntity } from 'src/db/entities';
-import { UserTokenGenerator } from 'src/common/userTokenGenerator';
-import { UserActivityLogger } from 'src/common/userActivityLogger';
+import { redisClient } from '../../common/redis';
+import { UserCodeEntity, UserEntity } from '../../db/entities';
+import { UserTokenGenerator } from '../../common/userTokenGenerator';
+import { UserActivityLogger } from '../../common/userActivityLogger';
 import { WalletService } from '../wallet/wallet.service';
-import { Mailer } from 'src/common/mailer/index';
+import { Mailer } from '../../common/mailer/index';
 import {
     LoginDto,
     RestorePasswordCompleteDto,

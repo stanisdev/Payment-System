@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 import { IsDate, Length } from 'class-validator';
 import { UserEntity } from './user.entity';
-import { UserAction } from 'src/common/enums';
+import { UserAction } from '../../common/enums';
 
 @Entity('UserLogs')
 export class UserLogEntity {

@@ -4,8 +4,8 @@ import {
     ExecutionContext,
 } from '@nestjs/common';
 import * as i18next from 'i18next';
-import { WalletEntity } from 'src/db/entities';
-import { walletRepository } from 'src/db/repositories';
+import { WalletEntity } from '../../db/entities';
+import { walletRepository } from '../../db/repositories';
 
 export const GetWallet = createParamDecorator(async function (
     data: unknown,
