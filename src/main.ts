@@ -1,3 +1,4 @@
+import helmet from 'helmet';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
@@ -7,13 +8,18 @@ import { AppModule } from './modules/app.module';
 import { appDataSource } from './db/dataSource';
 import { redisClient } from './common/redis';
 import { Mailer } from './common/mailer/index';
+import { Logger } from './common/logger';
 
 async function bootstrap() {
     await appDataSource.initialize();
     await redisClient.ping();
     await i18nextInit();
 
-    const app = await NestFactory.create(AppModule);
+    const logger = Logger.getInstance();
+    const app = await NestFactory.create(AppModule, {
+        cors: true,
+        logger,
+    });
     const configService = app.get(ConfigService);
     Mailer.setTransporter();
 
@@ -29,10 +35,11 @@ async function bootstrap() {
 
     app.setGlobalPrefix(configService.get('API_PREFIX'));
     app.useGlobalPipes(new ValidationPipe());
+    app.use(helmet());
 
     const port = configService.get<number>('APP_PORT');
     app.listen(port, () => {
-        console.log('App started at ', port); // @todo: use a logger
+        logger.log(`The app started at the port: ${port}`);
     });
 }
 bootstrap();
