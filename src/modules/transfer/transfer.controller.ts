@@ -16,11 +16,11 @@ import { AuthGuard } from '../../common/guards/auth.guard';
 import { LimitQuery, PageQuery } from '../../common/objects';
 import {
     InternalTransferResult,
-    Pagination,
     ReplenishmentResult,
     TransferReport,
     WithdrawalResult,
-} from '../../common/types';
+} from '../../common/types/transfer.type';
+import { Pagination } from '../../common/types/other.type';
 import { ClientEntity, PayeeEntity, UserEntity } from '../../db/entities';
 import { InternalTransferDto } from './dto/internal.dto';
 import { ReplenishmentDto } from './dto/replenishment.dto';

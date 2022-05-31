@@ -1,6 +1,6 @@
 import { userLogRepository } from '../db/repositories';
 import { LoggerTemplate } from './enums';
-import { UserActivityData } from './types';
+import { UserActivityData } from './types/user.type';
 
 export class UserActivityLogger {
     static async write({

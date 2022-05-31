@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { Pagination } from '../types';
+import { Pagination } from '../types/other.type';
 
 export const ParsePagination = createParamDecorator(function (
     data: unknown,

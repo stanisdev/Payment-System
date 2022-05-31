@@ -1,15 +1,15 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import * as i18next from 'i18next';
 import { TransferType } from '../../common/enums';
+import { FindWalletCriteria } from '../../common/types/wallet.type';
+import { Pagination } from '../../common/types/other.type';
 import {
-    FindWalletCriteria,
     InternalTransferResult,
-    Pagination,
     ReplenishmentResult,
     TransferRecord,
     TransferReport,
     WithdrawalResult,
-} from '../../common/types';
+} from '../../common/types/transfer.type';
 import { appDataSource } from '../../db/dataSource';
 import {
     ClientEntity,

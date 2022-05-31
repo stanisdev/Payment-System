@@ -5,11 +5,11 @@ import { PayeeDto } from './dto/create.dto';
 import { PayeeServiceRepository } from './payee.repository';
 import {
     BasicPayeeData,
-    Pagination,
     Payee,
     UpdatePayeeData,
-    UserActivityData,
-} from '../../common/types';
+} from '../../common/types/payee.type';
+import { Pagination } from '../../common/types/other.type';
+import { UserActivityData } from '../../common/types/user.type';
 import { UserActivityLogger } from '../../common/userActivityLogger';
 import { LoggerTemplate, UserAction } from '../../common/enums';
 import { payeeRepository } from '../../db/repositories';

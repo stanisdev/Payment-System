@@ -13,12 +13,11 @@ import { User } from '../../common/decorators/user.decorator';
 import { WalletType } from '../../common/enums';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { LimitQuery, PageQuery } from '../../common/objects';
+import { EmptyObject, Pagination } from '../../common/types/other.type';
 import {
-    EmptyObject,
-    Pagination,
     WalletCategory,
     WalletsListResult,
-} from '../../common/types';
+} from '../../common/types/wallet.type';
 import { UserEntity } from '../../db/entities';
 import { CreateWalletDto } from './dto/create.dto';
 import { WalletService } from './wallet.service';

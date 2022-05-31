@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { TransferData, TransferRecord } from '../../common/types/transfer.type';
 import {
     FindWalletCriteria,
-    TransferData,
-    TransferRecord,
     UpdateWalletBalanceData,
-} from '../../common/types';
+} from '../../common/types/wallet.type';
 import { TransferEntity, UserEntity, WalletEntity } from '../../db/entities';
 import { transferRepository, walletRepository } from '../../db/repositories';
 import { EntityManager } from 'typeorm';

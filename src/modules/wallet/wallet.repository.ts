@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { WalletType } from '../../common/enums';
-import { BasicWalletData } from '../../common/types';
+import { BasicWalletData } from '../../common/types/wallet.type';
 import {
     UserEntity,
     WalletCategoryEntity,

@@ -1,5 +1,5 @@
 import { nanoid, customAlphabet } from 'nanoid/async';
-import { RandomStringOptions } from './types';
+import { RandomStringOptions } from './types/other.type';
 
 export class Utils {
     static async generateRandomString(

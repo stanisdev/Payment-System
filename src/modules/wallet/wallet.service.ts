@@ -8,11 +8,11 @@ import * as i18next from 'i18next';
 import { LoggerTemplate, UserAction, WalletType } from '../../common/enums';
 import {
     BasicWalletData,
-    Pagination,
-    UserActivityData,
     WalletCategory,
     WalletsListResult,
-} from '../../common/types';
+} from '../../common/types/wallet.type';
+import { UserActivityData } from '../../common/types/user.type';
+import { Pagination } from '../../common/types/other.type';
 import { UserActivityLogger } from '../../common/userActivityLogger';
 import { Utils } from '../../common/utils';
 import { UserEntity, WalletEntity } from '../../db/entities';

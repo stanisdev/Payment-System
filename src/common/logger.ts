@@ -12,14 +12,14 @@ export class Logger implements LoggerService {
      */
     static getInstance(): Logger {
         if (!(Logger.instance instanceof Logger)) {
-            return Logger.instance = new Logger();
+            return (Logger.instance = new Logger());
         }
         return Logger.instance;
     }
 
     /**
-    * Write a 'log' level log.
-    */
+     * Write a 'log' level log.
+     */
     log(message: any, ...optionalParams: any[]) {
         pino.info(message);
     }
@@ -30,17 +30,17 @@ export class Logger implements LoggerService {
     error(message: any, ...optionalParams: any[]) {
         pino.error(message);
     }
-  
+
     /**
      * Write a 'warn' level log.
      */
     warn(message: any, ...optionalParams: any[]) {
         pino.warn(message);
     }
-    
+
     /**
-    * Write a 'debug' level log.
-    */
+     * Write a 'debug' level log.
+     */
     debug(message: any, ...optionalParams: any[]) {
         pino.debug(message);
     }

@@ -14,7 +14,7 @@ import {
     Param,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { JwtCompleteData, EmptyObject } from '../../common/types';
+import { JwtCompleteData, EmptyObject } from '../../common/types/other.type';
 import { DoesEmailExistPipe } from '../../common/pipes/does-email-exist.pipe';
 import { MaxLoginAttempts } from '../../common/guards/max-login-attempts.guard.ts';
 import { AuthService } from './auth.service';

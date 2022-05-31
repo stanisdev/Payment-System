@@ -17,9 +17,9 @@ import { appDataSource } from '../../db/dataSource';
 import {
     BasicUserCodeData,
     BasicUserData,
-    JwtCompleteData,
     UserActivityData,
-} from '../../common/types';
+} from '../../common/types/user.type';
+import { JwtCompleteData } from '../../common/types/other.type';
 import {
     LoggerTemplate,
     MailerTemplate,

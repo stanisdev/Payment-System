@@ -10,7 +10,7 @@ import {
     BasicUserCodeData,
     BasicUserData,
     UserInfoData,
-} from '../../common/types';
+} from '../../common/types/user.type';
 import {
     cityRepository,
     userCodeRepository,

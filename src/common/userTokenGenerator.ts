@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import { UserEntity, UserTokenEntity } from '../db/entities';
 import { userTokenRepository } from '../db/repositories';
-import { JwtCompleteData } from './types';
+import { JwtCompleteData } from './types/other.type';
 import { UserTokenType } from './enums';
 import { Jwt } from './jwt';
 import { Utils } from './utils';
