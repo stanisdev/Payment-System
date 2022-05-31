@@ -12,7 +12,7 @@ export class Cities1651392765382 implements MigrationInterface {
     }
     async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
-            DROP TABLE "Cities";
-            DROP SEQUENCE Cities_id_seq;`);
+            DROP TABLE IF EXISTS "Cities";
+            DROP SEQUENCE IF EXISTS Cities_id_seq;`);
     }
 }

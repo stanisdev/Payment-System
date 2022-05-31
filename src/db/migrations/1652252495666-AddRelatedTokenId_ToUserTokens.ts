@@ -15,8 +15,8 @@ export class AddRelatedTokenIdToUserTokens1652252495666
     }
     async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
-            ALTER TABLE "UserTokens"
-                DROP COLUMN "relatedTokenId";
+            ALTER TABLE IF EXISTS "UserTokens"
+                DROP COLUMN IF EXISTS "relatedTokenId";
         `);
     }
 }

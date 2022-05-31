@@ -50,7 +50,6 @@ export class AuthService {
         private readonly repository: AuthServiceRepository,
         private readonly configService: ConfigService,
         private readonly walletService: WalletService,
-        private readonly mailer: Mailer,
     ) {}
 
     /**
@@ -127,7 +126,7 @@ export class AuthService {
             metadata: memberId.toString(),
         };
         await UserActivityLogger.write(logData);
-        this.mailer.sendMail({
+        Mailer.sendMail({
             to: dto.email,
             subject: i18next.t('mailer.signup-subject'),
             template: MailerTemplate.SIGNUP,
@@ -350,7 +349,7 @@ export class AuthService {
         /**
          * Send an email
          */
-        this.mailer.sendMail({
+        Mailer.sendMail({
             to: email,
             subject: i18next.t('mailer.reset-password'),
             template: MailerTemplate.RESTORE_PASSWORD,

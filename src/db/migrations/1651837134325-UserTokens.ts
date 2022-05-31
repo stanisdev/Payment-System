@@ -23,9 +23,9 @@ export class UserTokens1651837134325 implements MigrationInterface {
     }
     async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
-            DROP TABLE "UserTokens";
-            DROP TYPE UserTokenType;
-            DROP SEQUENCE UserTokens_id_seq;
+            DROP TABLE IF EXISTS "UserTokens";
+            DROP TYPE IF EXISTS UserTokenType;
+            DROP SEQUENCE IF EXISTS UserTokens_id_seq;
         `);
     }
 }

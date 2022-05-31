@@ -15,8 +15,7 @@ async function bootstrap() {
 
     const app = await NestFactory.create(AppModule);
     const configService = app.get(ConfigService);
-    const mailer = app.get(Mailer);
-    mailer.setTransporter();
+    Mailer.setTransporter();
 
     const swaggerConfig = new DocumentBuilder()
         .setTitle('Perfect money')

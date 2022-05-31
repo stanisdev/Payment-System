@@ -16,10 +16,19 @@ import {
 } from './entities';
 
 const { env } = process;
-
+if (typeof env.NODE_ENV != 'string') {
+    throw new Error('The "NODE_ENV" environment variable is not defined');
+}
 dotenv.config({
-    path: `.${env.NODE_ENV}.env`
+    path: `.${env.NODE_ENV}.env`,
 });
+
+let migrationsPath: string[];
+if (typeof env.MIGRATION_MODE == 'string') {
+    migrationsPath = ['src/db/migrations/**/*{.ts,.js}'];
+} else {
+    migrationsPath = [];
+}
 
 export const appDataSource = new DataSource({
     type: 'postgres',
@@ -45,5 +54,5 @@ export const appDataSource = new DataSource({
         TransferEntity,
         ClientEntity,
     ],
-    migrations: ['migrations/**/*{.ts,.js}'],
+    migrations: migrationsPath,
 });

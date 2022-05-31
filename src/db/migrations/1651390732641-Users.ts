@@ -19,8 +19,8 @@ export class Users1651390732641 implements MigrationInterface {
     }
     async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
-            DROP INDEX idx_users_member_id;
-            DROP TABLE "Users";
-            DROP SEQUENCE Users_id_seq;`);
+            DROP INDEX IF EXISTS idx_users_member_id;
+            DROP TABLE IF EXISTS "Users";
+            DROP SEQUENCE IF EXISTS Users_id_seq;`);
     }
 }

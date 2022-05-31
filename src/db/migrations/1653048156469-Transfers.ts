@@ -30,8 +30,8 @@ export class Transfers1653048156469 implements MigrationInterface {
     }
     async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
-            DROP TABLE "Transfers";
-            DROP TYPE TransferType;
+            DROP TABLE IF EXISTS "Transfers";
+            DROP TYPE IF EXISTS TransferType;
         `);
     }
 }

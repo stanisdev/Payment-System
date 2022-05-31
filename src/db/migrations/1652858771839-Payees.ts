@@ -32,7 +32,7 @@ export class Payees1652858771839 implements MigrationInterface {
     }
     async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
-            DROP TABLE "Payees";
+            DROP TABLE IF EXISTS "Payees";
         `);
     }
 }

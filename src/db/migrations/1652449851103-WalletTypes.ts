@@ -28,8 +28,8 @@ export class WalletTypes1652449851103 implements MigrationInterface {
     }
     async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
-            DROP TABLE "WalletTypes";
-            DROP SEQUENCE WalletTypes_id_seq;
+            DROP TABLE IF EXISTS "WalletTypes";
+            DROP SEQUENCE IF EXISTS WalletTypes_id_seq;
         `);
     }
 }

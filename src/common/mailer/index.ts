@@ -1,46 +1,45 @@
 import * as nodemailer from 'nodemailer';
 import * as pug from 'pug';
 import { join } from 'path';
-import { Injectable } from '@nestjs/common';
 import { MailerTemplate } from '../enums';
+import { MockTransporter } from '../interfaces';
 
-@Injectable()
 export class Mailer {
-    private host: string;
-    private port: number;
-    private user: string;
-    private password: string;
-    private from: string;
-    private templatesPath: string;
-    private transporter: nodemailer.Transporter;
+    private static transporter: nodemailer.Transporter | MockTransporter;
+    private static templatesPath: string;
+    private static from: string;
 
-    constructor() {
-        const { env } = process;
-        this.host = env.MAILER_HOST;
-        this.port = +env.MAILER_PORT;
-        this.user = env.MAILER_USER;
-        this.password = env.MAILER_PASSWORD;
-        this.from = `${env.MAILER_INTRODUCTION}: <${env.MAILER_FROM}>`;
-        this.templatesPath = join(__dirname, 'templates');
-    }
     /**
      * Create the transporter for the mail delivery
      */
-    setTransporter() {
-        this.transporter = nodemailer.createTransport({
-            host: this.host,
-            port: this.port,
-            secure: false,
-            auth: {
-                user: this.user,
-                pass: this.password,
-            },
-        });
+    static setTransporter() {
+        const { env } = process;
+        Mailer.from = `${env.MAILER_INTRODUCTION}: <${env.MAILER_FROM}>`;
+        Mailer.templatesPath = join(__dirname, 'templates');
+
+        let transporter: nodemailer.Transporter | MockTransporter;
+        if (env.NODE_ENV == 'test') {
+            transporter = {
+                async sendMail() {},
+            };
+        } else {
+            transporter = nodemailer.createTransport({
+                host: env.MAILER_HOST,
+                port: +env.MAILER_PORT,
+                secure: false,
+                auth: {
+                    user: env.MAILER_USER,
+                    pass: env.MAILER_PASSWORD,
+                },
+            });
+        }
+        Mailer.transporter = transporter;
     }
+
     /**
      * Send an email with the given parameters
      */
-    async sendMail({
+    static async sendMail({
         to,
         subject,
         template,
@@ -51,12 +50,12 @@ export class Mailer {
         template: MailerTemplate;
         data?: any;
     }): Promise<nodemailer.SentMessageInfo> {
-        const templatePath = join(this.templatesPath, template + '.pug');
+        const templatePath = join(Mailer.templatesPath, template + '.pug');
         const compiledFunction = pug.compileFile(templatePath);
         const content = compiledFunction(data);
 
-        return this.transporter.sendMail({
-            from: this.from,
+        return Mailer.transporter.sendMail({
+            from: Mailer.from,
             to,
             subject,
             text: content,

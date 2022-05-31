@@ -22,8 +22,8 @@ export class UserLogs1652092514762 implements MigrationInterface {
     }
     async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
-            DROP TABLE "UserLogs";
-            DROP SEQUENCE UserLogs_id_seq;
+            DROP TABLE IF EXISTS "UserLogs";
+            DROP SEQUENCE IF EXISTS UserLogs_id_seq;
         `);
     }
 }

@@ -35,9 +35,9 @@ export class UserInfo1651392960586 implements MigrationInterface {
     }
     async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
-            DROP TABLE "UserInfo";
-            DROP TYPE Country;
-            DROP TYPE Account;
-            DROP SEQUENCE UserInfo_id_seq;`);
+            DROP TABLE IF EXISTS "UserInfo";
+            DROP TYPE IF EXISTS Country;
+            DROP TYPE IF EXISTS Account;
+            DROP SEQUENCE IF EXISTS UserInfo_id_seq;`);
     }
 }

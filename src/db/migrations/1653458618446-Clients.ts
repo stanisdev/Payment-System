@@ -15,8 +15,8 @@ export class Clients1653458618446 implements MigrationInterface {
     }
     async down(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
-            DROP TABLE "Clients";
-            DROP SEQUENCE Clients_id_seq;
+            DROP TABLE IF EXISTS "Clients";
+            DROP SEQUENCE IF EXISTS Clients_id_seq;
         `);
     }
 }
