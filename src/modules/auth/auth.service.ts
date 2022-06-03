@@ -28,11 +28,11 @@ import {
     UserTokenType,
     WalletType,
 } from '../../common/enums';
-import { Jwt } from '../../common/jwt';
-import { redisClient } from '../../common/redis';
+import { Jwt } from '../../common/providers/jwt';
+import { redisClient } from '../../common/providers/redis';
 import { UserCodeEntity, UserEntity } from '../../db/entities';
-import { UserTokenGenerator } from '../../common/userTokenGenerator';
-import { UserActivityLogger } from '../../common/userActivityLogger';
+import { UserTokenGenerator } from '../../common/helpers/userTokenGenerator';
+import { UserActivityLogger } from '../../common/helpers/userActivityLogger';
 import { WalletService } from '../wallet/wallet.service';
 import { Mailer } from '../../common/mailer/index';
 import {

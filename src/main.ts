@@ -3,12 +3,12 @@ import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { init as i18nextInit } from './common/i18next';
+import { init as i18nextInit } from './common/providers/i18next';
 import { AppModule } from './modules/app.module';
 import { appDataSource } from './db/dataSource';
-import { redisClient } from './common/redis';
+import { redisClient } from './common/providers/redis';
 import { Mailer } from './common/mailer/index';
-import { Logger } from './common/logger';
+import { Logger } from './common/helpers/logger';
 
 async function bootstrap() {
     await appDataSource.initialize();

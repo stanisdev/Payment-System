@@ -3,7 +3,7 @@ import {
     ExecutionContext,
     ForbiddenException,
 } from '@nestjs/common';
-import { redisClient } from '../redis';
+import { redisClient } from '../providers/redis';
 
 export class MaxLoginAttempts implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {

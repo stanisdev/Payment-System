@@ -5,7 +5,7 @@ import {
     Injectable,
 } from '@nestjs/common';
 import { UserTokenType } from '../enums';
-import { Jwt } from '../jwt';
+import { Jwt } from '../providers/jwt';
 
 @Injectable()
 export class AuthGuard implements CanActivate {

@@ -3,7 +3,7 @@ import { readdir } from 'fs/promises';
 import { join, dirname } from 'path';
 
 export const init = async () => {
-    const localesDir = join(dirname(__dirname), 'locales');
+    const localesDir = join(dirname(dirname(__dirname)), 'locales');
     const dirs = await readdir(localesDir);
 
     const resources = {};

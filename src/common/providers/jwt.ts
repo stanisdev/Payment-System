@@ -1,13 +1,13 @@
 import * as jwtPackage from 'jsonwebtoken';
 import { promisify } from 'util';
 import { strictEqual as equal } from 'assert';
-import { UserTokenEntity } from '../db/entities';
-import { userTokenRepository } from '../db/repositories';
+import { UserTokenEntity } from '../../db/entities';
+import { userTokenRepository } from '../../db/repositories';
 import {
     JwtSignOptions,
     JwtValidateOptions,
     PlainRecord,
-} from './types/other.type';
+} from '../types/other.type';
 
 export class Jwt {
     private static methods = {

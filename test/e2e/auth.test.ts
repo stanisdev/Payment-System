@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { AppModule } from '../../src/modules/app.module';
 import { appDataSource } from '../../src/db/dataSource';
-import { redisClient } from '../../src/common/redis';
+import { redisClient } from '../../src/common/providers/redis';
 import { Mailer } from '../../src/common/mailer';
 import { userRepository } from '../../src/db/repositories';
 import { UserEntity } from '../../src/db/entities';
