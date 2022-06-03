@@ -26,4 +26,6 @@ export const translation = {
     'confirm-code-expired': 'The confirm code expired',
     'exceeded-attempts-to-restore-password':
         'You have exceeded the maximum attempts to restore the password',
+    'withdrawal-limit-has-been-exceeded':
+        'You are limited to withdrawing a maximum of {{amount}} per day',
 };

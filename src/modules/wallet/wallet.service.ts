@@ -83,11 +83,15 @@ export class WalletService {
     /**
      * Get list of user's wallets
      */
-    async getList({ limit, offset }: Pagination): Promise<WalletsListResult[]> {
-        const wallets = await this.repository.getList(limit, offset);
+    async getList(
+        { limit, offset }: Pagination,
+        user: UserEntity,
+    ): Promise<WalletsListResult[]> {
+        const wallets = await this.repository.getList(user, limit, offset);
 
         return wallets.map((wallet) => ({
             identifier: wallet.identifier,
+            balance: wallet.balance,
             type: wallet.type.name,
         }));
     }

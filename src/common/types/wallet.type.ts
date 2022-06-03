@@ -9,6 +9,7 @@ export type BasicWalletData = {
 
 export type WalletsListResult = {
     identifier: number;
+    balance: number;
     type: string;
 };
 

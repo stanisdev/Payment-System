@@ -10,6 +10,7 @@ import {
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { GetClient } from '../../common/decorators/client.decorator';
 import { ParsePagination } from '../../common/decorators/parse-pagination.decorator';
+import { WithdrawalRestriction } from '../../common/guards/withdrawal-restriction.guard';
 import { GetPayee } from '../../common/decorators/payee.decorator';
 import { User } from '../../common/decorators/user.decorator';
 import { AuthGuard } from '../../common/guards/auth.guard';
@@ -46,7 +47,7 @@ export class TransferController {
 
     @Post('/withdrawal')
     @ApiBearerAuth()
-    @UseGuards(AuthGuard)
+    @UseGuards(AuthGuard, WithdrawalRestriction)
     @HttpCode(HttpStatus.OK)
     async withdrawal(
         @Body() dto: WithdrawalDto,

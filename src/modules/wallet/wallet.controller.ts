@@ -45,8 +45,9 @@ export class WalletController {
     @ApiQuery(PageQuery)
     async list(
         @ParsePagination() pagination: Pagination,
+        @User() user: UserEntity,
     ): Promise<WalletsListResult[]> {
-        return this.walletService.getList(pagination);
+        return this.walletService.getList(pagination, user);
     }
 
     @Get('/categories')

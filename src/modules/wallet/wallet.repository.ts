@@ -37,10 +37,16 @@ export class WalletServiceRepository {
         return +count;
     }
 
-    getList(limit: number, offset: number): Promise<WalletEntity[]> {
+    getList(
+        user: UserEntity,
+        limit: number,
+        offset: number,
+    ): Promise<WalletEntity[]> {
         return walletRepository
             .createQueryBuilder('wallet')
             .leftJoinAndSelect('wallet.type', 'type')
+            .select(['wallet.identifier', 'wallet.balance', 'type.name'])
+            .where('wallet."userId" = :userId', { userId: user.id })
             .orderBy('type.id')
             .limit(limit)
             .offset(offset)

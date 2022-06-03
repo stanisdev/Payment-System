@@ -168,7 +168,7 @@ export class AuthService {
         const user = await userRepository.findOneBy({ memberId });
         try {
             equal(user instanceof Object, true);
-            equal(user.status < UserStatus.EMAIL_NOT_CONFIRMED, true);
+            equal(user.status > UserStatus.EMAIL_NOT_CONFIRMED, true);
             const match = await bcrypt.compare(
                 password + user.salt,
                 user.password,
