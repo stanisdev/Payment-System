@@ -17,7 +17,7 @@ import {
 
 const { env } = process;
 if (typeof env.NODE_ENV != 'string') {
-    throw new Error('The "NODE_ENV" environment variable is not defined');
+    env.NODE_ENV = 'development';
 }
 dotenv.config({
     path: `.${env.NODE_ENV}.env`,

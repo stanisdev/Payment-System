@@ -21,12 +21,13 @@ import {
     TransferReport,
     WithdrawalResult,
 } from '../../common/types/transfer.type';
-import { Pagination } from '../../common/types/other.type';
+import { EmptyObject, Pagination } from '../../common/types/other.type';
 import { ClientEntity, PayeeEntity, UserEntity } from '../../db/entities';
 import { InternalTransferDto } from './dto/internal.dto';
 import { ReplenishmentDto } from './dto/replenishment.dto';
 import { WithdrawalDto } from './dto/withdrawal.dto';
 import { TransferService } from './transfer.service';
+import { RefundDto } from './dto/refund.dto';
 
 @ApiTags('Transfer')
 @Controller('transfer')
@@ -76,5 +77,17 @@ export class TransferController {
         @User() user: UserEntity,
     ): Promise<TransferReport[]> {
         return this.transferService.list(pagination, user);
+    }
+
+    @Post('/refund')
+    @ApiBearerAuth()
+    @UseGuards(AuthGuard)
+    @HttpCode(HttpStatus.OK)
+    async refund(
+        @Body() dto: RefundDto,
+        @User() user: UserEntity,
+    ): Promise<EmptyObject> {
+        await this.transferService.refund(dto, user);
+        return {};
     }
 }

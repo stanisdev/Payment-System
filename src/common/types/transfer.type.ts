@@ -1,3 +1,4 @@
+import { UserEntity } from '../../db/entities';
 import { TransferType } from '../enums';
 
 export type InternalTransferResult = {
@@ -46,4 +47,11 @@ export type ReplenishmentResult = {
     wallet: string;
     amount: number;
     createdAt: Date;
+};
+
+export type SearchTransferCriteria = {
+    id: string;
+    type: TransferType;
+    amount: number;
+    user: UserEntity;
 };

@@ -28,4 +28,10 @@ export const translation = {
         'You have exceeded the maximum attempts to restore the password',
     'withdrawal-limit-has-been-exceeded':
         'You are limited to withdrawing a maximum of {{amount}} per day',
+    'transfer-not-found': 'A transfer record is not found',
+    'unable-to-revoke-transfer':
+        'The transfer cannot be reverted since it was executed more than {{hours}} hours ago',
+    'recipient-balance-is-not-enough':
+        'The balance of the wallet that has received the transfer does not possess enough money to revert the transfer',
+    'cancel-of-transfer': 'Cancel of the previous transfer: ',
 };

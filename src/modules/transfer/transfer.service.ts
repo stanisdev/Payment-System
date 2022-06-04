@@ -1,11 +1,14 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
 import * as i18next from 'i18next';
+import * as moment from 'moment';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { TransferType } from '../../common/enums';
 import { FindWalletCriteria } from '../../common/types/wallet.type';
 import { Pagination } from '../../common/types/other.type';
 import {
     InternalTransferResult,
     ReplenishmentResult,
+    TransferData,
     TransferRecord,
     TransferReport,
     WithdrawalResult,
@@ -14,6 +17,7 @@ import { appDataSource } from '../../db/dataSource';
 import {
     ClientEntity,
     PayeeEntity,
+    TransferEntity,
     UserEntity,
     WalletEntity,
 } from '../../db/entities';
@@ -22,10 +26,14 @@ import { InternalTransferDto } from './dto/internal.dto';
 import { ReplenishmentDto } from './dto/replenishment.dto';
 import { WithdrawalDto } from './dto/withdrawal.dto';
 import { TransferServiceRepository } from './transfer.repository';
+import { RefundDto } from './dto/refund.dto';
 
 @Injectable()
 export class TransferService {
-    constructor(private readonly repository: TransferServiceRepository) {}
+    constructor(
+        private readonly repository: TransferServiceRepository,
+        private readonly configService: ConfigService,
+    ) {}
 
     /**
      * Transfer money from a wallet to a wallet
@@ -225,6 +233,74 @@ export class TransferService {
                     comment,
                     createdAt,
                 };
+            },
+        );
+    }
+
+    /**
+     * Refund an amount of money if the transfer
+     * was executed recently
+     */
+    async refund(
+        { transferId, amount }: RefundDto,
+        user: UserEntity,
+    ): Promise<void> {
+        const transfer = await this.repository.getTransfer({
+            id: transferId,
+            type: TransferType.INTERNAL,
+            amount,
+            user,
+        });
+        if (!(transfer instanceof TransferEntity)) {
+            throw new BadRequestException(i18next.t('transfer-not-found'));
+        }
+        const refundPeriod = +this.configService.get('REFUND_ALLOWED_PERIOD');
+        const transferExpiration = moment()
+            .subtract(refundPeriod, 'hour')
+            .toDate();
+
+        if (transfer.createdAt <= transferExpiration) {
+            throw new BadRequestException(
+                i18next.t('unable-to-revoke-transfer', { hours: refundPeriod }),
+            );
+        }
+        if (transfer.walletRecipient.balance < amount) {
+            throw new BadRequestException(
+                i18next.t('recipient-balance-is-not-enough'),
+            );
+        }
+        await appDataSource.transaction(
+            async (transactionalEntityManager: EntityManager) => {
+                const senderWalletData = {
+                    walletId: transfer.walletSender.id,
+                    balance: transfer.walletSender.balance + amount,
+                };
+                const recipientWalletData = {
+                    walletId: transfer.walletRecipient.id,
+                    balance: transfer.walletRecipient.balance - amount,
+                };
+                const transferData: TransferData = {
+                    walletRecipientId: transfer.walletSender.id,
+                    walletSenderId: transfer.walletRecipient.id,
+                    amount,
+                    type: TransferType.REFUND,
+                    comment: i18next.t('cancel-of-transfer') + transfer.id,
+                };
+                /**
+                 * Execute the transaction
+                 */
+                await this.repository.updateWalletBalance(
+                    senderWalletData,
+                    transactionalEntityManager,
+                );
+                await this.repository.updateWalletBalance(
+                    recipientWalletData,
+                    transactionalEntityManager,
+                );
+                await this.repository.createTransfer(
+                    transferData,
+                    transactionalEntityManager,
+                );
             },
         );
     }
