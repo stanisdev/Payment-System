@@ -36,4 +36,5 @@ export const translation = {
     'cancel-of-transfer': 'Cancel of the previous transfer: ',
     'account-is-blocked': 'Your account is blocked',
     'too-many-attempts-to-login': 'You attempted too many times to log in',
+    'broken-access-token': 'The passed access token is broken',
 };

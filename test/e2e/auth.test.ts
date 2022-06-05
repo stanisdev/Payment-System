@@ -13,7 +13,7 @@ import { AppModule } from '../../src/modules/app.module';
 import { appDataSource } from '../../src/db/dataSource';
 import { redisClient } from '../../src/common/providers/redis';
 import { Mailer } from '../../src/common/mailer';
-import { userRepository } from '../../src/db/repositories';
+import { userRepository, userTokenRepository } from '../../src/db/repositories';
 import { UserEntity } from '../../src/db/entities';
 import { UserStatus, UserAction, UserTokenType } from '../../src/common/enums';
 import { AuthSeeder } from '../seeders/auth';
@@ -369,6 +369,102 @@ describe('Auth controller', () => {
             expect(response.statusCode).toBe(HttpStatus.TOO_MANY_REQUESTS);
             expect(Array.isArray(response.body)).toBe(false);
             expect(response.body.statusCode).toBe(HttpStatus.TOO_MANY_REQUESTS);
+        });
+    });
+
+    describe('POST: /auth/logout', () => {
+        test('It should logout successfully from one device', async () => {
+            const { data, password } = await Utils.createUserAndGetData();
+            await request(server).post('/auth/login').send({
+                memberId: data.memberId,
+                password,
+            });
+            const loginResponse = await request(server)
+                .post('/auth/login')
+                .send({
+                    memberId: data.memberId,
+                    password,
+                });
+            const accessToken = loginResponse.body.find(
+                (token) => token.type == UserTokenType.ACCESS,
+            );
+
+            const logoutResponse = await request(server)
+                .get('/auth/logout')
+                .set('Authorization', `Bearer ${accessToken.token}`);
+            expect(logoutResponse.statusCode).toBe(HttpStatus.OK);
+            expect(Object.keys(logoutResponse.body).length).toBe(0);
+
+            const user = await userRepository.findOneBy({
+                email: data.email,
+            });
+            const userTokensCount = await userTokenRepository
+                .createQueryBuilder('userToken')
+                .select('COUNT(userToken.id)', 'cnt')
+                .where('"userToken"."userId" = :userId', { userId: user.id })
+                .getRawOne();
+            expect(userTokensCount.cnt).toBe('2');
+        });
+
+        test('It should logout successfully from all devices', async () => {
+            const { data, password } = await Utils.createUserAndGetData();
+            await request(server).post('/auth/login').send({
+                memberId: data.memberId,
+                password,
+            });
+            const loginResponse = await request(server)
+                .post('/auth/login')
+                .send({
+                    memberId: data.memberId,
+                    password,
+                });
+            const accessToken = loginResponse.body.find(
+                (token) => token.type == UserTokenType.ACCESS,
+            );
+
+            const logoutResponse = await request(server)
+                .get('/auth/logout?allDevices=true')
+                .set('Authorization', `Bearer ${accessToken.token}`);
+            expect(logoutResponse.statusCode).toBe(HttpStatus.OK);
+            expect(Object.keys(logoutResponse.body).length).toBe(0);
+
+            const user = await userRepository.findOneBy({
+                email: data.email,
+            });
+            const userTokensCount = await userTokenRepository
+                .createQueryBuilder('userToken')
+                .select('COUNT(userToken.id)', 'cnt')
+                .where('"userToken"."userId" = :userId', { userId: user.id })
+                .getRawOne();
+            expect(userTokensCount.cnt).toBe('0');
+        });
+
+        test('It should prevent double attempts to logout and throw an error', async () => {
+            const { data, password } = await Utils.createUserAndGetData();
+            const loginResponse = await request(server)
+                .post('/auth/login')
+                .send({
+                    memberId: data.memberId,
+                    password,
+                });
+            const accessToken = loginResponse.body.find(
+                (token) => token.type == UserTokenType.ACCESS,
+            );
+
+            await request(server)
+                .get('/auth/logout')
+                .set('Authorization', `Bearer ${accessToken.token}`);
+            const logoutResponse = await request(server)
+                .get('/auth/logout')
+                .set('Authorization', `Bearer ${accessToken.token}`);
+            expect(logoutResponse.statusCode).toBe(HttpStatus.BAD_REQUEST);
+        });
+
+        test('It should throw an error if the given access token is incorrect', async () => {
+            const response = await request(server)
+                .get('/auth/logout')
+                .set('Authorization', `Bearer JJJJJJJJJJJJJJJ`);
+            expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
         });
     });
 

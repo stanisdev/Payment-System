@@ -30,7 +30,7 @@ import {
 } from '../../common/enums';
 import { Jwt } from '../../common/providers/jwt';
 import { redisClient } from '../../common/providers/redis';
-import { UserCodeEntity, UserEntity } from '../../db/entities';
+import { UserCodeEntity, UserEntity, UserTokenEntity } from '../../db/entities';
 import { UserTokenGenerator } from '../../common/helpers/userTokenGenerator';
 import { UserActivityLogger } from '../../common/helpers/userActivityLogger';
 import { WalletService } from '../wallet/wallet.service';
@@ -263,13 +263,18 @@ export class AuthService {
      * further interaction within the given token
      */
     async logout(accessToken: string, allDevices: boolean): Promise<void> {
-        const data = await Jwt.verify(accessToken);
-        const userToken = await Jwt.findInDb(data);
-        Jwt.validate({
-            token: userToken,
-            type: UserTokenType.ACCESS,
-            data,
-        });
+        let userToken: UserTokenEntity;
+        try {
+            const data = await Jwt.verify(accessToken);
+            userToken = await Jwt.findInDb(data);
+            Jwt.validate({
+                token: userToken,
+                type: UserTokenType.ACCESS,
+                data,
+            });
+        } catch {
+            throw new BadRequestException(i18next.t('broken-access-token'));
+        }
         if (allDevices) {
             await this.repository.deleteAllTokens(userToken.user.id);
         } else {
