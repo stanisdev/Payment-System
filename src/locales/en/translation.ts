@@ -37,4 +37,5 @@ export const translation = {
     'account-is-blocked': 'Your account is blocked',
     'too-many-attempts-to-login': 'You attempted too many times to log in',
     'broken-access-token': 'The passed access token is broken',
+    'broken-refresh-token': 'The passed refresh token is broken',
 };

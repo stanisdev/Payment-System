@@ -246,14 +246,19 @@ export class AuthService {
     async updateToken({
         refreshToken,
     }: UpdateTokenDto): Promise<JwtCompleteData[]> {
-        const data = await Jwt.verify(refreshToken);
-        const userToken = await Jwt.findInDb(data);
-        const validationOptions = {
-            token: userToken,
-            type: UserTokenType.REFRESH,
-            data,
-        };
-        Jwt.validate(validationOptions);
+        let userToken: UserTokenEntity;
+        try {
+            const data = await Jwt.verify(refreshToken);
+            userToken = await Jwt.findInDb(data);
+            const validationOptions = {
+                token: userToken,
+                type: UserTokenType.REFRESH,
+                data,
+            };
+            Jwt.validate(validationOptions);
+        } catch {
+            throw new BadRequestException(i18next.t('broken-refresh-token'));
+        }
         await this.repository.deletePairOfTokens(userToken.id);
         return this.generateJwtTokens(userToken.user);
     }

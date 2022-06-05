@@ -212,17 +212,16 @@ describe('Auth controller', () => {
             accessToken.expireAt = new Date(accessToken.expireAt);
             refreshToken.expireAt = new Date(refreshToken.expireAt);
 
-            expect(typeof accessToken.token == 'string').toBe(true);
-            expect(typeof refreshToken.token == 'string').toBe(true);
-
+            expect(typeof accessToken.token).toBe('string');
+            expect(typeof refreshToken.token).toBe('string');
             expect(lodash.isDate(accessToken.expireAt)).toBe(true);
             expect(lodash.isDate(refreshToken.expireAt)).toBe(true);
 
             const accessTokenLifetime = moment()
-                .add(+process.env.JWT_ACCESS_LIFETIME, 'hours')
+                .add(+env.JWT_ACCESS_LIFETIME, 'hours')
                 .toDate();
             const refreshTokenLifetime = moment()
-                .add(+process.env.JWT_REFRESH_LIFETIME, 'hours')
+                .add(+env.JWT_REFRESH_LIFETIME, 'hours')
                 .toDate();
             expect(accessToken.expireAt <= accessTokenLifetime).toBe(true);
             expect(refreshToken.expireAt <= refreshTokenLifetime).toBe(true);
@@ -349,7 +348,7 @@ describe('Auth controller', () => {
                 password,
             } = await Utils.createUserAndGetData();
 
-            for (let a = 0; a < +process.env.MAX_LOGIN_ATTEMPTS; a++) {
+            for (let a = 0; a < +env.MAX_LOGIN_ATTEMPTS; a++) {
                 const response = await request(server)
                     .post('/auth/login')
                     .send({
@@ -465,6 +464,154 @@ describe('Auth controller', () => {
                 .get('/auth/logout')
                 .set('Authorization', `Bearer JJJJJJJJJJJJJJJ`);
             expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+        });
+    });
+
+    describe('POST: /auth/update-token', () => {
+        test('It should successfully update tokens by removing old ones and generating new ones', async () => {
+            const { data, password } = await Utils.createUserAndGetData();
+            const loginResponse = await request(server)
+                .post('/auth/login')
+                .send({
+                    memberId: data.memberId,
+                    password,
+                });
+            let refreshToken = loginResponse.body.find(
+                (token) => token.type == UserTokenType.REFRESH,
+            );
+            const { body, statusCode } = await request(server)
+                .post('/auth/update-token')
+                .send({ refreshToken: refreshToken.token });
+
+            expect(statusCode).toBe(HttpStatus.OK);
+            expect(Array.isArray(body)).toBe(true);
+            expect(body.length).toBe(2);
+
+            const accessToken = body.find(
+                (token) => token.type == UserTokenType.ACCESS,
+            );
+            refreshToken = body.find(
+                (token) => token.type == UserTokenType.REFRESH,
+            );
+            accessToken.expireAt = new Date(accessToken.expireAt);
+            refreshToken.expireAt = new Date(refreshToken.expireAt);
+
+            expect(typeof accessToken.token).toBe('string');
+            expect(typeof refreshToken.token).toBe('string');
+            expect(lodash.isDate(accessToken.expireAt)).toBe(true);
+            expect(lodash.isDate(refreshToken.expireAt)).toBe(true);
+
+            const accessTokenLifetime = moment()
+                .add(+env.JWT_ACCESS_LIFETIME, 'hours')
+                .toDate();
+            const refreshTokenLifetime = moment()
+                .add(+env.JWT_REFRESH_LIFETIME, 'hours')
+                .toDate();
+            expect(accessToken.expireAt <= accessTokenLifetime).toBe(true);
+            expect(refreshToken.expireAt <= refreshTokenLifetime).toBe(true);
+
+            const user = await userRepository.findOneBy({
+                email: data.email,
+            });
+            const userTokensCount = await userTokenRepository
+                .createQueryBuilder('userToken')
+                .select('COUNT(userToken.id)', 'cnt')
+                .where('"userToken"."userId" = :userId', { userId: user.id })
+                .getRawOne();
+            expect(userTokensCount.cnt).toBe('2');
+        });
+
+        test('It should get a valid access token that can be used for requests to the API', async () => {
+            const { data, password } = await Utils.createUserAndGetData();
+            const loginResponse = await request(server)
+                .post('/auth/login')
+                .send({
+                    memberId: data.memberId,
+                    password,
+                });
+            let refreshToken = loginResponse.body.find(
+                (token) => token.type == UserTokenType.REFRESH,
+            );
+            const { body } = await request(server)
+                .post('/auth/update-token')
+                .send({ refreshToken: refreshToken.token });
+            const accessToken = body.find(
+                (token) => token.type == UserTokenType.ACCESS,
+            );
+            const userMeResponse = await request(server)
+                .get('/user/me')
+                .set('Authorization', `Bearer ${accessToken.token}`);
+            expect(userMeResponse.statusCode).toBe(HttpStatus.OK);
+            expect(userMeResponse.body.email).toBe(data.email);
+            expect(userMeResponse.body.memberId).toBe(data.memberId);
+
+            const user = await userRepository.findOneBy({
+                email: userMeResponse.body.email,
+                memberId: userMeResponse.body.memberId,
+            });
+            expect(user.id).toBe(userMeResponse.body.id);
+        });
+
+        test('It should remove old pairs of tokens that become invalid', async () => {
+            const { data, password } = await Utils.createUserAndGetData();
+            const { body } = await request(server).post('/auth/login').send({
+                memberId: data.memberId,
+                password,
+            });
+            let refreshToken = body.find(
+                (token) => token.type == UserTokenType.REFRESH,
+            );
+            let accessToken = body.find(
+                (token) => token.type == UserTokenType.ACCESS,
+            );
+            await request(server)
+                .post('/auth/update-token')
+                .send({ refreshToken: refreshToken.token });
+
+            const userMeResponse = await request(server)
+                .get('/user/me')
+                .set('Authorization', `Bearer ${accessToken.token}`);
+            expect(userMeResponse.statusCode).toBe(HttpStatus.FORBIDDEN);
+        });
+
+        test('It should throw an error if the passed refresh token is broken', async () => {
+            const { statusCode, body } = await request(server)
+                .post('/auth/update-token')
+                .send({ refreshToken: AuthSeeder['broken-jwt-token'] });
+            expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
+            expect(Array.isArray(body)).toBe(false);
+        });
+
+        test('It should throw an error if the passed refresh token expired', async () => {
+            const { data, password } = await Utils.createUserAndGetData();
+            const { body } = await request(server).post('/auth/login').send({
+                memberId: data.memberId,
+                password,
+            });
+            let refreshToken = body.find(
+                (token) => token.type == UserTokenType.REFRESH,
+            );
+            const user = await userRepository.findOneBy({
+                email: data.email,
+            });
+            const refreshTokenRecord = await userTokenRepository
+                .createQueryBuilder('userToken')
+                .select()
+                .where('"userToken".type = :type', {
+                    type: UserTokenType.REFRESH,
+                })
+                .andWhere('"userToken"."userId" = :userId', { userId: user.id })
+                .getOne();
+
+            refreshTokenRecord.expireAt = moment()
+                .subtract(1, 'hours')
+                .toDate();
+            await userTokenRepository.save(refreshTokenRecord);
+            const updateTokenResponse = await request(server)
+                .post('/auth/update-token')
+                .send({ refreshToken: refreshToken.token });
+            expect(updateTokenResponse.statusCode).toBe(HttpStatus.BAD_REQUEST);
+            expect(Array.isArray(updateTokenResponse.body)).toBe(false);
         });
     });
 

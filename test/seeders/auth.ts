@@ -26,4 +26,8 @@ export class AuthSeeder {
             status: UserStatus.EMAIL_NOT_CONFIRMED,
         };
     }
+
+    static get ['broken-jwt-token']() {
+        return 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InVzZX.m4Ah';
+    }
 }
