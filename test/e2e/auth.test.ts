@@ -1,6 +1,7 @@
 import * as request from 'supertest';
 import * as bcrypt from 'bcrypt';
 import * as moment from 'moment';
+import * as lodash from 'lodash';
 import { Test } from '@nestjs/testing';
 import {
     HttpServer,
@@ -14,8 +15,9 @@ import { redisClient } from '../../src/common/providers/redis';
 import { Mailer } from '../../src/common/mailer';
 import { userRepository } from '../../src/db/repositories';
 import { UserEntity } from '../../src/db/entities';
-import { UserStatus, UserAction } from '../../src/common/enums';
+import { UserStatus, UserAction, UserTokenType } from '../../src/common/enums';
 import { AuthSeeder } from '../seeders/auth';
+import { Utils } from '../utils';
 const { env } = process;
 
 describe('Auth controller', () => {
@@ -182,6 +184,191 @@ describe('Auth controller', () => {
                 .post('/auth/sign-up')
                 .send(data);
             expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+        });
+    });
+
+    describe('POST: /auth/login', () => {
+        test('It should validate a user successfully and return pair of the tokens', async () => {
+            const {
+                data: { memberId },
+                password,
+            } = await Utils.createUserAndGetData();
+            const { body, statusCode } = await request(server)
+                .post('/auth/login')
+                .send({
+                    memberId: memberId,
+                    password,
+                });
+            expect(statusCode).toBe(HttpStatus.OK);
+            expect(Array.isArray(body)).toBe(true);
+            expect(body.length).toBe(2);
+
+            const accessToken = body.find(
+                (token) => token.type == UserTokenType.ACCESS,
+            );
+            const refreshToken = body.find(
+                (token) => token.type == UserTokenType.REFRESH,
+            );
+            accessToken.expireAt = new Date(accessToken.expireAt);
+            refreshToken.expireAt = new Date(refreshToken.expireAt);
+
+            expect(typeof accessToken.token == 'string').toBe(true);
+            expect(typeof refreshToken.token == 'string').toBe(true);
+
+            expect(lodash.isDate(accessToken.expireAt)).toBe(true);
+            expect(lodash.isDate(refreshToken.expireAt)).toBe(true);
+
+            const accessTokenLifetime = moment()
+                .add(+process.env.JWT_ACCESS_LIFETIME, 'hours')
+                .toDate();
+            const refreshTokenLifetime = moment()
+                .add(+process.env.JWT_REFRESH_LIFETIME, 'hours')
+                .toDate();
+            expect(accessToken.expireAt <= accessTokenLifetime).toBe(true);
+            expect(refreshToken.expireAt <= refreshTokenLifetime).toBe(true);
+        });
+
+        test('It should login and get valid access token', async () => {
+            const { data, password } = await Utils.createUserAndGetData();
+            const loginResponse = await request(server)
+                .post('/auth/login')
+                .send({
+                    memberId: data.memberId,
+                    password,
+                });
+            expect(loginResponse.statusCode).toBe(HttpStatus.OK);
+            const accessToken = loginResponse.body.find(
+                (token) => token.type == UserTokenType.ACCESS,
+            );
+
+            const userMeResponse = await request(server)
+                .get('/user/me')
+                .set('Authorization', `Bearer ${accessToken.token}`);
+            expect(userMeResponse.statusCode).toBe(HttpStatus.OK);
+            expect(userMeResponse.body.email).toBe(data.email);
+            expect(userMeResponse.body.memberId).toBe(data.memberId);
+
+            const user = await userRepository.findOneBy({
+                email: userMeResponse.body.email,
+                memberId: userMeResponse.body.memberId,
+            });
+            expect(user.id).toBe(userMeResponse.body.id);
+        });
+
+        test('It should login and get valid refresh token', async () => {
+            const {
+                data: { memberId },
+                password,
+            } = await Utils.createUserAndGetData();
+            const loginResponse = await request(server)
+                .post('/auth/login')
+                .send({
+                    memberId,
+                    password,
+                });
+            expect(loginResponse.statusCode).toBe(HttpStatus.OK);
+            const refreshToken = loginResponse.body.find(
+                (token) => token.type == UserTokenType.REFRESH,
+            );
+
+            const updateTokenResponse = await request(server)
+                .post('/auth/update-token')
+                .send({
+                    refreshToken: refreshToken.token,
+                });
+            expect(updateTokenResponse.statusCode).toBe(HttpStatus.OK);
+            expect(Array.isArray(updateTokenResponse.body)).toBe(true);
+            expect(updateTokenResponse.body.length).toBe(2);
+        });
+
+        test('It should throw an error if passed a wrong "memberId"', async () => {
+            let {
+                data: { memberId },
+                password,
+            } = await Utils.createUserAndGetData();
+            const response = await request(server)
+                .post('/auth/login')
+                .send({
+                    memberId: +`${memberId}9`,
+                    password,
+                });
+            expect(response.statusCode).toBe(HttpStatus.FORBIDDEN);
+            expect(Array.isArray(response.body)).toBe(false);
+            expect(response.body.statusCode).toBe(HttpStatus.FORBIDDEN);
+        });
+
+        test('It should throw an error if passed a wrong password', async () => {
+            let {
+                data: { memberId },
+                password,
+            } = await Utils.createUserAndGetData();
+            const response = await request(server)
+                .post('/auth/login')
+                .send({
+                    memberId,
+                    password: password + '?',
+                });
+            expect(response.statusCode).toBe(HttpStatus.FORBIDDEN);
+            expect(Array.isArray(response.body)).toBe(false);
+            expect(response.body.statusCode).toBe(HttpStatus.FORBIDDEN);
+        });
+
+        test(`It should throw an error if the user's email is not confirmed`, async () => {
+            let {
+                data: { memberId },
+                password,
+            } = await Utils.createUserAndGetData(
+                UserStatus.EMAIL_NOT_CONFIRMED,
+            );
+            const response = await request(server).post('/auth/login').send({
+                memberId,
+                password,
+            });
+            expect(response.statusCode).toBe(HttpStatus.FORBIDDEN);
+            expect(Array.isArray(response.body)).toBe(false);
+            expect(response.body.statusCode).toBe(HttpStatus.FORBIDDEN);
+        });
+
+        test(`It should throw an error if the user's acount is blocked`, async () => {
+            let {
+                data: { memberId },
+                password,
+            } = await Utils.createUserAndGetData(UserStatus.BLOCKED);
+            const response = await request(server).post('/auth/login').send({
+                memberId,
+                password,
+            });
+            expect(response.statusCode).toBe(HttpStatus.FORBIDDEN);
+            expect(Array.isArray(response.body)).toBe(false);
+            expect(response.body.statusCode).toBe(HttpStatus.FORBIDDEN);
+        });
+
+        test(`It should throw an error if the user attempted too many times to log in`, async () => {
+            let {
+                data: { memberId },
+                password,
+            } = await Utils.createUserAndGetData();
+
+            for (let a = 0; a < +process.env.MAX_LOGIN_ATTEMPTS; a++) {
+                const response = await request(server)
+                    .post('/auth/login')
+                    .send({
+                        memberId,
+                        password: password + '?',
+                    });
+                expect(response.statusCode).toBe(HttpStatus.FORBIDDEN);
+                expect(Array.isArray(response.body)).toBe(false);
+                expect(response.body.statusCode).toBe(HttpStatus.FORBIDDEN);
+            }
+            const response = await request(server)
+                .post('/auth/login')
+                .send({
+                    memberId,
+                    password: password + '?',
+                });
+            expect(response.statusCode).toBe(HttpStatus.TOO_MANY_REQUESTS);
+            expect(Array.isArray(response.body)).toBe(false);
+            expect(response.body.statusCode).toBe(HttpStatus.TOO_MANY_REQUESTS);
         });
     });
 

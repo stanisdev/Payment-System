@@ -34,4 +34,6 @@ export const translation = {
     'recipient-balance-is-not-enough':
         'The balance of the wallet that has received the transfer does not possess enough money to revert the transfer',
     'cancel-of-transfer': 'Cancel of the previous transfer: ',
+    'account-is-blocked': 'Your account is blocked',
+    'too-many-attempts-to-login': 'You attempted too many times to log in',
 };

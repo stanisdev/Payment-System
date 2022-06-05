@@ -1,7 +1,9 @@
 import { LoggerService } from '@nestjs/common';
 import { pino as getPino } from 'pino';
 
-const pino = getPino();
+const pino = getPino({
+    enabled: process.env.NODE_ENV != 'test',
+});
 
 export class Logger implements LoggerService {
     private static instance: Logger | null = null;

@@ -19,7 +19,7 @@ export class AuthSeeder {
 
     static get ['basic.user']() {
         return {
-            memberId: faker.datatype.number({ max: 100000 }),
+            memberId: faker.datatype.number({ max: 1000000 }),
             email: faker.internet.email(),
             password: faker.internet.password(),
             salt: 'AAAAA',

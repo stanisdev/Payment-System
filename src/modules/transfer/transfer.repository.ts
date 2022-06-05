@@ -96,6 +96,14 @@ export class TransferServiceRepository {
             .createQueryBuilder('transfer')
             .leftJoinAndSelect('transfer.walletSender', 'walletSender')
             .leftJoinAndSelect('transfer.walletRecipient', 'walletRecipient')
+            .select([
+                'transfer.id',
+                'transfer.createdAt',
+                'walletSender.id',
+                'walletSender.balance',
+                'walletRecipient.id',
+                'walletRecipient.balance',
+            ])
             .where('transfer.id = :id', { id })
             .andWhere('transfer.amount = :amount', { amount })
             .andWhere('transfer.type = :type', { type })

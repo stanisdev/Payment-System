@@ -6,7 +6,7 @@ import {
     ExecutionContext,
     ForbiddenException,
 } from '@nestjs/common';
-import { transferRepository } from 'src/db/repositories';
+import { transferRepository } from '../../db/repositories';
 import { TransferType } from '../enums';
 
 export class WithdrawalRestriction implements CanActivate {

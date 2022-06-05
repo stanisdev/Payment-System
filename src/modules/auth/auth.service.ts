@@ -168,7 +168,6 @@ export class AuthService {
         const user = await userRepository.findOneBy({ memberId });
         try {
             equal(user instanceof Object, true);
-            equal(user.status > UserStatus.EMAIL_NOT_CONFIRMED, true);
             const match = await bcrypt.compare(
                 password + user.salt,
                 user.password,
@@ -187,6 +186,9 @@ export class AuthService {
         }
         if (user.status == UserStatus.EMAIL_NOT_CONFIRMED) {
             throw new ForbiddenException(i18next.t('email-not-confirmed'));
+        }
+        if (user.status == UserStatus.BLOCKED) {
+            throw new ForbiddenException(i18next.t('account-is-blocked'));
         }
         const tokens = await this.generateJwtTokens(user);
         /**

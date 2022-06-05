@@ -1,9 +1,6 @@
-import {
-    CanActivate,
-    ExecutionContext,
-    ForbiddenException,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext } from '@nestjs/common';
 import { redisClient } from '../providers/redis';
+import { TooManyRequestsException } from '../exceptions/too-many-requests.exception';
 
 export class MaxLoginAttempts implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -16,9 +13,7 @@ export class MaxLoginAttempts implements CanActivate {
             !Number.isNaN(attemptsCount) &&
             attemptsCount >= +process.env.MAX_LOGIN_ATTEMPTS
         ) {
-            throw new ForbiddenException(
-                'You have reached maximum attempts of signing in',
-            );
+            throw new TooManyRequestsException();
         }
         return true;
     }
