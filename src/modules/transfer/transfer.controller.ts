@@ -8,6 +8,7 @@ import {
     UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { GetWallet } from '../../common/decorators/wallet.decorator';
 import { GetClient } from '../../common/decorators/client.decorator';
 import { ParsePagination } from '../../common/decorators/parse-pagination.decorator';
 import { WithdrawalRestriction } from '../../common/guards/withdrawal-restriction.guard';
@@ -17,17 +18,24 @@ import { AuthGuard } from '../../common/guards/auth.guard';
 import { LimitQuery, PageQuery } from '../../common/objects';
 import {
     InternalTransferResult,
+    InvoiceResult,
     ReplenishmentResult,
     TransferReport,
     WithdrawalResult,
 } from '../../common/types/transfer.type';
 import { EmptyObject, Pagination } from '../../common/types/other.type';
-import { ClientEntity, PayeeEntity, UserEntity } from '../../db/entities';
+import {
+    ClientEntity,
+    PayeeEntity,
+    UserEntity,
+    WalletEntity,
+} from '../../db/entities';
 import { InternalTransferDto } from './dto/internal.dto';
 import { ReplenishmentDto } from './dto/replenishment.dto';
 import { WithdrawalDto } from './dto/withdrawal.dto';
 import { TransferService } from './transfer.service';
 import { RefundDto } from './dto/refund.dto';
+import { InvoiceCreateDto } from './dto/invoice-create.dto';
 
 @ApiTags('Transfer')
 @Controller('transfer')
@@ -89,5 +97,17 @@ export class TransferController {
     ): Promise<EmptyObject> {
         await this.transferService.refund(dto, user);
         return {};
+    }
+
+    @Post('/invoice-create')
+    @ApiBearerAuth()
+    @UseGuards(AuthGuard)
+    @HttpCode(HttpStatus.CREATED)
+    async bill(
+        @GetWallet() debtorWallet: WalletEntity,
+        @Body() dto: InvoiceCreateDto,
+        @User() user: UserEntity,
+    ): Promise<InvoiceResult> {
+        return this.transferService.invoiceCreate(dto, user, debtorWallet);
     }
 }

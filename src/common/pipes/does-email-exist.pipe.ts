@@ -1,3 +1,4 @@
+import * as i18next from 'i18next';
 import {
     PipeTransform,
     ArgumentMetadata,
@@ -13,7 +14,7 @@ export class DoesEmailExistPipe implements PipeTransform {
             email: body.email,
         });
         if (user instanceof Object) {
-            throw new BadRequestException('Email already exists');
+            throw new BadRequestException(i18next.t('email-already-exists'));
         }
         return body;
     }

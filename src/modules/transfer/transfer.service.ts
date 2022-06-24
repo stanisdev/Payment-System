@@ -7,7 +7,9 @@ import { FindWalletCriteria } from '../../common/types/wallet.type';
 import { Pagination } from '../../common/types/other.type';
 import {
     InternalTransferResult,
+    InvoiceResult,
     ReplenishmentResult,
+    SearchInvoiceCriteria,
     TransferData,
     TransferRecord,
     TransferReport,
@@ -27,6 +29,7 @@ import { ReplenishmentDto } from './dto/replenishment.dto';
 import { WithdrawalDto } from './dto/withdrawal.dto';
 import { TransferServiceRepository } from './transfer.repository';
 import { RefundDto } from './dto/refund.dto';
+import { InvoiceCreateDto } from './dto/invoice-create.dto';
 
 @Injectable()
 export class TransferService {
@@ -316,5 +319,43 @@ export class TransferService {
             throw new BadRequestException(i18next.t('wallet-not-found'));
         }
         return wallet;
+    }
+
+    /**
+     * Bill an amount to a user and await its repayment
+     */
+    async invoiceCreate(
+        dto: InvoiceCreateDto,
+        user: UserEntity,
+        debtorWallet: WalletEntity,
+    ): Promise<InvoiceResult> {
+        const recipientWallet = await this.repository.getWallet({
+            user,
+            typeId: dto.walletType,
+        });
+        if (!(recipientWallet instanceof WalletEntity)) {
+            throw new BadRequestException(i18next.t('no-wallet-to-bill'));
+        }
+        const invoiceData: SearchInvoiceCriteria = {
+            walletSenderId: debtorWallet.id,
+            walletRecipientId: recipientWallet.id,
+            type: TransferType.INVOICE_CREATED,
+        };
+        const invoice = await this.repository.getInvoice(invoiceData);
+        if (invoice instanceof TransferEntity) {
+            throw new BadRequestException(i18next.t('invoice-already-exists'));
+        }
+
+        const transferData: TransferData = {
+            ...invoiceData,
+            amount: dto.amount,
+        };
+        const transferInfo = await this.repository.createTransfer(transferData);
+        return {
+            id: transferInfo.id,
+            debtorWallet: debtorWallet.getFullIdentifier(),
+            recipientWallet: recipientWallet.getFullIdentifier(),
+            amount: dto.amount,
+        };
     }
 }

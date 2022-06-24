@@ -55,3 +55,16 @@ export type SearchTransferCriteria = {
     amount: number;
     user: UserEntity;
 };
+
+export type InvoiceResult = {
+    id: string;
+    debtorWallet: string;
+    recipientWallet: string;
+    amount: number;
+};
+
+export type SearchInvoiceCriteria = {
+    walletSenderId: number;
+    walletRecipientId: number;
+    type: TransferType;
+};

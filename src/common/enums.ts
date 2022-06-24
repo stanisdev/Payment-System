@@ -36,6 +36,8 @@ export enum TransferType {
     WITHDRAWAL = 'Withdrawal',
     REPLENISHMENT = 'Replenishment',
     REFUND = 'Refund',
+    INVOICE_CREATED = 'InvoiceCreated',
+    INVOICE_PAID = 'InvoicePaid',
 }
 
 export enum MailerTemplate {

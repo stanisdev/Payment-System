@@ -16,7 +16,7 @@ export type WalletsListResult = {
 export type FindWalletCriteria = {
     user?: UserEntity;
     typeId: number;
-    identifier: number;
+    identifier?: number;
 };
 
 export type UpdateWalletBalanceData = {

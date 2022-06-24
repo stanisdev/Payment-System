@@ -11,6 +11,9 @@ export class UserCodeEntity {
     user: UserEntity;
 
     @Column()
+    userId: number;
+
+    @Column()
     @Length(1, 20)
     code: string;
 

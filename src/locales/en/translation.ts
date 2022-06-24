@@ -38,4 +38,8 @@ export const translation = {
     'too-many-attempts-to-login': 'You attempted too many times to log in',
     'broken-access-token': 'The passed access token is broken',
     'broken-refresh-token': 'The passed refresh token is broken',
+    'email-already-exists': 'Email already exists',
+    'no-wallet-to-bill':
+        'You do not have a wallet of the same type in order to bill',
+    'invoice-already-exists': 'You have already billed to this wallet',
 };

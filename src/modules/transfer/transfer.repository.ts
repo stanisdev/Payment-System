@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { EntityManager } from 'typeorm';
+import { EntityManager, InsertQueryBuilder } from 'typeorm';
 import {
+    SearchInvoiceCriteria,
     SearchTransferCriteria,
     TransferData,
     TransferRecord,
@@ -22,10 +23,12 @@ export class TransferServiceRepository {
         const query = walletRepository
             .createQueryBuilder('wallet')
             .leftJoinAndSelect('wallet.type', 'type')
-            .where('wallet."typeId" = :typeId', { typeId })
-            .andWhere('wallet.identifier = :identifier', { identifier });
+            .where('wallet."typeId" = :typeId', { typeId });
         if (user instanceof UserEntity) {
             query.andWhere('wallet.userId = :userId', { userId: user.id });
+        }
+        if (Number.isInteger(identifier)) {
+            query.andWhere('wallet.identifier = :identifier', { identifier });
         }
         return query.getOne();
     }
@@ -44,14 +47,20 @@ export class TransferServiceRepository {
 
     async createTransfer(
         data: TransferData,
-        transactionalEntityManager: EntityManager,
+        transactionalEntityManager?: EntityManager,
     ): Promise<TransferRecord> {
-        const insertedData = await transactionalEntityManager
-            .createQueryBuilder()
-            .insert()
-            .into(TransferEntity)
-            .values(data)
-            .execute();
+        let qb: InsertQueryBuilder<TransferEntity>;
+
+        if (!transactionalEntityManager) {
+            qb = transferRepository.createQueryBuilder().insert().values(data);
+        } else {
+            qb = transactionalEntityManager
+                .createQueryBuilder()
+                .insert()
+                .into(TransferEntity)
+                .values(data);
+        }
+        const insertedData = await qb.execute();
         return insertedData.raw[0];
     }
 
@@ -108,6 +117,16 @@ export class TransferServiceRepository {
             .andWhere('transfer.amount = :amount', { amount })
             .andWhere('transfer.type = :type', { type })
             .andWhere('walletSender.userId = :userId', { userId: user.id })
+            .getOne();
+    }
+
+    async getInvoice(data: SearchInvoiceCriteria): Promise<TransferEntity> {
+        return transferRepository
+            .createQueryBuilder('transfer')
+            .where('transfer.walletSenderId = :walletSenderId')
+            .andWhere('transfer.walletRecipientId = :walletRecipientId')
+            .andWhere('transfer.type = :type')
+            .setParameters(data)
             .getOne();
     }
 }
