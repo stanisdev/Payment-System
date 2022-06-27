@@ -95,18 +95,20 @@ export class AuthService {
                     user,
                     city,
                 };
-                await this.repository.createUserInfo(
-                    userInfoData,
-                    transactionalEntityManager,
-                );
                 const userCodeData: BasicUserCodeData = {
                     ...confirmCode,
                     ...{ user, action: UserAction.CONFIRM_EMAIL },
                 };
-                await this.repository.createUserCode(
-                    userCodeData,
-                    transactionalEntityManager,
-                );
+                await Promise.all([
+                    this.repository.createUserInfo(
+                        userInfoData,
+                        transactionalEntityManager,
+                    ),
+                    this.repository.createUserCode(
+                        userCodeData,
+                        transactionalEntityManager,
+                    ),
+                ]);
             },
         );
         /**

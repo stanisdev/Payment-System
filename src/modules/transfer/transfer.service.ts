@@ -64,35 +64,38 @@ export class TransferService {
          * Exectue a transction implementing the task
          */
         let transferInfo: TransferRecord;
+        const updateSenderData = {
+            walletId: senderWallet.id,
+            balance: senderWallet.balance - dto.amount,
+        };
+        const updateRecipientData = {
+            walletId: recipientWallet.id,
+            balance: recipientWallet.balance + dto.amount,
+        };
+        const transferData = {
+            walletSenderId: senderWallet.id,
+            walletRecipientId: recipientWallet.id,
+            amount: dto.amount,
+            type: TransferType.INTERNAL,
+            comment: dto.comment,
+        };
         await appDataSource.transaction(
             async (transactionalEntityManager: EntityManager) => {
-                const updateSenderData = {
-                    walletId: senderWallet.id,
-                    balance: senderWallet.balance - dto.amount,
-                };
-                const updateRecipientData = {
-                    walletId: recipientWallet.id,
-                    balance: recipientWallet.balance + dto.amount,
-                };
-                const transferData = {
-                    walletSenderId: senderWallet.id,
-                    walletRecipientId: recipientWallet.id,
-                    amount: dto.amount,
-                    type: TransferType.INTERNAL,
-                    comment: dto.comment,
-                };
-                await this.repository.updateWalletBalance(
-                    updateSenderData,
-                    transactionalEntityManager,
-                );
-                await this.repository.updateWalletBalance(
-                    updateRecipientData,
-                    transactionalEntityManager,
-                );
-                transferInfo = await this.repository.createTransfer(
-                    transferData,
-                    transactionalEntityManager,
-                );
+                const [createdTransfer] = await Promise.all([
+                    this.repository.createTransfer(
+                        transferData,
+                        transactionalEntityManager,
+                    ),
+                    this.repository.updateWalletBalance(
+                        updateSenderData,
+                        transactionalEntityManager,
+                    ),
+                    this.repository.updateWalletBalance(
+                        updateRecipientData,
+                        transactionalEntityManager,
+                    ),
+                ]);
+                transferInfo = createdTransfer;
             },
         );
         return {
@@ -124,26 +127,29 @@ export class TransferService {
             throw new BadRequestException(i18next.t('no-enough-money'));
         }
         let transferInfo: TransferRecord;
+        const updateWalletData = {
+            walletId: wallet.id,
+            balance: wallet.balance - dto.amount,
+        };
+        const transferData = {
+            walletSenderId: wallet.id,
+            amount: dto.amount,
+            type: TransferType.WITHDRAWAL,
+            comment: i18next.t('withdrawal-direction') + dto.direction,
+        };
         await appDataSource.transaction(
             async (transactionalEntityManager: EntityManager) => {
-                const updateWalletData = {
-                    walletId: wallet.id,
-                    balance: wallet.balance - dto.amount,
-                };
-                await this.repository.updateWalletBalance(
-                    updateWalletData,
-                    transactionalEntityManager,
-                );
-                const transferData = {
-                    walletSenderId: wallet.id,
-                    amount: dto.amount,
-                    type: TransferType.WITHDRAWAL,
-                    comment: i18next.t('withdrawal-direction') + dto.direction,
-                };
-                transferInfo = await this.repository.createTransfer(
-                    transferData,
-                    transactionalEntityManager,
-                );
+                const [createdTransfer] = await Promise.all([
+                    await this.repository.createTransfer(
+                        transferData,
+                        transactionalEntityManager,
+                    ),
+                    this.repository.updateWalletBalance(
+                        updateWalletData,
+                        transactionalEntityManager,
+                    ),
+                ]);
+                transferInfo = createdTransfer;
             },
         );
         return {
@@ -169,26 +175,29 @@ export class TransferService {
             identifier: dto.walletIdentifier,
         });
         let transferInfo: TransferRecord;
+        const updateWalletData = {
+            walletId: wallet.id,
+            balance: wallet.balance + dto.amount,
+        };
+        const transferData = {
+            walletRecipientId: wallet.id,
+            amount: dto.amount,
+            type: TransferType.REPLENISHMENT,
+            comment: client.name,
+        };
         await appDataSource.transaction(
             async (transactionalEntityManager: EntityManager) => {
-                const updateWalletData = {
-                    walletId: wallet.id,
-                    balance: wallet.balance + dto.amount,
-                };
-                await this.repository.updateWalletBalance(
-                    updateWalletData,
-                    transactionalEntityManager,
-                );
-                const transferData = {
-                    walletRecipientId: wallet.id,
-                    amount: dto.amount,
-                    type: TransferType.REPLENISHMENT,
-                    comment: client.name,
-                };
-                transferInfo = await this.repository.createTransfer(
-                    transferData,
-                    transactionalEntityManager,
-                );
+                const [createdTransfer] = await Promise.all([
+                    this.repository.createTransfer(
+                        transferData,
+                        transactionalEntityManager,
+                    ),
+                    this.repository.updateWalletBalance(
+                        updateWalletData,
+                        transactionalEntityManager,
+                    ),
+                ]);
+                transferInfo = createdTransfer;
             },
         );
         return {
@@ -273,38 +282,43 @@ export class TransferService {
                 i18next.t('recipient-balance-is-not-enough'),
             );
         }
+        /**
+         * Prepare the data for making changes
+         */
+        const senderWalletData = {
+            walletId: transfer.walletSender.id,
+            balance: transfer.walletSender.balance + amount,
+        };
+        const recipientWalletData = {
+            walletId: transfer.walletRecipient.id,
+            balance: transfer.walletRecipient.balance - amount,
+        };
+        const transferData: TransferData = {
+            walletRecipientId: transfer.walletSender.id,
+            walletSenderId: transfer.walletRecipient.id,
+            amount,
+            type: TransferType.REFUND,
+            comment: i18next.t('cancel-of-transfer') + transfer.id,
+        };
+        /**
+         * Execute the transaction
+         */
         await appDataSource.transaction(
             async (transactionalEntityManager: EntityManager) => {
-                const senderWalletData = {
-                    walletId: transfer.walletSender.id,
-                    balance: transfer.walletSender.balance + amount,
-                };
-                const recipientWalletData = {
-                    walletId: transfer.walletRecipient.id,
-                    balance: transfer.walletRecipient.balance - amount,
-                };
-                const transferData: TransferData = {
-                    walletRecipientId: transfer.walletSender.id,
-                    walletSenderId: transfer.walletRecipient.id,
-                    amount,
-                    type: TransferType.REFUND,
-                    comment: i18next.t('cancel-of-transfer') + transfer.id,
-                };
-                /**
-                 * Execute the transaction
-                 */
-                await this.repository.updateWalletBalance(
-                    senderWalletData,
-                    transactionalEntityManager,
-                );
-                await this.repository.updateWalletBalance(
-                    recipientWalletData,
-                    transactionalEntityManager,
-                );
-                await this.repository.createTransfer(
-                    transferData,
-                    transactionalEntityManager,
-                );
+                await Promise.all([
+                    this.repository.updateWalletBalance(
+                        senderWalletData,
+                        transactionalEntityManager,
+                    ),
+                    this.repository.updateWalletBalance(
+                        recipientWalletData,
+                        transactionalEntityManager,
+                    ),
+                    this.repository.createTransfer(
+                        transferData,
+                        transactionalEntityManager,
+                    ),
+                ]);
             },
         );
     }
@@ -380,19 +394,19 @@ export class TransferService {
             throw new BadRequestException(i18next.t('no-money-to-pay-invoice'));
         }
         const { walletSender, walletRecipient } = transfer;
+        const updateSenderData = {
+            walletId: walletSender.id,
+            balance: walletSender.balance - transfer.amount,
+        };
+        const updateRecipientData = {
+            walletId: walletRecipient.id,
+            balance: walletRecipient.balance + transfer.amount,
+        };
         /**
          * Fulfill the primary transaction
          */
         await appDataSource.transaction(
             async (transactionalEntityManager: EntityManager) => {
-                const updateSenderData = {
-                    walletId: walletSender.id,
-                    balance: walletSender.balance - transfer.amount,
-                };
-                const updateRecipientData = {
-                    walletId: walletRecipient.id,
-                    balance: walletRecipient.balance + transfer.amount,
-                };
                 await Promise.all([
                     this.repository.updateWalletBalance(
                         updateSenderData,
