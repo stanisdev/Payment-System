@@ -42,4 +42,7 @@ export const translation = {
     'no-wallet-to-bill':
         'You do not have a wallet of the same type in order to bill',
     'invoice-already-exists': 'You have already billed to this wallet',
+    'invoice-not-found': 'Invoice not found',
+    'no-money-to-pay-invoice':
+        'You do not have enough money to pay the invoice',
 };

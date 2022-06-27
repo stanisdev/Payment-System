@@ -52,8 +52,9 @@ export type ReplenishmentResult = {
 export type SearchTransferCriteria = {
     id: string;
     type: TransferType;
-    amount: number;
     user: UserEntity;
+    amount?: number;
+    includeWalletsType?: boolean;
 };
 
 export type InvoiceResult = {
@@ -66,5 +67,9 @@ export type InvoiceResult = {
 export type SearchInvoiceCriteria = {
     walletSenderId: number;
     walletRecipientId: number;
+    type: TransferType;
+};
+
+export type UpdateTransferData = {
     type: TransferType;
 };

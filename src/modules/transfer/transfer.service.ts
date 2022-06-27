@@ -30,6 +30,7 @@ import { WithdrawalDto } from './dto/withdrawal.dto';
 import { TransferServiceRepository } from './transfer.repository';
 import { RefundDto } from './dto/refund.dto';
 import { InvoiceCreateDto } from './dto/invoice-create.dto';
+import { InvoicePayDto } from './dto/invoice-pay.dto';
 
 @Injectable()
 export class TransferService {
@@ -356,6 +357,64 @@ export class TransferService {
             debtorWallet: debtorWallet.getFullIdentifier(),
             recipientWallet: recipientWallet.getFullIdentifier(),
             amount: dto.amount,
+        };
+    }
+
+    /**
+     * Pay an invoice with the given id
+     */
+    async invoicePay(
+        dto: InvoicePayDto,
+        user: UserEntity,
+    ): Promise<InvoiceResult> {
+        const transfer = await this.repository.getTransfer({
+            id: dto.transferId,
+            type: TransferType.INVOICE_CREATED,
+            includeWalletsType: true,
+            user,
+        });
+        if (!(transfer instanceof TransferEntity)) {
+            throw new BadRequestException(i18next.t('invoice-not-found'));
+        }
+        if (transfer.amount > transfer.walletSender.balance) {
+            throw new BadRequestException(i18next.t('no-money-to-pay-invoice'));
+        }
+        const { walletSender, walletRecipient } = transfer;
+        /**
+         * Fulfill the primary transaction
+         */
+        await appDataSource.transaction(
+            async (transactionalEntityManager: EntityManager) => {
+                const updateSenderData = {
+                    walletId: walletSender.id,
+                    balance: walletSender.balance - transfer.amount,
+                };
+                const updateRecipientData = {
+                    walletId: walletRecipient.id,
+                    balance: walletRecipient.balance + transfer.amount,
+                };
+                await Promise.all([
+                    this.repository.updateWalletBalance(
+                        updateSenderData,
+                        transactionalEntityManager,
+                    ),
+                    this.repository.updateWalletBalance(
+                        updateRecipientData,
+                        transactionalEntityManager,
+                    ),
+                    this.repository.updateTransfer(
+                        transfer.id,
+                        { type: TransferType.INVOICE_PAID },
+                        transactionalEntityManager,
+                    ),
+                ]);
+            },
+        );
+        return {
+            id: transfer.id,
+            debtorWallet: walletSender.getFullIdentifier(),
+            recipientWallet: walletRecipient.getFullIdentifier(),
+            amount: transfer.amount,
         };
     }
 }

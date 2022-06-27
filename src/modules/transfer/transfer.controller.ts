@@ -36,6 +36,7 @@ import { WithdrawalDto } from './dto/withdrawal.dto';
 import { TransferService } from './transfer.service';
 import { RefundDto } from './dto/refund.dto';
 import { InvoiceCreateDto } from './dto/invoice-create.dto';
+import { InvoicePayDto } from './dto/invoice-pay.dto';
 
 @ApiTags('Transfer')
 @Controller('transfer')
@@ -103,11 +104,22 @@ export class TransferController {
     @ApiBearerAuth()
     @UseGuards(AuthGuard)
     @HttpCode(HttpStatus.CREATED)
-    async bill(
+    async invoiceCreate(
         @GetWallet() debtorWallet: WalletEntity,
         @Body() dto: InvoiceCreateDto,
         @User() user: UserEntity,
     ): Promise<InvoiceResult> {
         return this.transferService.invoiceCreate(dto, user, debtorWallet);
+    }
+
+    @Post('/invoice-pay')
+    @ApiBearerAuth()
+    @UseGuards(AuthGuard)
+    @HttpCode(HttpStatus.OK)
+    async invoicePay(
+        @Body() dto: InvoicePayDto,
+        @User() user: UserEntity,
+    ): Promise<InvoiceResult> {
+        return this.transferService.invoicePay(dto, user);
     }
 }

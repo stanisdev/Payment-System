@@ -5,6 +5,7 @@ import {
     SearchTransferCriteria,
     TransferData,
     TransferRecord,
+    UpdateTransferData,
 } from '../../common/types/transfer.type';
 import {
     FindWalletCriteria,
@@ -100,27 +101,44 @@ export class TransferServiceRepository {
         type,
         amount,
         user,
+        includeWalletsType,
     }: SearchTransferCriteria): Promise<TransferEntity> {
-        return transferRepository
+        const select = [
+            'transfer.id',
+            'transfer.createdAt',
+            'transfer.amount',
+            'walletSender.id',
+            'walletSender.balance',
+            'walletRecipient.id',
+            'walletRecipient.balance',
+        ];
+        const qb = transferRepository
             .createQueryBuilder('transfer')
             .leftJoinAndSelect('transfer.walletSender', 'walletSender')
             .leftJoinAndSelect('transfer.walletRecipient', 'walletRecipient')
-            .select([
-                'transfer.id',
-                'transfer.createdAt',
-                'walletSender.id',
-                'walletSender.balance',
-                'walletRecipient.id',
-                'walletRecipient.balance',
-            ])
             .where('transfer.id = :id', { id })
-            .andWhere('transfer.amount = :amount', { amount })
             .andWhere('transfer.type = :type', { type })
-            .andWhere('walletSender.userId = :userId', { userId: user.id })
-            .getOne();
+            .andWhere('walletSender.userId = :userId', { userId: user.id });
+
+        if (includeWalletsType) {
+            qb.leftJoinAndSelect(
+                'walletSender.type',
+                'walletSenderType',
+            ).leftJoinAndSelect('walletRecipient.type', 'walletRecipientType');
+            select.push(
+                'walletSender.identifier',
+                'walletSenderType.name',
+                'walletRecipient.identifier',
+                'walletRecipientType.name',
+            );
+        }
+        if (Number.isInteger(amount)) {
+            qb.andWhere('transfer.amount = :amount', { amount });
+        }
+        return qb.select(select).getOne();
     }
 
-    async getInvoice(data: SearchInvoiceCriteria): Promise<TransferEntity> {
+    getInvoice(data: SearchInvoiceCriteria): Promise<TransferEntity> {
         return transferRepository
             .createQueryBuilder('transfer')
             .where('transfer.walletSenderId = :walletSenderId')
@@ -128,5 +146,18 @@ export class TransferServiceRepository {
             .andWhere('transfer.type = :type')
             .setParameters(data)
             .getOne();
+    }
+
+    async updateTransfer(
+        id: string,
+        data: UpdateTransferData,
+        transactionalEntityManager: EntityManager,
+    ): Promise<void> {
+        await transactionalEntityManager
+            .createQueryBuilder()
+            .update(TransferEntity)
+            .set(data)
+            .where('id = :id', { id })
+            .execute();
     }
 }
