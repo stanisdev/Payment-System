@@ -12,6 +12,9 @@ import {
     PayeeEntity,
     TransferEntity,
     ClientEntity,
+    AdminEntity,
+    AdminLogEntity,
+    RoleEntity,
 } from '../entities';
 import { appDataSource } from '../dataSource';
 
@@ -39,6 +42,12 @@ const transferRepository: Repository<TransferEntity> =
     appDataSource.getRepository(TransferEntity);
 const clientRepository: Repository<ClientEntity> =
     appDataSource.getRepository(ClientEntity);
+const adminRepository: Repository<AdminEntity> =
+    appDataSource.getRepository(AdminEntity);
+const adminLogRepository: Repository<AdminLogEntity> =
+    appDataSource.getRepository(AdminLogEntity);
+const roleRepository: Repository<RoleEntity> =
+    appDataSource.getRepository(RoleEntity);
 
 export {
     cityRepository,
@@ -53,4 +62,7 @@ export {
     payeeRepository,
     transferRepository,
     clientRepository,
+    adminRepository,
+    adminLogRepository,
+    roleRepository,
 };

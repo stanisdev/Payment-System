@@ -10,6 +10,9 @@ import { UserCodeEntity } from './userCode.entity';
 import { PayeeEntity } from './payee.entity';
 import { TransferEntity } from './transfer.entity';
 import { ClientEntity } from './client.entity';
+import { AdminEntity } from './admin.entity';
+import { AdminLogEntity } from './adminLog.entity';
+import { RoleEntity } from './role.entity';
 
 export {
     CityEntity,
@@ -24,4 +27,7 @@ export {
     PayeeEntity,
     TransferEntity,
     ClientEntity,
+    AdminEntity,
+    AdminLogEntity,
+    RoleEntity,
 };

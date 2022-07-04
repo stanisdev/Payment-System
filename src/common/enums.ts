@@ -50,3 +50,11 @@ export enum UserStatus {
     EMAIL_NOT_CONFIRMED = 0,
     EMAIL_CONFIRMED = 1,
 }
+
+export enum AdminAction {
+    LOGIN = 'Login',
+    LOGOUT = 'Logout',
+    CREATE = 'Create',
+    CHANGE = 'Change',
+    REMOVE = 'Remove',
+}
