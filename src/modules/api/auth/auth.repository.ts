@@ -5,18 +5,18 @@ import {
     UserCodeEntity,
     UserEntity,
     UserInfoEntity,
-} from '../../db/entities';
+} from '../../../db/entities';
 import {
     BasicUserCodeData,
     BasicUserData,
     UserInfoData,
-} from '../../common/types/user.type';
+} from '../../../common/types/user.type';
 import {
     cityRepository,
     userCodeRepository,
     userTokenRepository,
-} from '../../db/repositories';
-import { UserAction } from '../../common/enums';
+} from '../../../db/repositories';
+import { UserAction } from '../../../common/enums';
 
 @Injectable()
 export class AuthServiceRepository {

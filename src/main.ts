@@ -32,8 +32,6 @@ async function bootstrap() {
         ignoreGlobalPrefix: false,
     });
     SwaggerModule.setup('api', app, document);
-
-    app.setGlobalPrefix(configService.get('API_PREFIX'));
     app.useGlobalPipes(new ValidationPipe());
     app.use(helmet());
 

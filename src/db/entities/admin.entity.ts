@@ -54,7 +54,7 @@ export class AdminEntity {
         inverseJoinColumn: {
             name: 'roleId',
             referencedColumnName: 'id',
-        }
+        },
     })
     roles: RoleEntity[];
 }

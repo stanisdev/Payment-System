@@ -1,18 +1,18 @@
 import * as i18next from 'i18next';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { PayeeEntity, UserEntity, WalletEntity } from '../../db/entities';
+import { PayeeEntity, UserEntity, WalletEntity } from '../../../db/entities';
 import { PayeeDto } from './dto/create.dto';
 import { PayeeServiceRepository } from './payee.repository';
 import {
     BasicPayeeData,
     Payee,
     UpdatePayeeData,
-} from '../../common/types/payee.type';
-import { Pagination } from '../../common/types/other.type';
-import { UserActivityData } from '../../common/types/user.type';
-import { UserActivityLogger } from '../../common/helpers/userActivityLogger';
-import { LoggerTemplate, UserAction } from '../../common/enums';
-import { payeeRepository } from '../../db/repositories';
+} from '../../../common/types/payee.type';
+import { Pagination } from '../../../common/types/other.type';
+import { UserActivityData } from '../../../common/types/user.type';
+import { UserActivityLogger } from '../../../common/helpers/userActivityLogger';
+import { LoggerTemplate, UserAction } from '../../../common/enums';
+import { payeeRepository } from '../../../db/repositories';
 
 @Injectable()
 export class PayeeService {

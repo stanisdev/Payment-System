@@ -2,9 +2,9 @@ import * as i18next from 'i18next';
 import * as moment from 'moment';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { TransferType } from '../../common/enums';
-import { FindWalletCriteria } from '../../common/types/wallet.type';
-import { Pagination } from '../../common/types/other.type';
+import { TransferType } from '../../../common/enums';
+import { FindWalletCriteria } from '../../../common/types/wallet.type';
+import { Pagination } from '../../../common/types/other.type';
 import {
     InternalTransferResult,
     InvoiceResult,
@@ -14,15 +14,15 @@ import {
     TransferRecord,
     TransferReport,
     WithdrawalResult,
-} from '../../common/types/transfer.type';
-import { appDataSource } from '../../db/dataSource';
+} from '../../../common/types/transfer.type';
+import { appDataSource } from '../../../db/dataSource';
 import {
     ClientEntity,
     PayeeEntity,
     TransferEntity,
     UserEntity,
     WalletEntity,
-} from '../../db/entities';
+} from '../../../db/entities';
 import { EntityManager } from 'typeorm';
 import { InternalTransferDto } from './dto/internal.dto';
 import { ReplenishmentDto } from './dto/replenishment.dto';

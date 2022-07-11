@@ -11,15 +11,15 @@ import { strictEqual as equal, strictEqual } from 'assert';
 import { ConfigService } from '@nestjs/config';
 import { EntityManager } from 'typeorm';
 import { AuthServiceRepository } from './auth.repository';
-import { userCodeRepository, userRepository } from '../../db/repositories';
-import { Utils } from '../../common/utils';
-import { appDataSource } from '../../db/dataSource';
+import { userCodeRepository, userRepository } from '../../../db/repositories';
+import { Utils } from '../../../common/utils';
+import { appDataSource } from '../../../db/dataSource';
 import {
     BasicUserCodeData,
     BasicUserData,
     UserActivityData,
-} from '../../common/types/user.type';
-import { JwtCompleteData } from '../../common/types/other.type';
+} from '../../../common/types/user.type';
+import { JwtCompleteData } from '../../../common/types/other.type';
 import {
     LoggerTemplate,
     MailerTemplate,
@@ -27,14 +27,18 @@ import {
     UserStatus,
     UserTokenType,
     WalletType,
-} from '../../common/enums';
-import { Jwt } from '../../common/providers/jwt';
-import { redisClient } from '../../common/providers/redis';
-import { UserCodeEntity, UserEntity, UserTokenEntity } from '../../db/entities';
-import { UserTokenGenerator } from '../../common/helpers/userTokenGenerator';
-import { UserActivityLogger } from '../../common/helpers/userActivityLogger';
+} from '../../../common/enums';
+import { Jwt } from '../../../common/providers/jwt';
+import { redisClient } from '../../../common/providers/redis';
+import {
+    UserCodeEntity,
+    UserEntity,
+    UserTokenEntity,
+} from '../../../db/entities';
+import { UserTokenGenerator } from '../../../common/helpers/userTokenGenerator';
+import { UserActivityLogger } from '../../../common/helpers/userActivityLogger';
 import { WalletService } from '../wallet/wallet.service';
-import { Mailer } from '../../common/mailer/index';
+import { Mailer } from '../../../common/mailer/index';
 import {
     LoginDto,
     RestorePasswordCompleteDto,

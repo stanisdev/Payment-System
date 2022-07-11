@@ -5,18 +5,18 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as i18next from 'i18next';
-import { LoggerTemplate, UserAction, WalletType } from '../../common/enums';
+import { LoggerTemplate, UserAction, WalletType } from '../../../common/enums';
 import {
     BasicWalletData,
     WalletCategory,
     WalletsListResult,
-} from '../../common/types/wallet.type';
-import { UserActivityData } from '../../common/types/user.type';
-import { Pagination } from '../../common/types/other.type';
-import { UserActivityLogger } from '../../common/helpers/userActivityLogger';
-import { Utils } from '../../common/utils';
-import { UserEntity, WalletEntity } from '../../db/entities';
-import { walletRepository } from '../../db/repositories';
+} from '../../../common/types/wallet.type';
+import { UserActivityData } from '../../../common/types/user.type';
+import { Pagination } from '../../../common/types/other.type';
+import { UserActivityLogger } from '../../../common/helpers/userActivityLogger';
+import { Utils } from '../../../common/utils';
+import { UserEntity, WalletEntity } from '../../../db/entities';
+import { walletRepository } from '../../../db/repositories';
 import { WalletServiceRepository } from './wallet.repository';
 
 @Injectable()

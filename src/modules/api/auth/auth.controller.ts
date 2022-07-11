@@ -13,12 +13,13 @@ import {
     Put,
     Param,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
-import { JwtCompleteData, EmptyObject } from '../../common/types/other.type';
-import { DoesEmailExistPipe } from '../../common/pipes/does-email-exist.pipe';
-import { MaxLoginAttempts } from '../../common/guards/max-login-attempts.guard.ts';
-import { AuthService } from './auth.service';
 import { Request } from 'express';
+import { ApiTags } from '@nestjs/swagger';
+import { JwtCompleteData, EmptyObject } from '../../../common/types/other.type';
+import { DoesEmailExistPipe } from '../../../common/pipes/does-email-exist.pipe';
+import { MaxLoginAttempts } from '../../../common/guards/max-login-attempts.guard.ts';
+import { Router } from '../../../common/providers/router/index';
+import { AuthService } from './auth.service';
 import {
     LoginDto,
     RestorePasswordCompleteDto,
@@ -28,12 +29,14 @@ import {
     UpdateTokenDto,
 } from './dto';
 
+const router = Router.build('api', 'auth');
+
 @ApiTags('Auth')
-@Controller('auth')
+@Controller(router.controller())
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
-    @Post('/sign-up')
+    @Post(router.method('sign-up'))
     @UsePipes(DoesEmailExistPipe)
     @HttpCode(HttpStatus.CREATED)
     async signUp(@Body() signUpDto: SignUpDto): Promise<EmptyObject> {
@@ -41,7 +44,7 @@ export class AuthController {
         return {};
     }
 
-    @Post('/login')
+    @Post(router.method('login'))
     @UseGuards(MaxLoginAttempts)
     @HttpCode(HttpStatus.OK)
     async login(
@@ -51,14 +54,14 @@ export class AuthController {
         return this.authService.login(loginDto, ip);
     }
 
-    @Get('/confirm-email/:code')
+    @Get(router.method('confirm-email'))
     @HttpCode(HttpStatus.OK)
     async confirmEmail(@Param('code') code: string): Promise<EmptyObject> {
         await this.authService.confirmEmail(code);
         return {};
     }
 
-    @Post('/update-token')
+    @Post(router.method('update-token'))
     @HttpCode(HttpStatus.OK)
     async updateToken(
         @Body() updateTokenDto: UpdateTokenDto,
@@ -66,7 +69,7 @@ export class AuthController {
         return this.authService.updateToken(updateTokenDto);
     }
 
-    @Get('/logout')
+    @Get(router.method('logout'))
     @HttpCode(HttpStatus.OK)
     async logout(
         @Req() { headers }: Request,
@@ -79,7 +82,7 @@ export class AuthController {
         return {};
     }
 
-    @Post('/restore-password-initiate')
+    @Post(router.method('restore-password:initiate'))
     @HttpCode(HttpStatus.OK)
     async restorePassword(
         @Body() dto: RestorePasswordInitiateDto,
@@ -88,7 +91,7 @@ export class AuthController {
         return {};
     }
 
-    @Post('/restore-password-confirm-code')
+    @Post(router.method('restore-password:confirm-code'))
     @HttpCode(HttpStatus.OK)
     async restorePasswordConfirmCode(
         @Body() dto: RestorePasswordConfirmCodeDto,
@@ -96,7 +99,7 @@ export class AuthController {
         return this.authService.restorePasswordConfirmCode(dto);
     }
 
-    @Put('/restore-password-complete')
+    @Put(router.method('restore-password:complete'))
     @HttpCode(HttpStatus.OK)
     async restorePasswordComplete(
         @Body() dto: RestorePasswordCompleteDto,

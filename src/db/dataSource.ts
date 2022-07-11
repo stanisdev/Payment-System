@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import * as dotenv from 'dotenv';
+import { compileConfig } from '../common/providers/compileConfig';
 import {
     UserEntity,
     UserInfoEntity,
@@ -16,12 +16,7 @@ import {
 } from './entities';
 
 const { env } = process;
-if (typeof env.NODE_ENV != 'string') {
-    env.NODE_ENV = 'development';
-}
-dotenv.config({
-    path: `.${env.NODE_ENV}.env`,
-});
+compileConfig();
 
 let migrationsPath: string[];
 if (typeof env.MIGRATION_MODE == 'string') {

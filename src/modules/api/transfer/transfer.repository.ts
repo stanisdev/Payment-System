@@ -6,13 +6,13 @@ import {
     TransferData,
     TransferRecord,
     UpdateTransferData,
-} from '../../common/types/transfer.type';
+} from '../../../common/types/transfer.type';
 import {
     FindWalletCriteria,
     UpdateWalletBalanceData,
-} from '../../common/types/wallet.type';
-import { TransferEntity, UserEntity, WalletEntity } from '../../db/entities';
-import { transferRepository, walletRepository } from '../../db/repositories';
+} from '../../../common/types/wallet.type';
+import { TransferEntity, UserEntity, WalletEntity } from '../../../db/entities';
+import { transferRepository, walletRepository } from '../../../db/repositories';
 
 @Injectable()
 export class TransferServiceRepository {

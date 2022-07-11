@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { WalletType } from '../../common/enums';
-import { BasicWalletData } from '../../common/types/wallet.type';
+import { WalletType } from '../../../common/enums';
+import { BasicWalletData } from '../../../common/types/wallet.type';
 import {
     UserEntity,
     WalletCategoryEntity,
     WalletEntity,
-} from '../../db/entities';
+} from '../../../db/entities';
 import {
     walletCategoryRepository,
     walletRepository,
-} from '../../db/repositories';
+} from '../../../db/repositories';
 import { InsertResult } from 'typeorm';
 
 @Injectable()

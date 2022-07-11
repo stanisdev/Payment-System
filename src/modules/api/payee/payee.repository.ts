@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { BasicPayeeData } from '../../common/types/payee.type';
-import { PayeeEntity, UserEntity, WalletEntity } from '../../db/entities';
-import { payeeRepository } from '../../db/repositories';
+import { BasicPayeeData } from '../../../common/types/payee.type';
+import { PayeeEntity, UserEntity, WalletEntity } from '../../../db/entities';
+import { payeeRepository } from '../../../db/repositories';
 import { InsertResult } from 'typeorm';
 
 @Injectable()
