@@ -15,6 +15,7 @@ import {
     AdminEntity,
     AdminLogEntity,
     RoleEntity,
+    AdminTokenEntity,
 } from '../entities';
 import { appDataSource } from '../dataSource';
 
@@ -48,6 +49,8 @@ const adminLogRepository: Repository<AdminLogEntity> =
     appDataSource.getRepository(AdminLogEntity);
 const roleRepository: Repository<RoleEntity> =
     appDataSource.getRepository(RoleEntity);
+const adminTokenRepository: Repository<AdminTokenEntity> =
+    appDataSource.getRepository(AdminTokenEntity);
 
 export {
     cityRepository,
@@ -65,4 +68,5 @@ export {
     adminRepository,
     adminLogRepository,
     roleRepository,
+    adminTokenRepository,
 };

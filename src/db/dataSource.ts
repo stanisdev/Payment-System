@@ -13,6 +13,10 @@ import {
     PayeeEntity,
     TransferEntity,
     ClientEntity,
+    AdminEntity,
+    AdminLogEntity,
+    RoleEntity,
+    AdminTokenEntity,
 } from './entities';
 
 const { env } = process;
@@ -48,6 +52,10 @@ export const appDataSource = new DataSource({
         PayeeEntity,
         TransferEntity,
         ClientEntity,
+        AdminEntity,
+        AdminLogEntity,
+        RoleEntity,
+        AdminTokenEntity,
     ],
     migrations: migrationsPath,
 });

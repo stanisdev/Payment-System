@@ -1,4 +1,3 @@
-import { IsDate, Length, Min } from 'class-validator';
 import {
     Column,
     CreateDateColumn,
@@ -9,7 +8,9 @@ import {
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from 'typeorm';
+import { IsDate, Length, Min } from 'class-validator';
 import { AdminLogEntity } from './adminLog.entity';
+import { AdminTokenEntity } from './adminToken.entity';
 import { RoleEntity } from './role.entity';
 
 @Entity('Admins')
@@ -41,8 +42,11 @@ export class AdminEntity {
     @IsDate()
     updatedAt: Date;
 
-    @OneToMany(() => AdminLogEntity, (adminLog) => adminLog.admin)
+    @OneToMany(() => AdminLogEntity, (log) => log.admin)
     logs: AdminLogEntity[];
+
+    @OneToMany(() => AdminTokenEntity, (token) => token.admin)
+    tokens: AdminTokenEntity[];
 
     @ManyToMany(() => RoleEntity)
     @JoinTable({

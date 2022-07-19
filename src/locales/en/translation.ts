@@ -45,4 +45,9 @@ export const translation = {
     'invoice-not-found': 'Invoice not found',
     'no-money-to-pay-invoice':
         'You do not have enough money to pay the invoice',
+    admin: {
+        'wrong-credentials': 'Wrong credentials',
+        'your-account-is-blocked':
+            'Your account is blocked. Ask the administrator to recover it',
+    },
 };

@@ -13,6 +13,7 @@ import { ClientEntity } from './client.entity';
 import { AdminEntity } from './admin.entity';
 import { AdminLogEntity } from './adminLog.entity';
 import { RoleEntity } from './role.entity';
+import { AdminTokenEntity } from './adminToken.entity';
 
 export {
     CityEntity,
@@ -30,4 +31,5 @@ export {
     AdminEntity,
     AdminLogEntity,
     RoleEntity,
+    AdminTokenEntity,
 };

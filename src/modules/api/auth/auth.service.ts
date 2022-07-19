@@ -1,12 +1,12 @@
 import * as bcrypt from 'bcrypt';
 import * as moment from 'moment';
+import * as i18next from 'i18next';
 import {
     BadRequestException,
     ForbiddenException,
     Injectable,
     InternalServerErrorException,
 } from '@nestjs/common';
-import * as i18next from 'i18next';
 import { strictEqual as equal, strictEqual } from 'assert';
 import { ConfigService } from '@nestjs/config';
 import { EntityManager } from 'typeorm';

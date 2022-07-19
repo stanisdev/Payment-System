@@ -9,7 +9,14 @@ import {
     PlainRecord,
 } from '../types/other.type';
 
+const { env } = process;
+
 export class Jwt {
+    static secretKeys = {
+        api: env.JWT_SECRET,
+        admin: env.ADMIN_JWT_SECRET,
+    };
+
     private static methods = {
         sign: promisify(jwtPackage.sign),
         verify: promisify(jwtPackage.verify),
@@ -20,7 +27,7 @@ export class Jwt {
             {
                 data: options.data,
             },
-            process.env.JWT_SECRET,
+            Jwt.secretKeys[options.secretKey],
             { expiresIn: options.expiresIn },
         );
     }

@@ -1,5 +1,5 @@
 import { UserTokenEntity } from '../../db/entities';
-import { UserTokenType } from '../enums';
+import { JwtSecretKey, UserTokenType } from '../enums';
 
 export type RandomStringOptions = {
     onlyDigits?: boolean;
@@ -9,6 +9,7 @@ export type RandomStringOptions = {
 export type JwtSignOptions = {
     data: PlainRecord;
     expiresIn: number;
+    secretKey: JwtSecretKey;
 };
 
 export type JwtValidateOptions = {
