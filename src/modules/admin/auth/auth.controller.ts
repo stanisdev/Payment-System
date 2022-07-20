@@ -14,7 +14,7 @@ export class AuthController {
 
     @Post(router.method('login'))
     @HttpCode(HttpStatus.OK)
-    async signUp(@Body() dto: LoginDto): Promise<AuthResponse> {
+    signUp(@Body() dto: LoginDto): Promise<AuthResponse> {
         return this.authService.login(dto);
     }
 }

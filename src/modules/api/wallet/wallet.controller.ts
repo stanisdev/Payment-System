@@ -11,7 +11,7 @@ import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ParsePagination } from '../../../common/decorators/parse-pagination.decorator';
 import { User } from '../../../common/decorators/user.decorator';
 import { WalletType } from '../../../common/enums';
-import { AuthGuard } from '../../../common/guards/auth.guard';
+import { AuthApiGuard } from '../../../common/guards/auth/api.guard';
 import { LimitQuery, PageQuery } from '../../../common/objects';
 import { EmptyObject, Pagination } from '../../../common/types/other.type';
 import { Router } from '../../../common/providers/router/index';
@@ -28,7 +28,7 @@ const router = Router.build('api', 'wallet');
 @ApiTags('wallet')
 @ApiBearerAuth()
 @Controller(router.controller())
-@UseGuards(AuthGuard)
+@UseGuards(AuthApiGuard)
 export class WalletController {
     constructor(private readonly walletService: WalletService) {}
 

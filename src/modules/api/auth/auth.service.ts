@@ -21,6 +21,7 @@ import {
 } from '../../../common/types/user.type';
 import { JwtCompleteData } from '../../../common/types/other.type';
 import {
+    JwtSecretKey,
     LoggerTemplate,
     MailerTemplate,
     UserAction,
@@ -254,7 +255,7 @@ export class AuthService {
     }: UpdateTokenDto): Promise<JwtCompleteData[]> {
         let userToken: UserTokenEntity;
         try {
-            const data = await Jwt.verify(refreshToken);
+            const data = await Jwt.verify(refreshToken, JwtSecretKey.API);
             userToken = await Jwt.findInDb(data);
             const validationOptions = {
                 token: userToken,
@@ -276,7 +277,7 @@ export class AuthService {
     async logout(accessToken: string, allDevices: boolean): Promise<void> {
         let userToken: UserTokenEntity;
         try {
-            const data = await Jwt.verify(accessToken);
+            const data = await Jwt.verify(accessToken, JwtSecretKey.API);
             userToken = await Jwt.findInDb(data);
             Jwt.validate({
                 token: userToken,

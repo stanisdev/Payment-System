@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { AdminEntity } from 'src/db/entities';
-import { adminRepository, adminTokenRepository } from 'src/db/repositories';
+import {
+    adminRepository,
+    adminTokenRepository,
+} from '../../../db/repositories';
 import { AdminData, AdminTokenData } from '../../../common/types/admin.type';
 
 @Injectable()

@@ -40,6 +40,6 @@ export const routes = {
         auth: {
             login: 'login',
         },
-        roles: {},
+        role: {},
     },
 };

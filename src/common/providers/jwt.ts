@@ -8,6 +8,7 @@ import {
     JwtValidateOptions,
     PlainRecord,
 } from '../types/other.type';
+import { JwtSecretKey } from '../enums';
 
 const { env } = process;
 
@@ -32,10 +33,13 @@ export class Jwt {
         );
     }
 
-    static async verify(token: string): Promise<PlainRecord> {
+    static async verify(
+        token: string,
+        secretKey: JwtSecretKey,
+    ): Promise<PlainRecord> {
         const { data } = await Jwt.methods.verify(
             token,
-            process.env.JWT_SECRET,
+            Jwt.secretKeys[secretKey],
         );
         return data;
     }

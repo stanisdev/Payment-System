@@ -14,7 +14,7 @@ import { ParsePagination } from '../../../common/decorators/parse-pagination.dec
 import { WithdrawalRestriction } from '../../../common/guards/withdrawal-restriction.guard';
 import { GetPayee } from '../../../common/decorators/payee.decorator';
 import { User } from '../../../common/decorators/user.decorator';
-import { AuthGuard } from '../../../common/guards/auth.guard';
+import { AuthApiGuard } from '../../../common/guards/auth/api.guard';
 import { LimitQuery, PageQuery } from '../../../common/objects';
 import { Router } from '../../../common/providers/router/index';
 import {
@@ -48,7 +48,7 @@ export class TransferController {
 
     @Post(router.method('internal'))
     @ApiBearerAuth()
-    @UseGuards(AuthGuard)
+    @UseGuards(AuthApiGuard)
     @HttpCode(HttpStatus.OK)
     async internal(
         @Body() dto: InternalTransferDto,
@@ -60,7 +60,7 @@ export class TransferController {
 
     @Post(router.method('withdrawal'))
     @ApiBearerAuth()
-    @UseGuards(AuthGuard, WithdrawalRestriction)
+    @UseGuards(AuthApiGuard, WithdrawalRestriction)
     @HttpCode(HttpStatus.OK)
     async withdrawal(
         @Body() dto: WithdrawalDto,
@@ -82,7 +82,7 @@ export class TransferController {
     @ApiBearerAuth()
     @ApiQuery(LimitQuery)
     @ApiQuery(PageQuery)
-    @UseGuards(AuthGuard)
+    @UseGuards(AuthApiGuard)
     @HttpCode(HttpStatus.OK)
     async list(
         @ParsePagination() pagination: Pagination,
@@ -93,7 +93,7 @@ export class TransferController {
 
     @Post(router.method('refund'))
     @ApiBearerAuth()
-    @UseGuards(AuthGuard)
+    @UseGuards(AuthApiGuard)
     @HttpCode(HttpStatus.OK)
     async refund(
         @Body() dto: RefundDto,
@@ -105,7 +105,7 @@ export class TransferController {
 
     @Post(router.method('invoice:create'))
     @ApiBearerAuth()
-    @UseGuards(AuthGuard)
+    @UseGuards(AuthApiGuard)
     @HttpCode(HttpStatus.CREATED)
     async invoiceCreate(
         @GetWallet() debtorWallet: WalletEntity,
@@ -117,7 +117,7 @@ export class TransferController {
 
     @Post(router.method('invoice:pay'))
     @ApiBearerAuth()
-    @UseGuards(AuthGuard)
+    @UseGuards(AuthApiGuard)
     @HttpCode(HttpStatus.OK)
     async invoicePay(
         @Body() dto: InvoicePayDto,

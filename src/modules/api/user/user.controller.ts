@@ -2,7 +2,7 @@ import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { pick } from 'lodash';
 import { User } from '../../../common/decorators/user.decorator';
-import { AuthGuard } from '../../../common/guards/auth.guard';
+import { AuthApiGuard } from '../../../common/guards/auth/api.guard';
 import { UserInfoResponse } from '../../../common/types/user.type';
 import { Router } from '../../../common/providers/router/index';
 import { UserEntity } from '../../../db/entities';
@@ -13,7 +13,7 @@ const router = Router.build('api', 'user');
 @ApiTags('User')
 @ApiBearerAuth()
 @Controller(router.controller())
-@UseGuards(AuthGuard)
+@UseGuards(AuthApiGuard)
 export class UserController {
     constructor(private readonly userService: UserService) {}
 

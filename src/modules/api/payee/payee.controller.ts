@@ -14,7 +14,7 @@ import { ParsePagination } from '../../../common/decorators/parse-pagination.dec
 import { GetPayee } from '../../../common/decorators/payee.decorator';
 import { User } from '../../../common/decorators/user.decorator';
 import { GetWallet } from '../../../common/decorators/wallet.decorator';
-import { AuthGuard } from '../../../common/guards/auth.guard';
+import { AuthApiGuard } from '../../../common/guards/auth/api.guard';
 import { LimitQuery, PageQuery } from '../../../common/objects';
 import { EmptyObject, Pagination } from '../../../common/types/other.type';
 import { Payee } from '../../../common/types/payee.type';
@@ -28,7 +28,7 @@ const router = Router.build('api', 'payee');
 @ApiTags('Payee')
 @ApiBearerAuth()
 @Controller(router.controller())
-@UseGuards(AuthGuard)
+@UseGuards(AuthApiGuard)
 export class PayeeController {
     constructor(private readonly payeeService: PayeeService) {}
 

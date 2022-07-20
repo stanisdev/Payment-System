@@ -17,7 +17,7 @@ import { Request } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtCompleteData, EmptyObject } from '../../../common/types/other.type';
 import { DoesEmailExistPipe } from '../../../common/pipes/does-email-exist.pipe';
-import { MaxLoginAttempts } from '../../../common/guards/max-login-attempts.guard.ts';
+import { MaxLoginAttempts } from '../../../common/guards/max-login-attempts.guard';
 import { Router } from '../../../common/providers/router/index';
 import { AuthService } from './auth.service';
 import {

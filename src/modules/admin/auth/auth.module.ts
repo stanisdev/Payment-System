@@ -8,6 +8,4 @@ import { AuthServiceRepository } from './auth.repository';
     controllers: [AuthController],
     providers: [AuthService, AuthServiceRepository, ConfigService],
 })
-export class AuthModule implements NestModule {
-    configure(consumer: MiddlewareConsumer) {}
-}
+export class AuthModule {}

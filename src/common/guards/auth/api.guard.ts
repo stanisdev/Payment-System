@@ -1,19 +1,14 @@
-import {
-    CanActivate,
-    ExecutionContext,
-    ForbiddenException,
-    Injectable,
-} from '@nestjs/common';
-import { UserTokenType } from '../enums';
-import { Jwt } from '../providers/jwt';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { JwtSecretKey, UserTokenType } from '../../enums';
+import { Jwt } from '../../providers/jwt';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class AuthApiGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
         try {
             const [, token] = request.headers.authorization.split(' ');
-            const data = await Jwt.verify(token);
+            const data = await Jwt.verify(token, JwtSecretKey.API);
             const userToken = await Jwt.findInDb(data);
             const validationOptions = {
                 token: userToken,
@@ -24,7 +19,7 @@ export class AuthGuard implements CanActivate {
 
             request.user = userToken.user;
         } catch {
-            throw new ForbiddenException();
+            return false;
         }
         return true;
     }

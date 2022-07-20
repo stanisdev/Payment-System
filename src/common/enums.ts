@@ -67,4 +67,4 @@ export enum AdminStatus {
 export enum JwtSecretKey {
     API = 'api',
     ADMIN = 'admin',
-};
+}
