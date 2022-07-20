@@ -1,8 +1,8 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Controller, Get } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { pick } from 'lodash';
 import { User } from '../../../common/decorators/user.decorator';
-import { AuthApiGuard } from '../../../common/guards/auth/api.guard';
+import { AuthApi } from '../../../common/decorators/auth/api.decorator';
 import { UserInfoResponse } from '../../../common/types/user.type';
 import { Router } from '../../../common/providers/router/index';
 import { UserEntity } from '../../../db/entities';
@@ -11,9 +11,8 @@ import { UserService } from './user.service';
 const router = Router.build('api', 'user');
 
 @ApiTags('User')
-@ApiBearerAuth()
+@AuthApi()
 @Controller(router.controller())
-@UseGuards(AuthApiGuard)
 export class UserController {
     constructor(private readonly userService: UserService) {}
 

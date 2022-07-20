@@ -7,28 +7,26 @@ import {
     HttpStatus,
     Post,
     Put,
-    UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ParsePagination } from '../../../common/decorators/parse-pagination.decorator';
 import { GetPayee } from '../../../common/decorators/payee.decorator';
 import { User } from '../../../common/decorators/user.decorator';
 import { GetWallet } from '../../../common/decorators/wallet.decorator';
-import { AuthApiGuard } from '../../../common/guards/auth/api.guard';
 import { LimitQuery, PageQuery } from '../../../common/objects';
 import { EmptyObject, Pagination } from '../../../common/types/other.type';
 import { Payee } from '../../../common/types/payee.type';
 import { PayeeEntity, UserEntity, WalletEntity } from '../../../db/entities';
 import { Router } from '../../../common/providers/router/index';
+import { AuthApi } from '../../../common/decorators/auth/api.decorator';
 import { PayeeDto } from './dto/create.dto';
 import { PayeeService } from './payee.service';
 
 const router = Router.build('api', 'payee');
 
 @ApiTags('Payee')
-@ApiBearerAuth()
+@AuthApi()
 @Controller(router.controller())
-@UseGuards(AuthApiGuard)
 export class PayeeController {
     constructor(private readonly payeeService: PayeeService) {}
 

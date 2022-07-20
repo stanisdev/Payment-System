@@ -5,13 +5,12 @@ import {
     HttpCode,
     HttpStatus,
     Post,
-    UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ParsePagination } from '../../../common/decorators/parse-pagination.decorator';
+import { AuthApi } from '../../../common/decorators/auth/api.decorator';
 import { User } from '../../../common/decorators/user.decorator';
 import { WalletType } from '../../../common/enums';
-import { AuthApiGuard } from '../../../common/guards/auth/api.guard';
 import { LimitQuery, PageQuery } from '../../../common/objects';
 import { EmptyObject, Pagination } from '../../../common/types/other.type';
 import { Router } from '../../../common/providers/router/index';
@@ -26,9 +25,8 @@ import { WalletService } from './wallet.service';
 const router = Router.build('api', 'wallet');
 
 @ApiTags('wallet')
-@ApiBearerAuth()
+@AuthApi()
 @Controller(router.controller())
-@UseGuards(AuthApiGuard)
 export class WalletController {
     constructor(private readonly walletService: WalletService) {}
 

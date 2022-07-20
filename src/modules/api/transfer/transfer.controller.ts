@@ -7,14 +7,14 @@ import {
     Post,
     UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { GetWallet } from '../../../common/decorators/wallet.decorator';
 import { GetClient } from '../../../common/decorators/client.decorator';
 import { ParsePagination } from '../../../common/decorators/parse-pagination.decorator';
 import { WithdrawalRestriction } from '../../../common/guards/withdrawal-restriction.guard';
+import { AuthApi } from '../../../common/decorators/auth/api.decorator';
 import { GetPayee } from '../../../common/decorators/payee.decorator';
 import { User } from '../../../common/decorators/user.decorator';
-import { AuthApiGuard } from '../../../common/guards/auth/api.guard';
 import { LimitQuery, PageQuery } from '../../../common/objects';
 import { Router } from '../../../common/providers/router/index';
 import {
@@ -47,8 +47,7 @@ export class TransferController {
     constructor(private readonly transferService: TransferService) {}
 
     @Post(router.method('internal'))
-    @ApiBearerAuth()
-    @UseGuards(AuthApiGuard)
+    @AuthApi()
     @HttpCode(HttpStatus.OK)
     async internal(
         @Body() dto: InternalTransferDto,
@@ -59,8 +58,8 @@ export class TransferController {
     }
 
     @Post(router.method('withdrawal'))
-    @ApiBearerAuth()
-    @UseGuards(AuthApiGuard, WithdrawalRestriction)
+    @AuthApi()
+    @UseGuards(WithdrawalRestriction)
     @HttpCode(HttpStatus.OK)
     async withdrawal(
         @Body() dto: WithdrawalDto,
@@ -79,10 +78,9 @@ export class TransferController {
     }
 
     @Get(router.index())
-    @ApiBearerAuth()
     @ApiQuery(LimitQuery)
     @ApiQuery(PageQuery)
-    @UseGuards(AuthApiGuard)
+    @AuthApi()
     @HttpCode(HttpStatus.OK)
     async list(
         @ParsePagination() pagination: Pagination,
@@ -92,8 +90,7 @@ export class TransferController {
     }
 
     @Post(router.method('refund'))
-    @ApiBearerAuth()
-    @UseGuards(AuthApiGuard)
+    @AuthApi()
     @HttpCode(HttpStatus.OK)
     async refund(
         @Body() dto: RefundDto,
@@ -104,8 +101,7 @@ export class TransferController {
     }
 
     @Post(router.method('invoice:create'))
-    @ApiBearerAuth()
-    @UseGuards(AuthApiGuard)
+    @AuthApi()
     @HttpCode(HttpStatus.CREATED)
     async invoiceCreate(
         @GetWallet() debtorWallet: WalletEntity,
@@ -116,8 +112,7 @@ export class TransferController {
     }
 
     @Post(router.method('invoice:pay'))
-    @ApiBearerAuth()
-    @UseGuards(AuthApiGuard)
+    @AuthApi()
     @HttpCode(HttpStatus.OK)
     async invoicePay(
         @Body() dto: InvoicePayDto,
