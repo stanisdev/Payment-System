@@ -3,12 +3,8 @@ import { promisify } from 'util';
 import { strictEqual as equal } from 'assert';
 import { UserTokenEntity } from '../../db/entities';
 import { userTokenRepository } from '../../db/repositories';
-import {
-    JwtSignOptions,
-    JwtValidateOptions,
-    PlainRecord,
-} from '../types/other.type';
-import { JwtSecretKey } from '../enums';
+import { JwtSignOptions, PlainRecord } from '../types/other.type';
+import { JwtSecretKey, UserTokenType } from '../enums';
 
 const { env } = process;
 
@@ -44,22 +40,27 @@ export class Jwt {
         return data;
     }
 
-    static async findInDb(data: PlainRecord): Promise<UserTokenEntity> {
+    /**
+        CacheProvider
+            .setUnit(CacheUnit.API_LOGIN_ATTEMPTS)
+            .execute(data);
+    */
+
+    static async findInDb(
+        data: PlainRecord,
+        tokenType: UserTokenType,
+    ): Promise<UserTokenEntity> {
         return userTokenRepository
             .createQueryBuilder('userToken')
             .leftJoinAndSelect('userToken.user', 'user')
             .where('userToken.userId = :userId', data)
             .andWhere('userToken.code = :code', data)
+            .andWhere('userToken.type = :tokenType', { tokenType })
             .getOne();
     }
 
-    static validate(options: JwtValidateOptions): void | never {
-        const { token, data, type } = options;
-        const { user } = token;
-
-        equal(token.type, type);
+    static validate(token: UserTokenEntity): void | never {
         equal(token.expireAt > new Date(), true);
-        equal(user.id, data.userId);
-        equal(user.status > 0, true);
+        equal(token.user.status > 0, true);
     }
 }

@@ -1,5 +1,5 @@
-import { UserTokenEntity } from '../../db/entities';
-import { JwtSecretKey, UserTokenType } from '../enums';
+import { JwtSecretKey } from '../enums';
+import { CacheTemplate } from '../providers/cache/templates';
 
 export type RandomStringOptions = {
     onlyDigits?: boolean;
@@ -12,12 +12,6 @@ export type JwtSignOptions = {
     secretKey: JwtSecretKey;
 };
 
-export type JwtValidateOptions = {
-    token: UserTokenEntity;
-    type: UserTokenType;
-    data: PlainRecord;
-};
-
 export type JwtCompleteData = {
     type: string;
     token: string;
@@ -27,6 +21,17 @@ export type JwtCompleteData = {
 export type Pagination = {
     limit: number;
     offset: number;
+};
+
+export type CacheModifyParams = {
+    increase?: boolean;
+    expiration?: number;
+    data?: string;
+};
+
+export type CacheRecordOptions = {
+    template: CacheTemplate;
+    identifier: string;
 };
 
 export type EmptyObject = Record<string, never>;

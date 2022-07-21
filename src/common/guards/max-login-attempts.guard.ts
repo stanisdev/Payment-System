@@ -1,12 +1,16 @@
 import { CanActivate, ExecutionContext } from '@nestjs/common';
-import { redisClient } from '../providers/redis';
 import { TooManyRequestsException } from '../exceptions/too-many-requests.exception';
+import { CacheProvider } from '../providers/cache/index';
+import { CacheTemplate } from '../providers/cache/templates';
 
 export class MaxLoginAttempts implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
-        const request = context.switchToHttp().getRequest();
-        const { memberId } = request.body;
-        const data = await redisClient.get(`memberId:${memberId}`);
+        const { body } = context.switchToHttp().getRequest();
+
+        const data = await CacheProvider.build({
+            template: CacheTemplate.API_LOGIN_ATTEMPTS,
+            identifier: body.memberId,
+        }).find();
         const attemptsCount = Number.parseInt(data);
 
         if (

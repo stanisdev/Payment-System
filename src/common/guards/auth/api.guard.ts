@@ -9,13 +9,8 @@ export class AuthApiGuard implements CanActivate {
         try {
             const [, token] = request.headers.authorization.split(' ');
             const data = await Jwt.verify(token, JwtSecretKey.API);
-            const userToken = await Jwt.findInDb(data);
-            const validationOptions = {
-                token: userToken,
-                type: UserTokenType.ACCESS,
-                data,
-            };
-            Jwt.validate(validationOptions);
+            const userToken = await Jwt.findInDb(data, UserTokenType.ACCESS);
+            Jwt.validate(userToken);
 
             request.user = userToken.user;
         } catch {

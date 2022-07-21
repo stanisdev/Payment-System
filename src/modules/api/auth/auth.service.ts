@@ -30,7 +30,6 @@ import {
     WalletType,
 } from '../../../common/enums';
 import { Jwt } from '../../../common/providers/jwt';
-import { redisClient } from '../../../common/providers/redis';
 import {
     UserCodeEntity,
     UserEntity,
@@ -38,6 +37,8 @@ import {
 } from '../../../db/entities';
 import { UserTokenGenerator } from '../../../common/helpers/userTokenGenerator';
 import { UserActivityLogger } from '../../../common/helpers/userActivityLogger';
+import { CacheProvider } from 'src/common/providers/cache/index';
+import { CacheTemplate } from 'src/common/providers/cache/templates';
 import { WalletService } from '../wallet/wallet.service';
 import { Mailer } from '../../../common/mailer/index';
 import {
@@ -174,7 +175,7 @@ export class AuthService {
     ): Promise<JwtCompleteData[]> {
         const user = await userRepository.findOneBy({ memberId });
         try {
-            equal(user instanceof Object, true);
+            equal(user instanceof UserEntity, true);
             const match = await bcrypt.compare(
                 password + user.salt,
                 user.password,
@@ -183,9 +184,13 @@ export class AuthService {
                 const seconds = +this.configService.get(
                     'MAX_LOGIN_ATTEMPTS_EXPIRATION',
                 );
-                const key = `memberId:${memberId}`;
-                await redisClient.incr(key);
-                await redisClient.expire(key, seconds);
+                await CacheProvider.build({
+                    template: CacheTemplate.API_LOGIN_ATTEMPTS,
+                    identifier: memberId.toString(),
+                }).save({
+                    increase: true,
+                    expiration: seconds,
+                });
                 equal(1, 0);
             }
         } catch {
@@ -256,13 +261,8 @@ export class AuthService {
         let userToken: UserTokenEntity;
         try {
             const data = await Jwt.verify(refreshToken, JwtSecretKey.API);
-            userToken = await Jwt.findInDb(data);
-            const validationOptions = {
-                token: userToken,
-                type: UserTokenType.REFRESH,
-                data,
-            };
-            Jwt.validate(validationOptions);
+            userToken = await Jwt.findInDb(data, UserTokenType.REFRESH);
+            Jwt.validate(userToken);
         } catch {
             throw new BadRequestException(i18next.t('broken-refresh-token'));
         }
@@ -278,12 +278,8 @@ export class AuthService {
         let userToken: UserTokenEntity;
         try {
             const data = await Jwt.verify(accessToken, JwtSecretKey.API);
-            userToken = await Jwt.findInDb(data);
-            Jwt.validate({
-                token: userToken,
-                type: UserTokenType.ACCESS,
-                data,
-            });
+            userToken = await Jwt.findInDb(data, UserTokenType.ACCESS);
+            Jwt.validate(userToken);
         } catch {
             throw new BadRequestException(i18next.t('broken-access-token'));
         }

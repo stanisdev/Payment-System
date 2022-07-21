@@ -12,7 +12,8 @@ import { AdminEntity } from 'src/db/entities';
 import { adminRepository } from '../../../db/repositories';
 import { LoginDto } from './dto/login.dto';
 import { AdminStatus, JwtSecretKey } from 'src/common/enums';
-import { redisClient } from 'src/common/providers/redis';
+import { CacheProvider } from '../../../common/providers/cache/index';
+import { CacheTemplate } from '../../../common/providers/cache/templates';
 import { AuthServiceRepository } from './auth.repository';
 import { Utils } from 'src/common/utils';
 import { AuthResponse } from 'src/common/types/admin.type';
@@ -47,21 +48,28 @@ export class AuthService {
              * of failed login attempts achieved the maximum value
              */
             if (admin.status == AdminStatus.ACTIVE) {
-                const key = `admin:${username}:login-attempts`;
-                const attemptsCount = await redisClient.get(key);
+                const cache = CacheProvider.build({
+                    template: CacheTemplate.ADMIN_LOGIN_ATTEMPTS,
+                    identifier: username,
+                });
+                const data = await cache.find();
+                const attemptsCount = Number.parseInt(data);
 
                 if (
-                    +configService.get('ADMIN_MAX_LOGIN_ATTEMPTS') <=
-                    +attemptsCount
+                    Number.isInteger(attemptsCount) &&
+                    attemptsCount >=
+                        +configService.get('ADMIN_MAX_LOGIN_ATTEMPTS')
                 ) {
                     await Promise.all([
                         this.repository.updateAdmin(admin.id, {
                             status: AdminStatus.BLOCKED,
                         }),
-                        redisClient.del(key),
+                        await cache.remove(),
                     ]);
                 } else {
-                    await redisClient.incr(key);
+                    await cache.save({
+                        increase: true,
+                    });
                 }
             }
             throw new BadRequestException(i18next.t('admin.wrong-credentials'));
