@@ -32,7 +32,8 @@ export type CacheModifyParams = {
 export type CacheRecordOptions = {
     template: CacheTemplate;
     identifier: string;
+    data?: PlainRecord;
 };
 
 export type EmptyObject = Record<string, never>;
-export type PlainRecord = Record<string, string | number>;
+export type PlainRecord = Record<string, string | number | Date>;

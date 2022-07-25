@@ -2,9 +2,11 @@ import * as jwtPackage from 'jsonwebtoken';
 import { promisify } from 'util';
 import { strictEqual as equal } from 'assert';
 import { UserTokenEntity } from '../../db/entities';
-import { userTokenRepository } from '../../db/repositories';
+import { userRepository, userTokenRepository } from '../../db/repositories';
 import { JwtSignOptions, PlainRecord } from '../types/other.type';
 import { JwtSecretKey, UserTokenType } from '../enums';
+import { CacheProvider } from './cache/index';
+import { CacheTemplate } from './cache/templates';
 
 const { env } = process;
 
@@ -40,23 +42,43 @@ export class Jwt {
         return data;
     }
 
-    /**
-        CacheProvider
-            .setUnit(CacheUnit.API_LOGIN_ATTEMPTS)
-            .execute(data);
-    */
-
     static async findInDb(
         data: PlainRecord,
         tokenType: UserTokenType,
-    ): Promise<UserTokenEntity> {
-        return userTokenRepository
-            .createQueryBuilder('userToken')
-            .leftJoinAndSelect('userToken.user', 'user')
-            .where('userToken.userId = :userId', data)
-            .andWhere('userToken.code = :code', data)
-            .andWhere('userToken.type = :tokenType', { tokenType })
-            .getOne();
+    ): Promise<UserTokenEntity | null> {
+        /**
+         * Searching while dealing with the Refresh token
+         */
+        if (tokenType == UserTokenType.REFRESH) {
+            return userTokenRepository
+                .createQueryBuilder('userToken')
+                .leftJoinAndSelect('userToken.user', 'user')
+                .where('userToken.userId = :userId', data)
+                .andWhere('userToken.code = :code', data)
+                .andWhere('userToken.type = :tokenType', { tokenType })
+                .getOne();
+        } else {
+            /**
+             * Dealing with the Access token
+             */
+            const identifier = `${data.code}${data.userId}`;
+            const cacheRecord = await CacheProvider.build({
+                template: CacheTemplate.API_ACCESS_TOKEN,
+                identifier,
+                data,
+            }).findOrSave();
+            if (!(cacheRecord instanceof Object)) {
+                return null;
+            }
+            const user = await userRepository.findOneBy({
+                id: +data.userId,
+            });
+            const userToken = new UserTokenEntity();
+            userToken.expireAt = new Date(+cacheRecord.expireAt);
+            userToken.user = user;
+
+            return userToken;
+        }
     }
 
     static validate(token: UserTokenEntity): void | never {
