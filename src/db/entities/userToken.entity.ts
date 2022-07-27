@@ -12,6 +12,9 @@ export class UserTokenEntity {
     user: UserEntity;
 
     @Column()
+    userId: number;
+
+    @Column()
     type: UserTokenType;
 
     @Column()

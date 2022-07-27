@@ -11,7 +11,11 @@ import { strictEqual as equal, strictEqual } from 'assert';
 import { ConfigService } from '@nestjs/config';
 import { EntityManager } from 'typeorm';
 import { AuthServiceRepository } from './auth.repository';
-import { userCodeRepository, userRepository } from '../../../db/repositories';
+import {
+    userCodeRepository,
+    userRepository,
+    userTokenRepository,
+} from '../../../db/repositories';
 import { Utils } from '../../../common/utils';
 import { appDataSource } from '../../../db/dataSource';
 import {
@@ -19,7 +23,7 @@ import {
     BasicUserData,
     UserActivityData,
 } from '../../../common/types/user.type';
-import { JwtCompleteData } from '../../../common/types/other.type';
+import { JwtCompleteData, PlainRecord } from '../../../common/types/other.type';
 import {
     JwtSecretKey,
     LoggerTemplate,
@@ -272,21 +276,62 @@ export class AuthService {
 
     /**
      * Disconnect the user from the server and prevent
-     * further interaction within the given token
+     * further interaction within the given access token
      */
-    async logout(accessToken: string, allDevices: boolean): Promise<void> {
+    async logout(
+        authorizationHeader: string,
+        allDevices: boolean,
+    ): Promise<void> {
         let userToken: UserTokenEntity;
+        let decryptedData: PlainRecord;
         try {
-            const data = await Jwt.verify(accessToken, JwtSecretKey.API);
-            userToken = await Jwt.findInDb(data, UserTokenType.ACCESS);
+            const [, accessToken] = authorizationHeader.split(' ');
+            decryptedData = await Jwt.verify(accessToken, JwtSecretKey.API);
+            userToken = await Jwt.findInDb(decryptedData, UserTokenType.ACCESS);
             Jwt.validate(userToken);
         } catch {
             throw new BadRequestException(i18next.t('broken-access-token'));
         }
+        /**
+         * Remove all records (from DB and the Cache)
+         * that are related to JWT mechanism
+         */
         if (allDevices) {
-            await this.repository.deleteAllTokens(userToken.user.id);
+            const userId = +decryptedData.userId;
+            const userTokens = await userTokenRepository.findBy({
+                userId,
+                type: UserTokenType.ACCESS,
+            });
+            const tasks = [this.repository.deleteAllTokens(userId)];
+            for (const { code, userId } of userTokens) {
+                tasks.push(
+                    CacheProvider.build({
+                        template: CacheTemplate.API_ACCESS_TOKEN,
+                        identifier: `${code}${userId}`,
+                    }).remove(),
+                );
+            }
+            await Promise.all(tasks);
         } else {
-            await this.repository.deletePairOfTokens(userToken.relatedTokenId);
+            /**
+             * Remove only 2 records from DB and 1 from the Cache
+             * that are related to a current session
+             */
+            const { userId, code } = decryptedData;
+            const identifier = `${code}${userId}`;
+
+            const userToken = await userTokenRepository.findOneBy({
+                userId: +userId,
+                code: code.toString(),
+                type: UserTokenType.ACCESS,
+            });
+            await Promise.all([
+                CacheProvider.build({
+                    template: CacheTemplate.API_ACCESS_TOKEN,
+                    identifier,
+                }).remove(),
+                this.repository.deletePairOfTokens(userToken.relatedTokenId),
+            ]);
         }
         await UserActivityLogger.write({
             user: userToken.user,

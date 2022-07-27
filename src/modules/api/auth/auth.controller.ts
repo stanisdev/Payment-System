@@ -76,7 +76,7 @@ export class AuthController {
         @Query('allDevices') allDevices?: boolean,
     ): Promise<EmptyObject> {
         await this.authService.logout(
-            headers.accessToken.toString(),
+            headers.authorization,
             Boolean(allDevices),
         );
         return {};
