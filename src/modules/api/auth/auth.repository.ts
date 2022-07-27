@@ -5,6 +5,7 @@ import {
     UserCodeEntity,
     UserEntity,
     UserInfoEntity,
+    UserTokenEntity,
 } from '../../../db/entities';
 import {
     BasicUserCodeData,
@@ -16,7 +17,7 @@ import {
     userCodeRepository,
     userTokenRepository,
 } from '../../../db/repositories';
-import { UserAction } from '../../../common/enums';
+import { UserAction, UserTokenType } from '../../../common/enums';
 
 @Injectable()
 export class AuthServiceRepository {
@@ -133,5 +134,17 @@ export class AuthServiceRepository {
             })
             .getRawOne();
         return +result.count;
+    }
+
+    findAccessToken(relatedTokenId: number): Promise<UserTokenEntity> {
+        return userTokenRepository
+            .createQueryBuilder('userToken')
+            .where('"userToken"."relatedTokenId" = :relatedTokenId', {
+                relatedTokenId,
+            })
+            .andWhere('"userToken".type = :type', {
+                type: UserTokenType.ACCESS,
+            })
+            .getOne();
     }
 }

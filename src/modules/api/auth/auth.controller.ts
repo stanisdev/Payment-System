@@ -64,9 +64,9 @@ export class AuthController {
     @Post(router.method('update-token'))
     @HttpCode(HttpStatus.OK)
     async updateToken(
-        @Body() updateTokenDto: UpdateTokenDto,
+        @Body() { refreshToken }: UpdateTokenDto,
     ): Promise<JwtCompleteData[]> {
-        return this.authService.updateToken(updateTokenDto);
+        return this.authService.updateToken(refreshToken);
     }
 
     @Get(router.method('logout'))

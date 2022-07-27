@@ -259,19 +259,35 @@ export class AuthService {
      * Validate the given 'refresh-token' and then
      * generate the new pairs of tokens
      */
-    async updateToken({
-        refreshToken,
-    }: UpdateTokenDto): Promise<JwtCompleteData[]> {
-        let userToken: UserTokenEntity;
+    async updateToken(encryptedToken: string): Promise<JwtCompleteData[]> {
+        let refreshToken: UserTokenEntity;
         try {
-            const data = await Jwt.verify(refreshToken, JwtSecretKey.API);
-            userToken = await Jwt.findInDb(data, UserTokenType.REFRESH);
-            Jwt.validate(userToken);
+            const data = await Jwt.verify(encryptedToken, JwtSecretKey.API);
+            refreshToken = await Jwt.findInDb(data, UserTokenType.REFRESH);
+            Jwt.validate(refreshToken);
         } catch {
             throw new BadRequestException(i18next.t('broken-refresh-token'));
         }
-        await this.repository.deletePairOfTokens(userToken.id);
-        return this.generateJwtTokens(userToken.user);
+        const tasks: Promise<void>[] = [
+            this.repository.deletePairOfTokens(refreshToken.id),
+        ];
+        const accessToken = await this.repository.findAccessToken(
+            refreshToken.id,
+        );
+        /**
+         * Remove the related record of the Access token from the Cache
+         */
+        if (accessToken instanceof UserTokenEntity) {
+            const identifier = `${accessToken.code}${accessToken.userId}`;
+            tasks.push(
+                CacheProvider.build({
+                    template: CacheTemplate.API_ACCESS_TOKEN,
+                    identifier,
+                }).remove(),
+            );
+        }
+        await Promise.all(tasks);
+        return this.generateJwtTokens(refreshToken.user);
     }
 
     /**
@@ -302,7 +318,9 @@ export class AuthService {
                 userId,
                 type: UserTokenType.ACCESS,
             });
-            const tasks = [this.repository.deleteAllTokens(userId)];
+            const tasks: Promise<void>[] = [
+                this.repository.deleteAllTokens(userId),
+            ];
             for (const { code, userId } of userTokens) {
                 tasks.push(
                     CacheProvider.build({

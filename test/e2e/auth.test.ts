@@ -2,6 +2,7 @@ import * as request from 'supertest';
 import * as bcrypt from 'bcrypt';
 import * as moment from 'moment';
 import * as lodash from 'lodash';
+import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 import {
     HttpServer,
@@ -13,8 +14,12 @@ import { AppModule } from '../../src/modules/app.module';
 import { appDataSource } from '../../src/db/dataSource';
 import { redisClient } from '../../src/common/providers/redis';
 import { Mailer } from '../../src/common/mailer';
-import { userRepository, userTokenRepository } from '../../src/db/repositories';
-import { UserEntity } from '../../src/db/entities';
+import {
+    userCodeRepository,
+    userRepository,
+    userTokenRepository,
+} from '../../src/db/repositories';
+import { UserCodeEntity, UserEntity } from '../../src/db/entities';
 import { UserStatus, UserAction, UserTokenType } from '../../src/common/enums';
 import { AuthSeeder } from '../seeders/auth';
 import { Utils } from '../utils';
@@ -281,7 +286,7 @@ describe('Auth controller', () => {
         });
 
         test('It should throw an error if passed a wrong "memberId"', async () => {
-            let {
+            const {
                 data: { memberId },
                 password,
             } = await Utils.createUserAndGetData();
@@ -297,7 +302,7 @@ describe('Auth controller', () => {
         });
 
         test('It should throw an error if passed a wrong password', async () => {
-            let {
+            const {
                 data: { memberId },
                 password,
             } = await Utils.createUserAndGetData();
@@ -313,7 +318,7 @@ describe('Auth controller', () => {
         });
 
         test(`It should throw an error if the user's email is not confirmed`, async () => {
-            let {
+            const {
                 data: { memberId },
                 password,
             } = await Utils.createUserAndGetData(
@@ -329,7 +334,7 @@ describe('Auth controller', () => {
         });
 
         test(`It should throw an error if the user's acount is blocked`, async () => {
-            let {
+            const {
                 data: { memberId },
                 password,
             } = await Utils.createUserAndGetData(UserStatus.BLOCKED);
@@ -343,7 +348,7 @@ describe('Auth controller', () => {
         });
 
         test(`It should throw an error if the user attempted too many times to log in`, async () => {
-            let {
+            const {
                 data: { memberId },
                 password,
             } = await Utils.createUserAndGetData();
@@ -529,7 +534,7 @@ describe('Auth controller', () => {
                     memberId: data.memberId,
                     password,
                 });
-            let refreshToken = loginResponse.body.find(
+            const refreshToken = loginResponse.body.find(
                 (token) => token.type == UserTokenType.REFRESH,
             );
             const { body } = await request(server)
@@ -558,10 +563,10 @@ describe('Auth controller', () => {
                 memberId: data.memberId,
                 password,
             });
-            let refreshToken = body.find(
+            const refreshToken = body.find(
                 (token) => token.type == UserTokenType.REFRESH,
             );
-            let accessToken = body.find(
+            const accessToken = body.find(
                 (token) => token.type == UserTokenType.ACCESS,
             );
             await request(server)
@@ -588,7 +593,7 @@ describe('Auth controller', () => {
                 memberId: data.memberId,
                 password,
             });
-            let refreshToken = body.find(
+            const refreshToken = body.find(
                 (token) => token.type == UserTokenType.REFRESH,
             );
             const user = await userRepository.findOneBy({
@@ -612,6 +617,74 @@ describe('Auth controller', () => {
                 .send({ refreshToken: refreshToken.token });
             expect(updateTokenResponse.statusCode).toBe(HttpStatus.BAD_REQUEST);
             expect(Array.isArray(updateTokenResponse.body)).toBe(false);
+        });
+    });
+
+    describe('POST: /auth/confirm-email/:code', () => {
+        test('It should confirm the email address by passing the valide confirmation code', async () => {
+            const userData = await Utils.createUserAndGetData(
+                UserStatus.EMAIL_NOT_CONFIRMED,
+            );
+
+            const expireAt = moment()
+                .add(+env.CONFIRM_EMAIL_EXPIRATION, 'minutes')
+                .toDate();
+            const code = faker.internet.password(7);
+            const userCodeData = {
+                userId: userData.id,
+                code,
+                action: UserAction.CONFIRM_EMAIL,
+                expireAt,
+            };
+            const { id: userCodeId } = await Utils.createUserCode(userCodeData);
+
+            const response = await request(server).get(
+                `/auth/confirm-email/${code}`,
+            );
+
+            expect(response.statusCode).toBe(HttpStatus.OK);
+
+            const userCodeRecord = await userCodeRepository.findOneBy({
+                id: userCodeId,
+            });
+            const userRecord = await userRepository.findOneBy({
+                id: userData.id,
+            });
+            expect(userRecord.status).toBe(UserStatus.EMAIL_CONFIRMED);
+            expect(userCodeRecord).toBe(null);
+        });
+
+        test('It restricts confirming the email address since the confirmation code is expired', async () => {
+            const userData = await Utils.createUserAndGetData(
+                UserStatus.EMAIL_NOT_CONFIRMED,
+            );
+
+            const expireAt = moment()
+                .subtract(+env.CONFIRM_EMAIL_EXPIRATION, 'minutes')
+                .toDate();
+            const code = faker.internet.password(7);
+            const userCodeData = {
+                userId: userData.id,
+                code,
+                action: UserAction.CONFIRM_EMAIL,
+                expireAt,
+            };
+            const { id: userCodeId } = await Utils.createUserCode(userCodeData);
+
+            const response = await request(server).get(
+                `/auth/confirm-email/${code}`,
+            );
+
+            expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+
+            const userCodeRecord = await userCodeRepository.findOneBy({
+                id: userCodeId,
+            });
+            const userRecord = await userRepository.findOneBy({
+                id: userData.id,
+            });
+            expect(userRecord.status).toBe(UserStatus.EMAIL_NOT_CONFIRMED);
+            expect(userCodeRecord).toBeInstanceOf(UserCodeEntity);
         });
     });
 

@@ -1,6 +1,6 @@
 import * as bcrypt from 'bcrypt';
-import { userRepository } from '../src/db/repositories';
-import { UserStatus } from '../src/common/enums';
+import { userCodeRepository, userRepository } from '../src/db/repositories';
+import { UserAction, UserStatus } from '../src/common/enums';
 import { AuthSeeder } from './seeders/auth';
 
 export class Utils {
@@ -15,11 +15,28 @@ export class Utils {
             data.status = UserStatus.EMAIL_CONFIRMED;
         }
         data.status = status;
-        await userRepository
+        const insertResult = await userRepository
             .createQueryBuilder()
             .insert()
             .values(data)
             .execute();
-        return { data, password };
+
+        const [{ id }] = insertResult.raw;
+        return { id: +id, data, password };
+    }
+
+    static async createUserCode(data: {
+        userId: number;
+        code: string;
+        action: UserAction;
+        expireAt: Date;
+    }) {
+        const insertResult = await userCodeRepository
+            .createQueryBuilder()
+            .insert()
+            .values(data)
+            .execute();
+        const [{ id }] = insertResult.raw;
+        return { id };
     }
 }
