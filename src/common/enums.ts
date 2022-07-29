@@ -63,8 +63,3 @@ export enum AdminStatus {
     ACTIVE = 1,
     BLOCKED = 0,
 }
-
-export enum JwtSecretKey {
-    API = 'api',
-    ADMIN = 'admin',
-}

@@ -25,7 +25,6 @@ import {
 } from '../../../common/types/user.type';
 import { JwtCompleteData, PlainRecord } from '../../../common/types/other.type';
 import {
-    JwtSecretKey,
     LoggerTemplate,
     MailerTemplate,
     UserAction,
@@ -33,7 +32,6 @@ import {
     UserTokenType,
     WalletType,
 } from '../../../common/enums';
-import { Jwt } from '../../../common/providers/jwt';
 import {
     UserCodeEntity,
     UserEntity,
@@ -41,9 +39,11 @@ import {
 } from '../../../db/entities';
 import { UserTokenGenerator } from '../../../common/helpers/userTokenGenerator';
 import { UserActivityLogger } from '../../../common/helpers/userActivityLogger';
+import { ApiAuthStrategy } from 'src/common/providers/jwt/strategies/api.auth-strategy';
 import { CacheProvider } from 'src/common/providers/cache/index';
 import { CacheTemplate } from 'src/common/providers/cache/templates';
 import { WalletService } from '../wallet/wallet.service';
+import { Jwt } from 'src/common/providers/jwt/index';
 import { Mailer } from '../../../common/mailer/index';
 import {
     LoginDto,
@@ -51,7 +51,6 @@ import {
     RestorePasswordConfirmCodeDto,
     RestorePasswordInitiateDto,
     SignUpDto,
-    UpdateTokenDto,
 } from './dto';
 
 @Injectable()
@@ -180,11 +179,11 @@ export class AuthService {
         const user = await userRepository.findOneBy({ memberId });
         try {
             equal(user instanceof UserEntity, true);
-            const match = await bcrypt.compare(
+            const isPasswordValid = await bcrypt.compare(
                 password + user.salt,
                 user.password,
             );
-            if (!match) {
+            if (!isPasswordValid) {
                 const seconds = +this.configService.get(
                     'MAX_LOGIN_ATTEMPTS_EXPIRATION',
                 );
@@ -261,10 +260,15 @@ export class AuthService {
      */
     async updateToken(encryptedToken: string): Promise<JwtCompleteData[]> {
         let refreshToken: UserTokenEntity;
+        const jwtInstance = new Jwt(
+            new ApiAuthStrategy(UserTokenType.REFRESH),
+        );
         try {
-            const data = await Jwt.verify(encryptedToken, JwtSecretKey.API);
-            refreshToken = await Jwt.findInDb(data, UserTokenType.REFRESH);
-            Jwt.validate(refreshToken);
+            const decryptedData = await jwtInstance.verify(encryptedToken);
+            const authStrategy = jwtInstance.getStrategy();
+
+            refreshToken = await authStrategy.getTokenInstance(decryptedData);
+            authStrategy.validate(refreshToken);
         } catch {
             throw new BadRequestException(i18next.t('broken-refresh-token'));
         }
@@ -298,13 +302,18 @@ export class AuthService {
         authorizationHeader: string,
         allDevices: boolean,
     ): Promise<void> {
-        let userToken: UserTokenEntity;
+        const jwtInstance = new Jwt(
+            new ApiAuthStrategy(UserTokenType.ACCESS),
+        );
+        let accessToken: UserTokenEntity;
         let decryptedData: PlainRecord;
         try {
-            const [, accessToken] = authorizationHeader.split(' ');
-            decryptedData = await Jwt.verify(accessToken, JwtSecretKey.API);
-            userToken = await Jwt.findInDb(decryptedData, UserTokenType.ACCESS);
-            Jwt.validate(userToken);
+            const [, encryptedToken] = authorizationHeader.split(' ');
+            const decryptedData = await jwtInstance.verify(encryptedToken);
+            const authStrategy = jwtInstance.getStrategy();
+
+            accessToken = await authStrategy.getTokenInstance(decryptedData);
+            authStrategy.validate(accessToken);
         } catch {
             throw new BadRequestException(i18next.t('broken-access-token'));
         }
@@ -352,7 +361,7 @@ export class AuthService {
             ]);
         }
         await UserActivityLogger.write({
-            user: userToken.user,
+            user: accessToken.user,
             action: UserAction.LOGOUT,
             template: LoggerTemplate.PLAIN,
         });

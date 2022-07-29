@@ -11,14 +11,14 @@ import { ConfigService } from '@nestjs/config';
 import { AdminEntity } from 'src/db/entities';
 import { adminRepository } from '../../../db/repositories';
 import { LoginDto } from './dto/login.dto';
-import { AdminStatus, JwtSecretKey } from 'src/common/enums';
+import { AdminStatus } from 'src/common/enums';
 import { CacheProvider } from '../../../common/providers/cache/index';
 import { CacheTemplate } from '../../../common/providers/cache/templates';
 import { AuthServiceRepository } from './auth.repository';
 import { Utils } from 'src/common/utils';
 import { AuthResponse } from 'src/common/types/admin.type';
-import { Jwt } from 'src/common/providers/jwt';
-import { JwtSignOptions } from 'src/common/types/other.type';
+import { Jwt } from 'src/common/providers/jwt/index';
+import { AdminAuthStrategy } from 'src/common/providers/jwt/strategies/admin.auth-strategy';
 
 @Injectable()
 export class AuthService {
@@ -37,11 +37,11 @@ export class AuthService {
         });
         try {
             equal(admin instanceof AdminEntity, true);
-            const match = await bcrypt.compare(
+            const isPasswordValid = await bcrypt.compare(
                 password + admin.salt,
                 admin.password,
             );
-            equal(match, true);
+            equal(isPasswordValid, true);
         } catch {
             /**
              * Check whether an admin needs to be blocked if the count
@@ -102,17 +102,17 @@ export class AuthService {
         /**
          * Obtain JWT
          */
-        const jwtOptions: JwtSignOptions = {
+        const jwtInstance = new Jwt(new AdminAuthStrategy());
+        const jwtSignParams = {
             data: {
                 adminId: admin.id,
                 code: serverCode,
             },
             expiresIn: expireAt.getTime(),
-            secretKey: JwtSecretKey.ADMIN,
         };
         return {
             jwt: {
-                token: await Jwt.sign(jwtOptions),
+                token: await jwtInstance.sign(jwtSignParams),
                 expireAt,
             },
             client: {

@@ -1,4 +1,3 @@
-import { JwtSecretKey } from '../enums';
 import { CacheTemplate } from '../providers/cache/templates';
 
 export type RandomStringOptions = {
@@ -6,10 +5,9 @@ export type RandomStringOptions = {
     length: number;
 };
 
-export type JwtSignOptions = {
+export type JwtSignParams = {
     data: PlainRecord;
     expiresIn: number;
-    secretKey: JwtSecretKey;
 };
 
 export type JwtCompleteData = {

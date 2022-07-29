@@ -1,10 +1,11 @@
 import * as moment from 'moment';
 import { UserEntity, UserTokenEntity } from '../../db/entities';
 import { userTokenRepository } from '../../db/repositories';
-import { JwtCompleteData, JwtSignOptions } from '../types/other.type';
-import { JwtSecretKey, UserTokenType } from '../enums';
-import { Jwt } from '../providers/jwt';
+import { JwtCompleteData, JwtSignParams } from '../types/other.type';
+import { UserTokenType } from '../enums';
 import { Utils } from '../utils';
+import { Jwt } from '../providers/jwt/index';
+import { ApiAuthStrategy } from '../providers/jwt/strategies/api.auth-strategy';
 
 export class UserTokenGenerator {
     tokenData: JwtCompleteData;
@@ -35,17 +36,17 @@ export class UserTokenGenerator {
 
     async sign() {
         const { record } = this;
-        const jwtOptions: JwtSignOptions = {
+        const jwtInstance = new Jwt(new ApiAuthStrategy(this.tokenType));
+        const jwtParams: JwtSignParams = {
             data: {
                 userId: this.user.id,
                 code: record.code,
             },
             expiresIn: record.expireAt.getTime(),
-            secretKey: JwtSecretKey.API,
         };
         this.tokenData = {
             type: this.tokenType,
-            token: await Jwt.sign(jwtOptions),
+            token: await jwtInstance.sign(jwtParams),
             expireAt: record.expireAt,
         };
     }
