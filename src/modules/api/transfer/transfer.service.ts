@@ -54,7 +54,7 @@ export class TransferService {
             identifier: dto.walletIdentifier,
         });
         const recipientWallet = payee.wallet;
-        if (recipientWallet.typeId !== senderWallet.typeId) {
+        if (recipientWallet.currencyId !== senderWallet.currencyId) {
             throw new BadRequestException(i18next.t('incorrect-wallets-type'));
         }
         if (senderWallet.balance < dto.amount) {

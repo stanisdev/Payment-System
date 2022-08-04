@@ -25,7 +25,7 @@ export class WalletTypeEntity {
     )
     category: WalletCategoryEntity;
 
-    @OneToMany(() => WalletEntity, (wallet) => wallet.type)
+    @OneToMany(() => WalletEntity, (wallet) => wallet.currency)
     wallets: WalletEntity[];
 
     @CreateDateColumn()

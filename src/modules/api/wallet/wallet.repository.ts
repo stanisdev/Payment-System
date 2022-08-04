@@ -22,7 +22,7 @@ export class WalletServiceRepository {
                 user: data.user,
                 balance: 0,
                 identifier: data.identifier,
-                typeId: data.type,
+                currencyId: data.type,
             })
             .execute();
     }

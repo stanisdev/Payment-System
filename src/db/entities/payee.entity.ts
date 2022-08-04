@@ -45,6 +45,6 @@ export class PayeeEntity {
 
     getWalletIdentifier(): string {
         const { wallet } = this;
-        return wallet.type.name.substring(0, 1) + wallet.identifier;
+        return wallet.currency.name.substring(0, 1) + wallet.identifier;
     }
 }

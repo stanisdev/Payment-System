@@ -69,7 +69,7 @@ export class WalletService {
             }));
             const record = await walletRepository.findOneBy({
                 identifier,
-                typeId: walletType,
+                currencyId: walletType,
             });
             if (!(record instanceof WalletEntity)) {
                 return identifier;
@@ -92,7 +92,7 @@ export class WalletService {
         return wallets.map((wallet) => ({
             identifier: wallet.identifier,
             balance: wallet.balance,
-            type: wallet.type.name,
+            type: wallet.currency.name,
         }));
     }
 

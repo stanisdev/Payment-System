@@ -22,7 +22,7 @@ export class WalletEntity {
     user: UserEntity;
 
     @ManyToOne(() => WalletTypeEntity, (type) => type.wallets)
-    type: WalletTypeEntity;
+    currency: WalletTypeEntity;
 
     @OneToOne(() => PayeeEntity, (payee) => payee.wallet)
     payee: PayeeEntity;
@@ -35,7 +35,7 @@ export class WalletEntity {
 
     @Column()
     @IsInt()
-    typeId: number;
+    currencyId: number;
 
     @Column()
     @IsInt()
@@ -54,6 +54,6 @@ export class WalletEntity {
     createdAt: Date;
 
     getFullIdentifier(): string {
-        return this.type.name.substring(0, 1) + this.identifier;
+        return this.currency.name.substring(0, 1) + this.identifier;
     }
 }
