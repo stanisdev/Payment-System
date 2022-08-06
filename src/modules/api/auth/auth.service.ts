@@ -30,7 +30,7 @@ import {
     UserAction,
     UserStatus,
     UserTokenType,
-    WalletType,
+    Currency,
 } from '../../../common/enums';
 import {
     UserCodeEntity,
@@ -123,11 +123,9 @@ export class AuthService {
         /**
          * Create initial user's wallets
          */
-        const tasks = [
-            WalletType.US_DOLLAR,
-            WalletType.EURO,
-            WalletType.GOLD,
-        ].map((walletType) => this.walletService.create(walletType, user));
+        const tasks = [Currency.US_DOLLAR, Currency.EURO, Currency.GOLD].map(
+            (currencyId) => this.walletService.create(currencyId, user),
+        );
         await Promise.all(tasks);
 
         const logData: UserActivityData = {
@@ -260,9 +258,7 @@ export class AuthService {
      */
     async updateToken(encryptedToken: string): Promise<JwtCompleteData[]> {
         let refreshToken: UserTokenEntity;
-        const jwtInstance = new Jwt(
-            new ApiAuthStrategy(UserTokenType.REFRESH),
-        );
+        const jwtInstance = new Jwt(new ApiAuthStrategy(UserTokenType.REFRESH));
         try {
             const decryptedData = await jwtInstance.verify(encryptedToken);
             const authStrategy = jwtInstance.getStrategy();
@@ -302,9 +298,7 @@ export class AuthService {
         authorizationHeader: string,
         allDevices: boolean,
     ): Promise<void> {
-        const jwtInstance = new Jwt(
-            new ApiAuthStrategy(UserTokenType.ACCESS),
-        );
+        const jwtInstance = new Jwt(new ApiAuthStrategy(UserTokenType.ACCESS));
         let accessToken: UserTokenEntity;
         let decryptedData: PlainRecord;
         try {

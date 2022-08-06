@@ -10,8 +10,8 @@ import {
 import { WalletEntity } from './wallet.entity';
 import { WalletCategoryEntity } from './walletCategory.entity';
 
-@Entity('WalletTypes')
-export class WalletTypeEntity {
+@Entity('Currencies')
+export class CurrencyEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -21,7 +21,7 @@ export class WalletTypeEntity {
 
     @ManyToOne(
         () => WalletCategoryEntity,
-        (walletCategory) => walletCategory.types,
+        (walletCategory) => walletCategory.currencies,
     )
     category: WalletCategoryEntity;
 

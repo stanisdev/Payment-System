@@ -5,7 +5,7 @@ import {
     UserInfoEntity,
     UserTokenEntity,
     WalletCategoryEntity,
-    WalletTypeEntity,
+    CurrencyEntity,
     WalletEntity,
     UserLogEntity,
     UserCodeEntity,
@@ -33,8 +33,8 @@ const userCodeRepository: Repository<UserCodeEntity> =
     appDataSource.getRepository(UserCodeEntity);
 const walletCategoryRepository: Repository<WalletCategoryEntity> =
     appDataSource.getRepository(WalletCategoryEntity);
-const walletTypeRepository: Repository<WalletTypeEntity> =
-    appDataSource.getRepository(WalletTypeEntity);
+const currencyRepository: Repository<CurrencyEntity> =
+    appDataSource.getRepository(CurrencyEntity);
 const walletRepository: Repository<WalletEntity> =
     appDataSource.getRepository(WalletEntity);
 const payeeRepository: Repository<PayeeEntity> =
@@ -60,7 +60,7 @@ export {
     userLogRepository,
     userCodeRepository,
     walletCategoryRepository,
-    walletTypeRepository,
+    currencyRepository,
     walletRepository,
     payeeRepository,
     transferRepository,

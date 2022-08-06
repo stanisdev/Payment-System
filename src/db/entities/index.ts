@@ -5,7 +5,7 @@ import { UserTokenEntity } from './userToken.entity';
 import { UserLogEntity } from './userLog.entity';
 import { WalletEntity } from './wallet.entity';
 import { WalletCategoryEntity } from './walletCategory.entity';
-import { WalletTypeEntity } from './walletType.entity';
+import { CurrencyEntity } from './currency.entity';
 import { UserCodeEntity } from './userCode.entity';
 import { PayeeEntity } from './payee.entity';
 import { TransferEntity } from './transfer.entity';
@@ -23,7 +23,7 @@ export {
     UserLogEntity,
     UserCodeEntity,
     WalletEntity,
-    WalletTypeEntity,
+    CurrencyEntity,
     WalletCategoryEntity,
     PayeeEntity,
     TransferEntity,

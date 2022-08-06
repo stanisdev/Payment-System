@@ -14,7 +14,7 @@ export enum UserAction {
     RESTORE_PASSWORD_COMPLETE = 'RestorePasswordComplete',
 }
 
-export enum WalletType {
+export enum Currency {
     US_DOLLAR = 1,
     EURO = 2,
     GOLD = 3,

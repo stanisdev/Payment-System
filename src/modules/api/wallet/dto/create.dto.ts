@@ -4,5 +4,5 @@ import { IsNotEmpty } from 'class-validator';
 export class CreateWalletDto {
     @ApiProperty()
     @IsNotEmpty()
-    type: string;
+    currency: string;
 }

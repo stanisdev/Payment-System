@@ -11,7 +11,7 @@ import {
 import { PayeeEntity } from './payee.entity';
 import { TransferEntity } from './transfer.entity';
 import { UserEntity } from './user.entity';
-import { WalletTypeEntity } from './walletType.entity';
+import { CurrencyEntity } from './currency.entity';
 
 @Entity('Wallets')
 export class WalletEntity {
@@ -21,8 +21,8 @@ export class WalletEntity {
     @ManyToOne(() => UserEntity, (user) => user.wallets)
     user: UserEntity;
 
-    @ManyToOne(() => WalletTypeEntity, (type) => type.wallets)
-    currency: WalletTypeEntity;
+    @ManyToOne(() => CurrencyEntity, (currency) => currency.wallets)
+    currency: CurrencyEntity;
 
     @OneToOne(() => PayeeEntity, (payee) => payee.wallet)
     payee: PayeeEntity;

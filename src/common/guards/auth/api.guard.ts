@@ -7,9 +7,7 @@ import { ApiAuthStrategy } from '../../../common/providers/jwt/strategies/api.au
 export class AuthApiGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
-        const jwtInstance = new Jwt(
-            new ApiAuthStrategy(UserTokenType.ACCESS),
-        );
+        const jwtInstance = new Jwt(new ApiAuthStrategy(UserTokenType.ACCESS));
         try {
             const [, encryptedToken] = request.headers.authorization.split(' ');
             const decryptedData = await jwtInstance.verify(encryptedToken);

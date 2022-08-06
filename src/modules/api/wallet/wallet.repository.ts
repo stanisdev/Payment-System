@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { WalletType } from '../../../common/enums';
+import { Currency } from '../../../common/enums';
 import { BasicWalletData } from '../../../common/types/wallet.type';
 import {
     UserEntity,
@@ -19,20 +19,18 @@ export class WalletServiceRepository {
             .createQueryBuilder()
             .insert()
             .values({
-                user: data.user,
+                ...data,
                 balance: 0,
-                identifier: data.identifier,
-                currencyId: data.type,
             })
             .execute();
     }
 
-    async count(user: UserEntity, walletType: WalletType): Promise<number> {
+    async count(user: UserEntity, currencyId: Currency): Promise<number> {
         const { count } = await walletRepository
             .createQueryBuilder('wallet')
             .select('COUNT(wallet.id) as count')
             .where('"userId" = :userId', { userId: user.id })
-            .andWhere('"typeId" = :typeId', { typeId: walletType })
+            .andWhere('"currencyId" = :currencyId', { currencyId })
             .getRawOne();
         return +count;
     }
@@ -44,10 +42,10 @@ export class WalletServiceRepository {
     ): Promise<WalletEntity[]> {
         return walletRepository
             .createQueryBuilder('wallet')
-            .leftJoinAndSelect('wallet.type', 'type')
-            .select(['wallet.identifier', 'wallet.balance', 'type.name'])
+            .leftJoinAndSelect('wallet.currency', 'currency')
+            .select(['wallet.identifier', 'wallet.balance', 'currency.name'])
             .where('wallet."userId" = :userId', { userId: user.id })
-            .orderBy('type.id')
+            .orderBy('currency.id')
             .limit(limit)
             .offset(offset)
             .getMany();
@@ -59,8 +57,13 @@ export class WalletServiceRepository {
     ): Promise<WalletCategoryEntity[]> {
         return walletCategoryRepository
             .createQueryBuilder('category')
-            .leftJoinAndSelect('category.types', 'type')
-            .select(['category.id', 'category.name', 'type.id', 'type.name'])
+            .leftJoinAndSelect('category.currencies', 'currency')
+            .select([
+                'category.id',
+                'category.name',
+                'currency.id',
+                'currency.name',
+            ])
             .orderBy('category.name', 'ASC')
             .limit(limit)
             .offset(offset)

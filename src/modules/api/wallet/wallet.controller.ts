@@ -10,7 +10,7 @@ import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ParsePagination } from '../../../common/decorators/parse-pagination.decorator';
 import { AuthApi } from '../../../common/decorators/auth/api.decorator';
 import { User } from '../../../common/decorators/user.decorator';
-import { WalletType } from '../../../common/enums';
+import { Currency } from '../../../common/enums';
 import { LimitQuery, PageQuery } from '../../../common/objects';
 import { EmptyObject, Pagination } from '../../../common/types/other.type';
 import { Router } from '../../../common/providers/router/index';
@@ -36,7 +36,7 @@ export class WalletController {
         @Body() dto: CreateWalletDto,
         @User() user: UserEntity,
     ): Promise<EmptyObject> {
-        await this.walletService.create(WalletType[dto.type], user);
+        await this.walletService.create(Currency[dto.currency], user);
         return {};
     }
 

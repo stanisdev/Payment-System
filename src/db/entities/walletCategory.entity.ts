@@ -6,7 +6,7 @@ import {
     OneToMany,
     PrimaryGeneratedColumn,
 } from 'typeorm';
-import { WalletTypeEntity } from './walletType.entity';
+import { CurrencyEntity } from './currency.entity';
 
 @Entity('WalletCategories')
 export class WalletCategoryEntity {
@@ -17,8 +17,8 @@ export class WalletCategoryEntity {
     @Length(1, 100)
     name: string;
 
-    @OneToMany(() => WalletTypeEntity, (walletType) => walletType.category)
-    types: WalletTypeEntity[];
+    @OneToMany(() => CurrencyEntity, (currencies) => currencies.category)
+    currencies: CurrencyEntity[];
 
     @CreateDateColumn()
     @IsDate()

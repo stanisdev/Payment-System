@@ -1,16 +1,16 @@
 import { UserEntity } from '../../db/entities';
-import { WalletType } from '../enums';
+import { Currency } from '../enums';
 
 export type BasicWalletData = {
     user: UserEntity;
     identifier: number;
-    type: WalletType;
+    currencyId: Currency;
 };
 
 export type WalletsListResult = {
     identifier: number;
     balance: number;
-    type: string;
+    currency: string;
 };
 
 export type FindWalletCriteria = {
@@ -27,10 +27,10 @@ export type UpdateWalletBalanceData = {
 export type WalletCategory = {
     id: number;
     name: string;
-    types: WalletTypeRecord[];
+    currencies: CurrencyRecord[];
 };
 
-export type WalletTypeRecord = {
+export type CurrencyRecord = {
     id: number;
     name: string;
 };

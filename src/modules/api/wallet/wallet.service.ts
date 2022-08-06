@@ -1,11 +1,11 @@
+import * as i18next from 'i18next';
 import {
     BadRequestException,
     Injectable,
     ServiceUnavailableException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as i18next from 'i18next';
-import { LoggerTemplate, UserAction, WalletType } from '../../../common/enums';
+import { LoggerTemplate, UserAction, Currency } from '../../../common/enums';
 import {
     BasicWalletData,
     WalletCategory,
@@ -29,29 +29,29 @@ export class WalletService {
     /**
      * Create a new user wallet
      */
-    async create(walletType: WalletType, user: UserEntity): Promise<void> {
-        if (typeof walletType != 'number') {
-            throw new BadRequestException(i18next.t('wrong-wallet-type'));
+    async create(currencyId: Currency, user: UserEntity): Promise<void> {
+        if (typeof currencyId != 'number') {
+            throw new BadRequestException(i18next.t('wrong-currency'));
         }
-        const walletsCount = await this.repository.count(user, walletType);
+        const walletsCount = await this.repository.count(user, currencyId);
 
         if (walletsCount >= +this.configService.get('MAX_WALLETS_PER_USER')) {
             throw new BadRequestException(
                 i18next.t('exceeded-amount-of-wallets'),
             );
         }
-        const identifier = await this.generateIdentifier(walletType);
+        const identifier = await this.generateIdentifier(currencyId);
         const walletData: BasicWalletData = {
             user,
             identifier,
-            type: walletType,
+            currencyId,
         };
         await this.repository.create(walletData);
         const logData: UserActivityData = {
             user,
             action: UserAction.CREATE,
             template: LoggerTemplate.PLAIN,
-            metadata: WalletType[walletType].substring(0, 1) + identifier,
+            metadata: Currency[currencyId].substring(0, 1) + identifier,
         };
         await UserActivityLogger.write(logData);
     }
@@ -60,7 +60,7 @@ export class WalletService {
      * Generate an identifier of the being generated wallet
      */
     private async generateIdentifier(
-        walletType: WalletType,
+        currencyId: Currency,
     ): Promise<number | never> {
         for (let a = 0; a < 100; a++) {
             const identifier = +(await Utils.generateRandomString({
@@ -69,14 +69,14 @@ export class WalletService {
             }));
             const record = await walletRepository.findOneBy({
                 identifier,
-                currencyId: walletType,
+                currencyId,
             });
             if (!(record instanceof WalletEntity)) {
                 return identifier;
             }
         }
         throw new ServiceUnavailableException(
-            i18next.t('unable-to-generate-identifier'),
+            i18next.t('unable-to-generate-wallet-identifier'),
         );
     }
 
@@ -92,13 +92,13 @@ export class WalletService {
         return wallets.map((wallet) => ({
             identifier: wallet.identifier,
             balance: wallet.balance,
-            type: wallet.currency.name,
+            currency: wallet.currency.name,
         }));
     }
 
     /**
      * Get the list of wallet categories and their
-     * related types
+     * related currencies
      */
     async getCategories({
         limit,
