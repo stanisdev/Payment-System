@@ -4,7 +4,7 @@ import {
     UserEntity,
     UserInfoEntity,
     UserTokenEntity,
-    WalletCategoryEntity,
+    CurrencyCategoryEntity,
     CurrencyEntity,
     WalletEntity,
     UserLogEntity,
@@ -31,8 +31,8 @@ const userLogRepository: Repository<UserLogEntity> =
     appDataSource.getRepository(UserLogEntity);
 const userCodeRepository: Repository<UserCodeEntity> =
     appDataSource.getRepository(UserCodeEntity);
-const walletCategoryRepository: Repository<WalletCategoryEntity> =
-    appDataSource.getRepository(WalletCategoryEntity);
+const currencyCategoryRepository: Repository<CurrencyCategoryEntity> =
+    appDataSource.getRepository(CurrencyCategoryEntity);
 const currencyRepository: Repository<CurrencyEntity> =
     appDataSource.getRepository(CurrencyEntity);
 const walletRepository: Repository<WalletEntity> =
@@ -59,7 +59,7 @@ export {
     userTokenRepository,
     userLogRepository,
     userCodeRepository,
-    walletCategoryRepository,
+    currencyCategoryRepository,
     currencyRepository,
     walletRepository,
     payeeRepository,

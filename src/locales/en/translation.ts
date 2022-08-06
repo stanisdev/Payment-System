@@ -14,7 +14,6 @@ export const translation = {
     'binding-own-wallet-is-prohibited':
         'You are not permitted to bind an own wallet',
     'wallet-not-found': 'Wallet not found',
-    'incorrect-wallets-type': 'Wallets do not match by type',
     'no-enough-money': 'The balance of the wallet is not enough',
     'withdrawal-direction': 'The direction of withdrawal: ',
     'wrong-client-token': 'The passed client token is incorrect',

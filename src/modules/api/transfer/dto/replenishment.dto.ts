@@ -10,7 +10,7 @@ export class ReplenishmentDto {
     @ApiProperty()
     @IsNotEmpty()
     @IsInt()
-    walletType: number;
+    currencyId: number;
 
     @ApiProperty()
     @IsNotEmpty()

@@ -20,7 +20,7 @@ export const GetPayee = createParamDecorator(async function (
     const payee = await payeeRepository
         .createQueryBuilder('payee')
         .leftJoinAndSelect('payee.wallet', 'wallet')
-        .leftJoinAndSelect('wallet.type', 'walletType')
+        .leftJoinAndSelect('wallet.currency', 'currency')
         .where('payee.id = :id', { id: payeeId })
         .andWhere('payee.userId = :userId', { userId: request.user.id })
         .getOne();

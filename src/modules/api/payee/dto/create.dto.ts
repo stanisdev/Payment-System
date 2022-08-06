@@ -10,7 +10,7 @@ export class PayeeDto {
     @ApiProperty()
     @IsNotEmpty()
     @IsInt()
-    walletType: number;
+    currencyId: number;
 
     @ApiProperty({ example: 'Mike Johnson' })
     @IsNotEmpty()

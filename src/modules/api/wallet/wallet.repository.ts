@@ -3,11 +3,11 @@ import { Currency } from '../../../common/enums';
 import { BasicWalletData } from '../../../common/types/wallet.type';
 import {
     UserEntity,
-    WalletCategoryEntity,
+    CurrencyCategoryEntity,
     WalletEntity,
 } from '../../../db/entities';
 import {
-    walletCategoryRepository,
+    currencyCategoryRepository,
     walletRepository,
 } from '../../../db/repositories';
 import { InsertResult } from 'typeorm';
@@ -54,8 +54,8 @@ export class WalletServiceRepository {
     getCategories(
         limit: number,
         offset: number,
-    ): Promise<WalletCategoryEntity[]> {
-        return walletCategoryRepository
+    ): Promise<CurrencyCategoryEntity[]> {
+        return currencyCategoryRepository
             .createQueryBuilder('category')
             .leftJoinAndSelect('category.currencies', 'currency')
             .select([

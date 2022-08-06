@@ -10,7 +10,7 @@ export class InvoiceCreateDto {
     @ApiProperty()
     @IsNotEmpty()
     @IsInt()
-    walletType: number;
+    currencyId: number;
 
     @ApiProperty()
     @IsInt()

@@ -21,7 +21,7 @@ export class InternalTransferDto {
     @ApiProperty()
     @IsNotEmpty()
     @IsInt()
-    walletType: number;
+    currencyId: number;
 
     @ApiProperty()
     comment?: string;

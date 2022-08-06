@@ -15,7 +15,7 @@ import { LimitQuery, PageQuery } from '../../../common/objects';
 import { EmptyObject, Pagination } from '../../../common/types/other.type';
 import { Router } from '../../../common/providers/router/index';
 import {
-    WalletCategory,
+    CurrencyCategoryRecord,
     WalletsListResult,
 } from '../../../common/types/wallet.type';
 import { UserEntity } from '../../../db/entities';
@@ -57,7 +57,7 @@ export class WalletController {
     @ApiQuery(PageQuery)
     async categories(
         @ParsePagination() pagination: Pagination,
-    ): Promise<WalletCategory[]> {
+    ): Promise<CurrencyCategoryRecord[]> {
         return this.walletService.getCategories(pagination);
     }
 }

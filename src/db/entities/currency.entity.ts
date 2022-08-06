@@ -8,7 +8,7 @@ import {
     PrimaryGeneratedColumn,
 } from 'typeorm';
 import { WalletEntity } from './wallet.entity';
-import { WalletCategoryEntity } from './walletCategory.entity';
+import { CurrencyCategoryEntity } from './currencyCategory.entity';
 
 @Entity('Currencies')
 export class CurrencyEntity {
@@ -20,10 +20,10 @@ export class CurrencyEntity {
     name: string;
 
     @ManyToOne(
-        () => WalletCategoryEntity,
-        (walletCategory) => walletCategory.currencies,
+        () => CurrencyCategoryEntity,
+        (currencyCategory) => currencyCategory.currencies,
     )
-    category: WalletCategoryEntity;
+    category: CurrencyCategoryEntity;
 
     @OneToMany(() => WalletEntity, (wallet) => wallet.currency)
     wallets: WalletEntity[];

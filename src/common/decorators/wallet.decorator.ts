@@ -15,8 +15,10 @@ export const GetWallet = createParamDecorator(async function (
     const { body } = request;
     const wallet = await walletRepository
         .createQueryBuilder('wallet')
-        .leftJoinAndSelect('wallet.type', 'type')
-        .where('wallet."typeId" = :typeId', { typeId: body.walletType })
+        .leftJoinAndSelect('wallet.currency', 'currency')
+        .where('wallet."currencyId" = :currencyId', {
+            currencyId: body.currencyId,
+        })
         .andWhere('wallet.identifier = :identifier', {
             identifier: body.walletIdentifier,
         })

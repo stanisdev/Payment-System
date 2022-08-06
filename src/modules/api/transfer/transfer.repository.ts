@@ -18,13 +18,13 @@ import { transferRepository, walletRepository } from '../../../db/repositories';
 export class TransferServiceRepository {
     getWallet({
         user,
-        typeId,
+        currencyId,
         identifier,
     }: FindWalletCriteria): Promise<WalletEntity> {
         const query = walletRepository
             .createQueryBuilder('wallet')
-            .leftJoinAndSelect('wallet.type', 'type')
-            .where('wallet."typeId" = :typeId', { typeId });
+            .leftJoinAndSelect('wallet.currency', 'currency')
+            .where('wallet."currencyId" = :currencyId', { currencyId });
         if (user instanceof UserEntity) {
             query.andWhere('wallet.userId = :userId', { userId: user.id });
         }

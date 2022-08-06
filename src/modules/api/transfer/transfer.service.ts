@@ -50,12 +50,12 @@ export class TransferService {
     ): Promise<InternalTransferResult> {
         const senderWallet = await this.getWallet({
             user,
-            typeId: dto.walletType,
+            currencyId: dto.currencyId,
             identifier: dto.walletIdentifier,
         });
         const recipientWallet = payee.wallet;
         if (recipientWallet.currencyId !== senderWallet.currencyId) {
-            throw new BadRequestException(i18next.t('incorrect-wallets-type'));
+            throw new BadRequestException(i18next.t('wrong-currency'));
         }
         if (senderWallet.balance < dto.amount) {
             throw new BadRequestException(i18next.t('no-enough-money'));
@@ -120,7 +120,7 @@ export class TransferService {
     ): Promise<WithdrawalResult> {
         const wallet = await this.getWallet({
             user,
-            typeId: dto.walletType,
+            currencyId: dto.currencyId,
             identifier: dto.walletIdentifier,
         });
         if (wallet.balance < dto.amount) {
@@ -171,7 +171,7 @@ export class TransferService {
         client: ClientEntity,
     ): Promise<ReplenishmentResult> {
         const wallet = await this.getWallet({
-            typeId: dto.walletType,
+            currencyId: dto.currencyId,
             identifier: dto.walletIdentifier,
         });
         let transferInfo: TransferRecord;
@@ -346,7 +346,7 @@ export class TransferService {
     ): Promise<InvoiceResult> {
         const recipientWallet = await this.repository.getWallet({
             user,
-            typeId: dto.walletType,
+            currencyId: dto.currencyId,
         });
         if (!(recipientWallet instanceof WalletEntity)) {
             throw new BadRequestException(i18next.t('no-wallet-to-bill'));

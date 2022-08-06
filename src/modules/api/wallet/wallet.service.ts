@@ -8,7 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { LoggerTemplate, UserAction, Currency } from '../../../common/enums';
 import {
     BasicWalletData,
-    WalletCategory,
+    CurrencyCategoryRecord,
     WalletsListResult,
 } from '../../../common/types/wallet.type';
 import { UserActivityData } from '../../../common/types/user.type';
@@ -103,7 +103,7 @@ export class WalletService {
     async getCategories({
         limit,
         offset,
-    }: Pagination): Promise<WalletCategory[]> {
+    }: Pagination): Promise<CurrencyCategoryRecord[]> {
         return this.repository.getCategories(limit, offset);
     }
 }

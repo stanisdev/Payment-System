@@ -8,8 +8,8 @@ import {
 } from 'typeorm';
 import { CurrencyEntity } from './currency.entity';
 
-@Entity('WalletCategories')
-export class WalletCategoryEntity {
+@Entity('CurrencyCategories')
+export class CurrencyCategoryEntity {
     @PrimaryGeneratedColumn()
     id: number;
 

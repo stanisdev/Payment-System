@@ -20,13 +20,13 @@ export class WithdrawalRestriction implements CanActivate {
             .select('SUM(transfer.amount)', 'sum')
             .where('transfer.type = :transferType')
             .andWhere('wallet.identifier = :walletIdentifier')
-            .andWhere('wallet.typeId = :walletType')
+            .andWhere('wallet.currencyId = :currencyId')
             .andWhere('wallet.userId = :userId')
             .andWhere('transfer."createdAt" > :createdFrom')
             .setParameters({
                 transferType: TransferType.WITHDRAWAL,
                 walletIdentifier: body.walletIdentifier,
-                walletType: body.walletType,
+                currencyId: body.currencyId,
                 userId: request.user.id,
                 createdFrom: moment().subtract(1, 'day').toDate(),
             })

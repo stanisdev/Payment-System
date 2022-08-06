@@ -47,14 +47,14 @@ export class PayeeServiceRepository {
         return payeeRepository
             .createQueryBuilder('payee')
             .leftJoinAndSelect('payee.wallet', 'wallet')
-            .leftJoinAndSelect('wallet.type', 'walletType')
+            .leftJoinAndSelect('wallet.currency', 'currency')
             .select([
                 'payee.id',
                 'payee.name',
                 'payee.email',
                 'payee.phone',
                 'wallet.identifier',
-                'walletType.name',
+                'currency.name',
             ])
             .where('payee."userId" = :userId', { userId: user.id })
             .limit(limit)
