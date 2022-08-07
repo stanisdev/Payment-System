@@ -1,9 +1,27 @@
 {
-    "name": "perfect-money-analogue",
+    "name": "payment-system",
     "version": "0.0.1",
-    "description": "An API analogue of the 'Perfect Money' service",
-    "author": "Stanislav Zavalishin",
-    "license": "UNLICENSED",
+    "description": "A REST API of a standard payment system",
+    "author": "Stanislav Zavalishin <javascript.nodejs.developer@gmail.com>",
+    "license": "ISC",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/stanisdev/Payment-System.git"
+    },
+    "homepage": "https://github.com/stanisdev/Payment-System#readme",
+    "bugs": {
+        "url": "https://github.com/stanisdev/Payment-System/issues"
+    },
+    "keywords": [
+        "node.js",
+        "postgresql",
+        "redis",
+        "nestjs",
+        "typeorm",
+        "api",
+        "typescript",
+        "payment-system"
+    ],
     "scripts": {
         "prebuild": "rimraf dist",
         "build": "nest build && yarn run postbuild",

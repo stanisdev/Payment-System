@@ -1,4 +1,4 @@
-An API analogue of the "Perfect Money" service
+A REST API of a standard payment system.
 
 ## Installation
 1. Clone the repository
