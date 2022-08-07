@@ -20,10 +20,9 @@ export const routes = {
             'restore-password:confirm-code': 'restore-password-confirm-code',
             'restore-password:complete': 'restore-password-complete',
         },
-        wallet: {
-            categories: 'categories',
-        },
+        wallet: {},
         payee: {},
+        currency: {},
         transfer: {
             internal: 'internal',
             withdrawal: 'withdrawal',

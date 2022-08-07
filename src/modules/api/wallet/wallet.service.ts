@@ -8,7 +8,6 @@ import { ConfigService } from '@nestjs/config';
 import { LoggerTemplate, UserAction, Currency } from '../../../common/enums';
 import {
     BasicWalletData,
-    CurrencyCategoryRecord,
     WalletsListResult,
 } from '../../../common/types/wallet.type';
 import { UserActivityData } from '../../../common/types/user.type';
@@ -94,16 +93,5 @@ export class WalletService {
             balance: wallet.balance,
             currency: wallet.currency.name,
         }));
-    }
-
-    /**
-     * Get the list of wallet categories and their
-     * related currencies
-     */
-    async getCategories({
-        limit,
-        offset,
-    }: Pagination): Promise<CurrencyCategoryRecord[]> {
-        return this.repository.getCategories(limit, offset);
     }
 }

@@ -14,10 +14,7 @@ import { Currency } from '../../../common/enums';
 import { LimitQuery, PageQuery } from '../../../common/objects';
 import { EmptyObject, Pagination } from '../../../common/types/other.type';
 import { Router } from '../../../common/providers/router/index';
-import {
-    CurrencyCategoryRecord,
-    WalletsListResult,
-} from '../../../common/types/wallet.type';
+import { WalletsListResult } from '../../../common/types/wallet.type';
 import { UserEntity } from '../../../db/entities';
 import { CreateWalletDto } from './dto/create.dto';
 import { WalletService } from './wallet.service';
@@ -49,15 +46,5 @@ export class WalletController {
         @User() user: UserEntity,
     ): Promise<WalletsListResult[]> {
         return this.walletService.getList(pagination, user);
-    }
-
-    @Get(router.method('categories'))
-    @HttpCode(HttpStatus.OK)
-    @ApiQuery(LimitQuery)
-    @ApiQuery(PageQuery)
-    async categories(
-        @ParsePagination() pagination: Pagination,
-    ): Promise<CurrencyCategoryRecord[]> {
-        return this.walletService.getCategories(pagination);
     }
 }

@@ -1,16 +1,9 @@
+import { InsertResult } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { Currency } from '../../../common/enums';
 import { BasicWalletData } from '../../../common/types/wallet.type';
-import {
-    UserEntity,
-    CurrencyCategoryEntity,
-    WalletEntity,
-} from '../../../db/entities';
-import {
-    currencyCategoryRepository,
-    walletRepository,
-} from '../../../db/repositories';
-import { InsertResult } from 'typeorm';
+import { UserEntity, WalletEntity } from '../../../db/entities';
+import { walletRepository } from '../../../db/repositories';
 
 @Injectable()
 export class WalletServiceRepository {
@@ -46,25 +39,6 @@ export class WalletServiceRepository {
             .select(['wallet.identifier', 'wallet.balance', 'currency.name'])
             .where('wallet."userId" = :userId', { userId: user.id })
             .orderBy('currency.id')
-            .limit(limit)
-            .offset(offset)
-            .getMany();
-    }
-
-    getCategories(
-        limit: number,
-        offset: number,
-    ): Promise<CurrencyCategoryEntity[]> {
-        return currencyCategoryRepository
-            .createQueryBuilder('category')
-            .leftJoinAndSelect('category.currencies', 'currency')
-            .select([
-                'category.id',
-                'category.name',
-                'currency.id',
-                'currency.name',
-            ])
-            .orderBy('category.name', 'ASC')
             .limit(limit)
             .offset(offset)
             .getMany();
