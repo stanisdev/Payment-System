@@ -72,11 +72,11 @@ describe('Auth controller', () => {
             expect(user.info.accountType).toBe(data.accountType);
             expect(user.status).toBe(UserStatus.EMAIL_NOT_CONFIRMED);
 
-            const match = await bcrypt.compare(
+            const isPasswordValid = await bcrypt.compare(
                 data.password + user.salt,
                 user.password,
             );
-            expect(match).toBe(true);
+            expect(isPasswordValid).toBe(true);
 
             const [userCode] = user.codes;
             const codeLifetime = moment()

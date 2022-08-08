@@ -5,10 +5,12 @@ import {
     Entity,
     ManyToOne,
     OneToMany,
+    OneToOne,
     PrimaryGeneratedColumn,
 } from 'typeorm';
 import { WalletEntity } from './wallet.entity';
 import { CurrencyCategoryEntity } from './currencyCategory.entity';
+import { SystemIncomeEntity } from './systemIncome.entity';
 
 @Entity('Currencies')
 export class CurrencyEntity {
@@ -27,6 +29,9 @@ export class CurrencyEntity {
 
     @OneToMany(() => WalletEntity, (wallet) => wallet.currency)
     wallets: WalletEntity[];
+
+    @OneToOne(() => SystemIncomeEntity, (systemIncome) => systemIncome.currency)
+    systemIncome: SystemIncomeEntity;
 
     @CreateDateColumn()
     @IsDate()
