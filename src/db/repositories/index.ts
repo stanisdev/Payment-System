@@ -17,6 +17,7 @@ import {
     RoleEntity,
     AdminTokenEntity,
     SystemIncomeEntity,
+    FeeEntity,
 } from '../entities';
 import { appDataSource } from '../dataSource';
 
@@ -54,6 +55,8 @@ const adminTokenRepository: Repository<AdminTokenEntity> =
     appDataSource.getRepository(AdminTokenEntity);
 const systemIncomeRepository: Repository<SystemIncomeEntity> =
     appDataSource.getRepository(SystemIncomeEntity);
+const feeRepository: Repository<FeeEntity> =
+    appDataSource.getRepository(FeeEntity);
 
 export {
     cityRepository,
@@ -73,4 +76,5 @@ export {
     roleRepository,
     adminTokenRepository,
     systemIncomeRepository,
+    feeRepository,
 };

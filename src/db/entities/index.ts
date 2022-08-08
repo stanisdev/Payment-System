@@ -15,6 +15,7 @@ import { AdminLogEntity } from './adminLog.entity';
 import { RoleEntity } from './role.entity';
 import { AdminTokenEntity } from './adminToken.entity';
 import { SystemIncomeEntity } from './systemIncome.entity';
+import { FeeEntity } from './fee.entity';
 
 export {
     CityEntity,
@@ -34,4 +35,5 @@ export {
     RoleEntity,
     AdminTokenEntity,
     SystemIncomeEntity,
+    FeeEntity,
 };

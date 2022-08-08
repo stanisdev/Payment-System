@@ -18,6 +18,7 @@ import {
     RoleEntity,
     AdminTokenEntity,
     SystemIncomeEntity,
+    FeeEntity,
 } from './entities';
 
 const { env } = process;
@@ -58,6 +59,7 @@ export const appDataSource = new DataSource({
         RoleEntity,
         AdminTokenEntity,
         SystemIncomeEntity,
+        FeeEntity,
     ],
     migrations: migrationsPath,
 });
