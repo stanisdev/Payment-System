@@ -63,3 +63,12 @@ export enum AdminStatus {
     ACTIVE = 1,
     BLOCKED = 0,
 }
+
+export enum Fee {
+    INTERNAL_TRANSFER_MORE_THAN_100 = 'InternalTransferMoreThan100',
+}
+
+export enum MathOperator {
+    INCREASE = '+',
+    DECREASE = '-',
+}

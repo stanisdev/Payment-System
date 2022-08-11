@@ -1,18 +1,28 @@
 import { Injectable } from '@nestjs/common';
+import { MathOperator } from 'src/common/enums';
 import { EntityManager, InsertQueryBuilder } from 'typeorm';
 import {
     SearchInvoiceCriteria,
     SearchTransferCriteria,
     TransferData,
     TransferRecord,
+    UpdateSystemIncomeParams,
     UpdateTransferData,
 } from '../../../common/types/transfer.type';
 import {
     FindWalletCriteria,
     UpdateWalletBalanceData,
 } from '../../../common/types/wallet.type';
-import { TransferEntity, UserEntity, WalletEntity } from '../../../db/entities';
-import { transferRepository, walletRepository } from '../../../db/repositories';
+import {
+    SystemIncomeEntity,
+    TransferEntity,
+    UserEntity,
+    WalletEntity,
+} from '../../../db/entities';
+import {
+    transferRepository,
+    walletRepository,
+} from '../../../db/repositories';
 
 @Injectable()
 export class TransferServiceRepository {
@@ -158,6 +168,20 @@ export class TransferServiceRepository {
             .update(TransferEntity)
             .set(data)
             .where('id = :id', { id })
+            .execute();
+    }
+
+    async updateSystemIncome(
+        { amount, operator, currencyId }: UpdateSystemIncomeParams,
+        transactionalEntityManager: EntityManager,
+    ): Promise<void> {
+        const updateCommand = `balance ${operator} ${amount}`;
+
+        await transactionalEntityManager
+            .createQueryBuilder()
+            .update(SystemIncomeEntity)
+            .set({ balance: () => updateCommand })
+            .where('currencyId = :currencyId', { currencyId })
             .execute();
     }
 }

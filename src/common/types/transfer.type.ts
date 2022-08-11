@@ -1,5 +1,5 @@
 import { UserEntity } from '../../db/entities';
-import { TransferType } from '../enums';
+import { MathOperator, TransferType } from '../enums';
 
 export type InternalTransferResult = {
     id: string;
@@ -72,4 +72,10 @@ export type SearchInvoiceCriteria = {
 
 export type UpdateTransferData = {
     type: TransferType;
+};
+
+export type UpdateSystemIncomeParams = {
+    amount: number;
+    operator: MathOperator;
+    currencyId: number;
 };

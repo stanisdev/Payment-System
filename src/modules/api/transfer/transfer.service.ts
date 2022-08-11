@@ -2,7 +2,7 @@ import * as i18next from 'i18next';
 import * as moment from 'moment';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { TransferType } from '../../../common/enums';
+import { Fee, MathOperator, TransferType } from '../../../common/enums';
 import { FindWalletCriteria } from '../../../common/types/wallet.type';
 import { Pagination } from '../../../common/types/other.type';
 import {
@@ -31,6 +31,7 @@ import { TransferServiceRepository } from './transfer.repository';
 import { RefundDto } from './dto/refund.dto';
 import { InvoiceCreateDto } from './dto/invoice-create.dto';
 import { InvoicePayDto } from './dto/invoice-pay.dto';
+import { feeRepository } from 'src/db/repositories';
 
 @Injectable()
 export class TransferService {
@@ -61,6 +62,18 @@ export class TransferService {
             throw new BadRequestException(i18next.t('no-enough-money'));
         }
         /**
+         * Determine whether a fee has to be charged
+         */
+        let transferFee = 0;
+        if (dto.amount > 100) {
+            const feeMetadata = await feeRepository.findOneBy({
+                name: Fee.INTERNAL_TRANSFER_MORE_THAN_100,
+            });
+            if (feeMetadata.isAvailable) {
+                transferFee = feeMetadata.calculatePercentage(dto.amount);
+            }
+        }
+        /**
          * Exectue a transction implementing the task
          */
         let transferInfo: TransferRecord;
@@ -81,11 +94,23 @@ export class TransferService {
         };
         await appDataSource.transaction(
             async (transactionalEntityManager: EntityManager) => {
-                const [createdTransfer] = await Promise.all([
-                    this.repository.createTransfer(
-                        transferData,
-                        transactionalEntityManager,
-                    ),
+                let tasks: Promise<void>[] = [];
+                if (transferFee > 0) {
+                    updateSenderData.balance -= transferFee;
+
+                    const updateSystemIncomeParams = {
+                        amount: transferFee,
+                        operator: MathOperator.INCREASE,
+                        currencyId: senderWallet.currencyId,
+                    };
+                    tasks.push(
+                        this.repository.updateSystemIncome(
+                            updateSystemIncomeParams,
+                            transactionalEntityManager,
+                        ),
+                    );
+                }
+                tasks.push(
                     this.repository.updateWalletBalance(
                         updateSenderData,
                         transactionalEntityManager,
@@ -94,8 +119,12 @@ export class TransferService {
                         updateRecipientData,
                         transactionalEntityManager,
                     ),
-                ]);
-                transferInfo = createdTransfer;
+                );
+                await Promise.all(tasks);
+                transferInfo = await this.repository.createTransfer(
+                    transferData,
+                    transactionalEntityManager,
+                );
             },
         );
         return {

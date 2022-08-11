@@ -29,4 +29,8 @@ export class FeeEntity {
     @CreateDateColumn()
     @IsDate()
     createdAt: Date;
+
+    calculatePercentage(amount: number): number {
+        return Math.round((this.value / 100) * amount * 100) / 100;
+    }
 }
