@@ -128,14 +128,18 @@ export class TransferServiceRepository {
 
         if (includeWalletsType) {
             qb.leftJoinAndSelect(
-                'walletSender.type',
-                'walletSenderType',
-            ).leftJoinAndSelect('walletRecipient.type', 'walletRecipientType');
+                'walletSender.currency',
+                'walletSenderCurrency',
+            ).leftJoinAndSelect(
+                'walletRecipient.currency',
+                'walletRecipientCurrency',
+            );
             select.push(
                 'walletSender.identifier',
-                'walletSenderType.name',
+                'walletSenderCurrency.name',
+                'walletSenderCurrency.id',
                 'walletRecipient.identifier',
-                'walletRecipientType.name',
+                'walletRecipientCurrency.name',
             );
         }
         if (Number.isInteger(amount)) {

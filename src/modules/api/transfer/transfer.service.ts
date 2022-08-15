@@ -30,7 +30,6 @@ import { WithdrawalDto } from './dto/withdrawal.dto';
 import { TransferServiceRepository } from './transfer.repository';
 import { RefundDto } from './dto/refund.dto';
 import { InvoiceCreateDto } from './dto/invoice-create.dto';
-import { InvoicePayDto } from './dto/invoice-pay.dto';
 import { FeeProvider } from '../../../common/providers/fee';
 
 @Injectable()
@@ -400,11 +399,11 @@ export class TransferService {
      * Pay an invoice with the given id
      */
     async invoicePay(
-        dto: InvoicePayDto,
+        transferId: string,
         user: UserEntity,
     ): Promise<InvoiceResult> {
         const transfer = await this.repository.getTransfer({
-            id: dto.transferId,
+            id: transferId,
             type: TransferType.INVOICE_CREATED,
             includeWalletsType: true,
             user,
@@ -415,6 +414,9 @@ export class TransferService {
         if (transfer.amount > transfer.walletSender.balance) {
             throw new BadRequestException(i18next.t('no-money-to-pay-invoice'));
         }
+        const fee = new FeeProvider(transfer.amount);
+        await fee.calculate();
+
         const { walletSender, walletRecipient } = transfer;
         const updateSenderData = {
             walletId: walletSender.id,
@@ -429,11 +431,7 @@ export class TransferService {
          */
         await appDataSource.transaction(
             async (transactionalEntityManager: EntityManager) => {
-                await Promise.all([
-                    this.repository.updateWalletBalance(
-                        updateSenderData,
-                        transactionalEntityManager,
-                    ),
+                const tasks: Promise<void>[] = [
                     this.repository.updateWalletBalance(
                         updateRecipientData,
                         transactionalEntityManager,
@@ -443,7 +441,31 @@ export class TransferService {
                         { type: TransferType.INVOICE_PAID },
                         transactionalEntityManager,
                     ),
-                ]);
+                ];
+                /**
+                 * Implement fee charging if the fee is intended
+                 */
+                if (fee.isAvailable()) {
+                    updateSenderData.balance -= fee.value;
+                    const updateSystemIncomeParams = {
+                        amount: fee.value,
+                        operator: MathOperator.INCREASE,
+                        currencyId: transfer.walletSender.currency.id,
+                    };
+                    tasks.push(
+                        this.repository.updateSystemIncome(
+                            updateSystemIncomeParams,
+                            transactionalEntityManager,
+                        ),
+                    );
+                }
+                tasks.push(
+                    this.repository.updateWalletBalance(
+                        updateSenderData,
+                        transactionalEntityManager,
+                    ),
+                );
+                await Promise.all(tasks);
             },
         );
         return {

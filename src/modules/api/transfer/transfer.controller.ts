@@ -115,9 +115,9 @@ export class TransferController {
     @AuthApi()
     @HttpCode(HttpStatus.OK)
     async invoicePay(
-        @Body() dto: InvoicePayDto,
+        @Body() { transferId }: InvoicePayDto,
         @User() user: UserEntity,
     ): Promise<InvoiceResult> {
-        return this.transferService.invoicePay(dto, user);
+        return this.transferService.invoicePay(transferId, user);
     }
 }
