@@ -80,8 +80,8 @@ export class TransferServiceRepository {
             .createQueryBuilder('transfer')
             .leftJoinAndSelect('transfer.walletSender', 'walletSender')
             .leftJoinAndSelect('transfer.walletRecipient', 'walletRecipient')
-            .leftJoinAndSelect('walletSender.type', 'walletSenderType')
-            .leftJoinAndSelect('walletRecipient.type', 'walletRecipientType')
+            .leftJoinAndSelect('walletSender.currency', 'walletSenderCurrency')
+            .leftJoinAndSelect('walletRecipient.currency', 'walletRecipientCurrency')
             .select([
                 'transfer.id',
                 'transfer.amount',
@@ -89,8 +89,8 @@ export class TransferServiceRepository {
                 'transfer."createdAt"',
                 'walletSender.identifier',
                 'walletRecipient.identifier',
-                'walletSenderType.name',
-                'walletRecipientType.name',
+                'walletSenderCurrency.name',
+                'walletRecipientCurrency.name',
             ])
             .where('"walletSender"."userId" = :userId', { userId: user.id })
             .orWhere('"walletRecipient"."userId" = :userId', {
