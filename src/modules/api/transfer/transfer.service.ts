@@ -2,7 +2,7 @@ import * as i18next from 'i18next';
 import * as moment from 'moment';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Fee, MathOperator, TransferType } from '../../../common/enums';
+import { MathOperator, TransferType } from '../../../common/enums';
 import { FindWalletCriteria } from '../../../common/types/wallet.type';
 import { Pagination } from '../../../common/types/other.type';
 import {
@@ -31,7 +31,7 @@ import { TransferServiceRepository } from './transfer.repository';
 import { RefundDto } from './dto/refund.dto';
 import { InvoiceCreateDto } from './dto/invoice-create.dto';
 import { InvoicePayDto } from './dto/invoice-pay.dto';
-import { feeRepository } from 'src/db/repositories';
+import { FeeProvider } from '../../../common/providers/fee';
 
 @Injectable()
 export class TransferService {
@@ -64,17 +64,10 @@ export class TransferService {
         /**
          * Determine whether a fee has to be charged
          */
-        let transferFee = 0;
-        if (dto.amount > 100) {
-            const feeMetadata = await feeRepository.findOneBy({
-                name: Fee.INTERNAL_TRANSFER_MORE_THAN_100,
-            });
-            if (feeMetadata.isAvailable) {
-                transferFee = feeMetadata.calculatePercentage(dto.amount);
-            }
-        }
+        const fee = new FeeProvider(dto.amount);
+        await fee.calculate();
         /**
-         * Exectue a transction implementing the task
+         * Exectue a transaction implementing the task
          */
         let transferInfo: TransferRecord;
         const updateSenderData = {
@@ -95,11 +88,11 @@ export class TransferService {
         await appDataSource.transaction(
             async (transactionalEntityManager: EntityManager) => {
                 let tasks: Promise<void>[] = [];
-                if (transferFee > 0) {
-                    updateSenderData.balance -= transferFee;
+                if (fee.isAvailable()) {
+                    updateSenderData.balance -= fee.value;
 
                     const updateSystemIncomeParams = {
-                        amount: transferFee,
+                        amount: fee.value,
                         operator: MathOperator.INCREASE,
                         currencyId: senderWallet.currencyId,
                     };

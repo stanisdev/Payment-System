@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { MathOperator } from 'src/common/enums';
 import { EntityManager, InsertQueryBuilder } from 'typeorm';
 import {
     SearchInvoiceCriteria,
@@ -19,10 +18,7 @@ import {
     UserEntity,
     WalletEntity,
 } from '../../../db/entities';
-import {
-    transferRepository,
-    walletRepository,
-} from '../../../db/repositories';
+import { transferRepository, walletRepository } from '../../../db/repositories';
 
 @Injectable()
 export class TransferServiceRepository {
