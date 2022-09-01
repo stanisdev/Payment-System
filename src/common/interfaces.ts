@@ -12,3 +12,7 @@ export interface AuthStrategy<T> {
 
     getTokenInstance(searchCriteria: PlainRecord): Promise<T>;
 }
+
+export interface FeeHandler {
+    calculate(): Promise<number>;
+}

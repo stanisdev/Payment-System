@@ -81,7 +81,10 @@ export class TransferServiceRepository {
             .leftJoinAndSelect('transfer.walletSender', 'walletSender')
             .leftJoinAndSelect('transfer.walletRecipient', 'walletRecipient')
             .leftJoinAndSelect('walletSender.currency', 'walletSenderCurrency')
-            .leftJoinAndSelect('walletRecipient.currency', 'walletRecipientCurrency')
+            .leftJoinAndSelect(
+                'walletRecipient.currency',
+                'walletRecipientCurrency',
+            )
             .select([
                 'transfer.id',
                 'transfer.amount',
@@ -115,6 +118,7 @@ export class TransferServiceRepository {
             'transfer.amount',
             'walletSender.id',
             'walletSender.balance',
+            'walletSender.currencyId',
             'walletRecipient.id',
             'walletRecipient.balance',
         ];

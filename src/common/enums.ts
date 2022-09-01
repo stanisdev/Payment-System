@@ -66,6 +66,8 @@ export enum AdminStatus {
 
 export enum Fee {
     INTERNAL_TRANSFER_MORE_THAN_100 = 'InternalTransferMoreThan100',
+    REFUND_LESS_THAN_100 = 'RefundLessThan100',
+    REFUND_MORE_OR_EQUAL_100 = 'RefundMoreOrEqual100',
 }
 
 export enum MathOperator {

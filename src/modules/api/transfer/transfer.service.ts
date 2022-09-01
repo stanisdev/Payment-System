@@ -30,7 +30,11 @@ import { WithdrawalDto } from './dto/withdrawal.dto';
 import { TransferServiceRepository } from './transfer.repository';
 import { RefundDto } from './dto/refund.dto';
 import { InvoiceCreateDto } from './dto/invoice-create.dto';
-import { FeeProvider } from '../../../common/providers/fee';
+import { FeeProvider } from 'src/common/providers/fee/index';
+import {
+    FeeBasicParams,
+    FeeRefundParams,
+} from '../../../common/providers/fee/types';
 
 @Injectable()
 export class TransferService {
@@ -63,7 +67,13 @@ export class TransferService {
         /**
          * Determine whether a fee has to be charged
          */
-        const fee = new FeeProvider(dto.amount);
+        const feeParams: FeeBasicParams = {
+            transfer: {
+                amount: dto.amount,
+                type: TransferType.INTERNAL,
+            },
+        };
+        const fee = new FeeProvider(feeParams);
         await fee.calculate();
         /**
          * Exectue a transaction implementing the task
@@ -86,7 +96,7 @@ export class TransferService {
         };
         await appDataSource.transaction(
             async (transactionalEntityManager: EntityManager) => {
-                let tasks: Promise<void>[] = [];
+                const tasks: Promise<void>[] = [];
                 if (fee.isAvailable()) {
                     updateSenderData.balance -= fee.value;
 
@@ -277,17 +287,20 @@ export class TransferService {
      */
     async refund(
         { transferId, amount }: RefundDto,
-        user: UserEntity,
+        userSender: UserEntity,
     ): Promise<void> {
         const transfer = await this.repository.getTransfer({
             id: transferId,
             type: TransferType.INTERNAL,
             amount,
-            user,
+            user: userSender,
         });
         if (!(transfer instanceof TransferEntity)) {
             throw new BadRequestException(i18next.t('transfer-not-found'));
         }
+        /**
+         * Check whether the transfer can be reverted
+         */
         const refundPeriod = +this.configService.get('REFUND_ALLOWED_PERIOD');
         const transferExpiration = moment()
             .subtract(refundPeriod, 'hour')
@@ -302,6 +315,33 @@ export class TransferService {
             throw new BadRequestException(
                 i18next.t('recipient-balance-is-not-enough'),
             );
+        }
+        /**
+         * Get the fee value of the initial transfer
+         */
+        const feeParams: FeeBasicParams = {
+            transfer: {
+                amount,
+                type: TransferType.INTERNAL,
+            },
+        };
+        const internalTransferFee = new FeeProvider(feeParams);
+        await internalTransferFee.calculate();
+
+        let refundFee: FeeProvider;
+        if (internalTransferFee.isAvailable()) {
+            /**
+             * Calculate the fee of refund
+             */
+            const feeParams: FeeRefundParams = {
+                transfer: {
+                    amount,
+                    type: TransferType.REFUND,
+                },
+                systemIncome: internalTransferFee.value,
+            };
+            refundFee = new FeeProvider(feeParams);
+            await refundFee.calculate();
         }
         /**
          * Prepare the data for making changes
@@ -326,20 +366,43 @@ export class TransferService {
          */
         await appDataSource.transaction(
             async (transactionalEntityManager: EntityManager) => {
-                await Promise.all([
-                    this.repository.updateWalletBalance(
-                        senderWalletData,
-                        transactionalEntityManager,
-                    ),
+                const tasks: Promise<void>[] = [
                     this.repository.updateWalletBalance(
                         recipientWalletData,
                         transactionalEntityManager,
                     ),
-                    this.repository.createTransfer(
-                        transferData,
+                ];
+                if (
+                    refundFee instanceof FeeProvider &&
+                    refundFee.isAvailable()
+                ) {
+                    const systemIncomeSubtraction =
+                        internalTransferFee.value - refundFee.value;
+
+                    senderWalletData.balance += systemIncomeSubtraction;
+                    const updateSystemIncomeParams = {
+                        amount: systemIncomeSubtraction,
+                        operator: MathOperator.DECREASE,
+                        currencyId: transfer.walletSender.currencyId,
+                    };
+                    tasks.push(
+                        this.repository.updateSystemIncome(
+                            updateSystemIncomeParams,
+                            transactionalEntityManager,
+                        ),
+                    );
+                }
+                tasks.push(
+                    this.repository.updateWalletBalance(
+                        senderWalletData,
                         transactionalEntityManager,
                     ),
-                ]);
+                );
+                await Promise.all(tasks);
+                await this.repository.createTransfer(
+                    transferData,
+                    transactionalEntityManager,
+                );
             },
         );
     }
@@ -414,7 +477,16 @@ export class TransferService {
         if (transfer.amount > transfer.walletSender.balance) {
             throw new BadRequestException(i18next.t('no-money-to-pay-invoice'));
         }
-        const fee = new FeeProvider(transfer.amount);
+        /**
+         * Determine the necessity of implementing the fee
+         */
+        const feeParams: FeeBasicParams = {
+            transfer: {
+                amount: transfer.amount,
+                type: TransferType.INVOICE_PAID,
+            },
+        };
+        const fee = new FeeProvider(feeParams);
         await fee.calculate();
 
         const { walletSender, walletRecipient } = transfer;

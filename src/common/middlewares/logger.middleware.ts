@@ -1,13 +1,14 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { Logger } from '../helpers/logger';
+import { PlainRecord } from '../types/other.type';
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
     private logger: Logger = Logger.getInstance();
 
     use(req: Request, res: Response, next: NextFunction) {
-        let data: { [key: string]: string } = {
+        let data: PlainRecord = {
             method: req.method,
             url: req.baseUrl,
         };
