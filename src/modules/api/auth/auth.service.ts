@@ -37,8 +37,8 @@ import {
     UserEntity,
     UserTokenEntity,
 } from '../../../db/entities';
-import { UserTokenGenerator } from '../../../common/helpers/userTokenGenerator';
-import { UserActivityLogger } from '../../../common/helpers/userActivityLogger';
+import { UserTokenGenerator } from '../../../common/providers/generators/userToken';
+import { UserActivityLogger } from '../../../common/providers/loggers/userActivity';
 import { ApiAuthStrategy } from 'src/common/providers/jwt/strategies/api.auth-strategy';
 import { CacheProvider } from 'src/common/providers/cache/index';
 import { CacheTemplate } from 'src/common/providers/cache/templates';

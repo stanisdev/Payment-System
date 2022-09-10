@@ -8,7 +8,7 @@ import { AppModule } from './modules/app.module';
 import { appDataSource } from './db/dataSource';
 import { redisClient } from './common/providers/redis';
 import { Mailer } from './common/mailer/index';
-import { Logger } from './common/helpers/logger';
+import { Logger } from './common/providers/loggers/system';
 
 async function bootstrap() {
     await appDataSource.initialize();

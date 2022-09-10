@@ -12,7 +12,7 @@ import {
 } from '../../../common/types/wallet.type';
 import { UserActivityData } from '../../../common/types/user.type';
 import { Pagination } from '../../../common/types/other.type';
-import { UserActivityLogger } from '../../../common/helpers/userActivityLogger';
+import { UserActivityLogger } from '../../../common/providers/loggers/userActivity';
 import { Utils } from '../../../common/utils';
 import { UserEntity, WalletEntity } from '../../../db/entities';
 import { walletRepository } from '../../../db/repositories';

@@ -1,11 +1,11 @@
 import * as moment from 'moment';
-import { UserEntity, UserTokenEntity } from '../../db/entities';
-import { userTokenRepository } from '../../db/repositories';
-import { JwtCompleteData, JwtSignParams } from '../types/other.type';
-import { UserTokenType } from '../enums';
-import { Utils } from '../utils';
-import { Jwt } from '../providers/jwt/index';
-import { ApiAuthStrategy } from '../providers/jwt/strategies/api.auth-strategy';
+import { UserEntity, UserTokenEntity } from '../../../db/entities';
+import { userTokenRepository } from '../../../db/repositories';
+import { JwtCompleteData, JwtSignParams } from '../../types/other.type';
+import { UserTokenType } from '../../enums';
+import { Utils } from '../../utils';
+import { Jwt } from '../jwt/index';
+import { ApiAuthStrategy } from '../jwt/strategies/api.auth-strategy';
 
 export class UserTokenGenerator {
     tokenData: JwtCompleteData;
