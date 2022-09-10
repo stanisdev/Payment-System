@@ -1,8 +1,8 @@
 import * as nodemailer from 'nodemailer';
 import * as pug from 'pug';
 import { join } from 'path';
-import { MailerTemplate } from '../enums';
-import { MockTransporter } from '../interfaces';
+import { MailerTemplate } from '../../enums';
+import { MockTransporter } from '../../interfaces';
 
 export class Mailer {
     private static transporter: nodemailer.Transporter | MockTransporter;

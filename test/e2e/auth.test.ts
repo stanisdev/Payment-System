@@ -13,7 +13,7 @@ import {
 import { AppModule } from '../../src/modules/app.module';
 import { appDataSource } from '../../src/db/dataSource';
 import { redisClient } from '../../src/common/providers/redis';
-import { Mailer } from '../../src/common/mailer';
+import { Mailer } from '../../src/common/providers/mailer';
 import {
     userCodeRepository,
     userRepository,

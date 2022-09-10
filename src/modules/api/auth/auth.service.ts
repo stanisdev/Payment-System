@@ -44,7 +44,7 @@ import { CacheProvider } from 'src/common/providers/cache/index';
 import { CacheTemplate } from 'src/common/providers/cache/templates';
 import { WalletService } from '../wallet/wallet.service';
 import { Jwt } from 'src/common/providers/jwt/index';
-import { Mailer } from '../../../common/mailer/index';
+import { Mailer } from '../../../common/providers/mailer/index';
 import {
     LoginDto,
     RestorePasswordCompleteDto,

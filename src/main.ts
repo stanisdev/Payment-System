@@ -7,7 +7,7 @@ import { init as i18nextInit } from './common/providers/i18next';
 import { AppModule } from './modules/app.module';
 import { appDataSource } from './db/dataSource';
 import { redisClient } from './common/providers/redis';
-import { Mailer } from './common/mailer/index';
+import { Mailer } from './common/providers/mailer/index';
 import { Logger } from './common/providers/loggers/system';
 
 async function bootstrap() {
