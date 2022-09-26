@@ -8,8 +8,8 @@ import {
     UserTokenEntity,
 } from '../../../db/entities';
 import {
-    BasicUserCodeData,
-    BasicUserData,
+    UserCodeData,
+    FullUserInfo,
     UserInfoData,
 } from '../../../common/types/user.type';
 import {
@@ -22,7 +22,7 @@ import { UserAction, UserTokenType } from '../../../common/enums';
 @Injectable()
 export class AuthServiceRepository {
     async createUser(
-        data: BasicUserData,
+        data: FullUserInfo,
         transactionalEntityManager: EntityManager,
     ): Promise<UserEntity> {
         const user = new UserEntity();
@@ -54,7 +54,7 @@ export class AuthServiceRepository {
         data: UserInfoData,
         transactionalEntityManager: EntityManager,
     ): Promise<void> {
-        transactionalEntityManager
+        await transactionalEntityManager
             .createQueryBuilder()
             .insert()
             .into(UserInfoEntity)
@@ -80,7 +80,7 @@ export class AuthServiceRepository {
     }
 
     async createUserCode(
-        { user, code, action, expireAt }: BasicUserCodeData,
+        { user, code, action, expireAt }: UserCodeData,
         transactionalEntityManager?: EntityManager,
     ): Promise<void> {
         let queryBuilder: SelectQueryBuilder<UserCodeEntity>;

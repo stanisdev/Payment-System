@@ -6,7 +6,7 @@ import {
     UserTokenType,
 } from '../enums';
 
-export type BasicUserData = {
+export type FullUserInfo = {
     memberId: number;
     email: string;
     password: string;
@@ -54,7 +54,7 @@ export type UserInfoResponse = {
     createdAt: Date;
 };
 
-export type BasicUserCodeData = {
+export type UserCodeData = {
     user: UserEntity;
     code: string;
     action: UserAction;

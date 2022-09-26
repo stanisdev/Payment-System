@@ -1,7 +1,7 @@
 import { UserEntity } from '../../db/entities';
 import { Currency } from '../enums';
 
-export type BasicWalletData = {
+export type WalletData = {
     user: UserEntity;
     identifier: number;
     currencyId: Currency;

@@ -1,21 +1,28 @@
-import { InsertResult } from 'typeorm';
+import { EntityManager } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { Currency } from '../../../common/enums';
-import { BasicWalletData } from '../../../common/types/wallet.type';
+import { WalletData } from '../../../common/types/wallet.type';
 import { UserEntity, WalletEntity } from '../../../db/entities';
 import { walletRepository } from '../../../db/repositories';
 
 @Injectable()
 export class WalletServiceRepository {
-    create(data: BasicWalletData): Promise<InsertResult> {
-        return walletRepository
-            .createQueryBuilder()
-            .insert()
-            .values({
-                ...data,
-                balance: 0,
-            })
-            .execute();
+    async create(
+        { user, currencyId, identifier }: WalletData,
+        transactionalEntityManager?: EntityManager,
+    ): Promise<WalletEntity> {
+        const wallet = new WalletEntity();
+        wallet.balance = 0;
+        wallet.identifier = identifier;
+        wallet.currencyId = currencyId;
+        wallet.user = user;
+
+        if (transactionalEntityManager instanceof EntityManager) {
+            await transactionalEntityManager.save(wallet);
+        } else {
+            await walletRepository.save(wallet);
+        }
+        return wallet;
     }
 
     async count(user: UserEntity, currencyId: Currency): Promise<number> {

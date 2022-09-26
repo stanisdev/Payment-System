@@ -7,7 +7,7 @@ import {
     Injectable,
     InternalServerErrorException,
 } from '@nestjs/common';
-import { strictEqual as equal, strictEqual } from 'assert';
+import { strictEqual as equal } from 'assert';
 import { ConfigService } from '@nestjs/config';
 import { EntityManager } from 'typeorm';
 import { AuthServiceRepository } from './auth.repository';
@@ -19,8 +19,8 @@ import {
 import { Utils } from '../../../common/utils';
 import { appDataSource } from '../../../db/dataSource';
 import {
-    BasicUserCodeData,
-    BasicUserData,
+    UserCodeData,
+    FullUserInfo,
     UserActivityData,
 } from '../../../common/types/user.type';
 import { JwtCompleteData, PlainRecord } from '../../../common/types/other.type';
@@ -42,9 +42,9 @@ import { UserActivityLogger } from '../../../common/providers/loggers/userActivi
 import { ApiAuthStrategy } from 'src/common/providers/jwt/strategies/api.auth-strategy';
 import { CacheProvider } from 'src/common/providers/cache/index';
 import { CacheTemplate } from 'src/common/providers/cache/templates';
-import { WalletService } from '../wallet/wallet.service';
 import { Jwt } from 'src/common/providers/jwt/index';
 import { Mailer } from '../../../common/providers/mailer/index';
+import { WalletSharedService } from '../wallet/wallet.shared';
 import {
     LoginDto,
     RestorePasswordCompleteDto,
@@ -58,7 +58,7 @@ export class AuthService {
     constructor(
         private readonly repository: AuthServiceRepository,
         private readonly configService: ConfigService,
-        private readonly walletService: WalletService,
+        private readonly walletSharedService: WalletSharedService,
     ) {}
 
     /**
@@ -68,7 +68,7 @@ export class AuthService {
     async signUp(dto: SignUpDto): Promise<void> {
         const memberId = await this.generateMemberId();
 
-        const userData: BasicUserData = {
+        const userData: FullUserInfo = {
             memberId,
             email: dto.email,
             password: dto.password,
@@ -84,6 +84,7 @@ export class AuthService {
                     'minute',
                 )
                 .toDate(),
+            action: UserAction.CONFIRM_EMAIL,
         };
         /**
          * Save primary user data within a transaction
@@ -104,9 +105,9 @@ export class AuthService {
                     user,
                     city,
                 };
-                const userCodeData: BasicUserCodeData = {
+                const userCodeData: UserCodeData = {
                     ...confirmCode,
-                    ...{ user, action: UserAction.CONFIRM_EMAIL },
+                    ...{ user },
                 };
                 await Promise.all([
                     this.repository.createUserInfo(
@@ -118,16 +119,24 @@ export class AuthService {
                         transactionalEntityManager,
                     ),
                 ]);
+                /**
+                 * Create initial user's wallets
+                 */
+                await Promise.all(
+                    [Currency.US_DOLLAR, Currency.EURO, Currency.GOLD].map(
+                        (currencyId) =>
+                            this.walletSharedService.createWallet(
+                                currencyId,
+                                user,
+                                transactionalEntityManager,
+                            ),
+                    ),
+                );
             },
         );
         /**
-         * Create initial user's wallets
+         * Log the action of a user
          */
-        const tasks = [Currency.US_DOLLAR, Currency.EURO, Currency.GOLD].map(
-            (currencyId) => this.walletService.create(currencyId, user),
-        );
-        await Promise.all(tasks);
-
         const logData: UserActivityData = {
             user,
             action: UserAction.CREATE,
@@ -157,7 +166,7 @@ export class AuthService {
             const user = await userRepository.findOneBy({
                 memberId,
             });
-            if (!(user instanceof Object)) {
+            if (!(user instanceof UserEntity)) {
                 return memberId;
             }
         }
@@ -420,7 +429,7 @@ export class AuthService {
             'RESTORE_PASSWORD_INITIATE_CODE_EXPIRATION',
         );
         const expireAt = moment().add(lifetime, 'minute').toDate();
-        const userCodeData: BasicUserCodeData = {
+        const userCodeData: UserCodeData = {
             user,
             code,
             action: UserAction.RESTORE_PASSWORD_INITIATE,
@@ -460,7 +469,7 @@ export class AuthService {
         );
         const expireAt = moment().add(lifetime, 'minute').toDate();
 
-        const userCodeData: BasicUserCodeData = {
+        const userCodeData: UserCodeData = {
             user: userCode.user,
             code: completeCode,
             action: UserAction.RESTORE_PASSWORD_COMPLETE,
@@ -509,8 +518,8 @@ export class AuthService {
     ): Promise<UserCodeEntity> {
         const userCode = await this.repository.findUserCode(code, action);
         try {
-            strictEqual(userCode instanceof UserCodeEntity, true);
-            strictEqual(userCode.expireAt > new Date(), true);
+            equal(userCode instanceof UserCodeEntity, true);
+            equal(userCode.expireAt > new Date(), true);
         } catch {
             throw new BadRequestException(
                 i18next.t('wrong-restore-password-code'),
