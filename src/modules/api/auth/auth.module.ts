@@ -7,6 +7,7 @@ import { getJwtTokenMiddleware } from '../../../common/middlewares/get-jwt-token
 import { WalletModule } from '../wallet/wallet.module';
 import { WalletSharedService } from '../wallet/wallet.shared';
 import { WalletServiceRepository } from '../wallet/wallet.repository';
+import { AuthUtility } from './auth.utility';
 
 @Module({
     imports: [WalletModule],
@@ -14,6 +15,7 @@ import { WalletServiceRepository } from '../wallet/wallet.repository';
     providers: [
         AuthService,
         AuthServiceRepository,
+        AuthUtility,
         ConfigService,
         WalletSharedService,
         WalletServiceRepository,

@@ -5,7 +5,6 @@ import {
     BadRequestException,
     ForbiddenException,
     Injectable,
-    InternalServerErrorException,
 } from '@nestjs/common';
 import { strictEqual as equal } from 'assert';
 import { ConfigService } from '@nestjs/config';
@@ -37,7 +36,6 @@ import {
     UserEntity,
     UserTokenEntity,
 } from '../../../db/entities';
-import { UserTokenGenerator } from '../../../common/providers/generators/userToken';
 import { UserActivityLogger } from '../../../common/providers/loggers/userActivity';
 import { ApiAuthStrategy } from 'src/common/providers/jwt/strategies/api.auth-strategy';
 import { CacheProvider } from 'src/common/providers/cache/index';
@@ -45,6 +43,7 @@ import { CacheTemplate } from 'src/common/providers/cache/templates';
 import { Jwt } from 'src/common/providers/jwt/index';
 import { Mailer } from '../../../common/providers/mailer/index';
 import { WalletSharedService } from '../wallet/wallet.shared';
+import { AuthUtility } from './auth.utility';
 import {
     LoginDto,
     RestorePasswordCompleteDto,
@@ -57,6 +56,7 @@ import {
 export class AuthService {
     constructor(
         private readonly repository: AuthServiceRepository,
+        private readonly utility: AuthUtility,
         private readonly configService: ConfigService,
         private readonly walletSharedService: WalletSharedService,
     ) {}
@@ -66,7 +66,7 @@ export class AuthService {
      * records in the DB
      */
     async signUp(dto: SignUpDto): Promise<void> {
-        const memberId = await this.generateMemberId();
+        const memberId = await this.utility.generateUserMemberId();
 
         const userData: FullUserInfo = {
             memberId,
@@ -153,29 +153,6 @@ export class AuthService {
     }
 
     /**
-     * Generate and get a unique "memberId" of
-     * the being created user
-     */
-    private async generateMemberId(): Promise<number> {
-        let memberId: number;
-        for (let a = 0; a < 100; a++) {
-            memberId = +(await Utils.generateRandomString({
-                onlyDigits: true,
-                length: 7,
-            }));
-            const user = await userRepository.findOneBy({
-                memberId,
-            });
-            if (!(user instanceof UserEntity)) {
-                return memberId;
-            }
-        }
-        throw new InternalServerErrorException(
-            i18next.t('unable-to-create-user'),
-        );
-    }
-
-    /**
      * Login a user using the given 'memberId' and password
      * then return pair of the tokens
      */
@@ -212,7 +189,7 @@ export class AuthService {
         if (user.status == UserStatus.BLOCKED) {
             throw new ForbiddenException(i18next.t('account-is-blocked'));
         }
-        const tokens = await this.generateJwtTokens(user);
+        const tokens = await this.utility.generateJwtTokens(user);
         /**
          * Log the executed action
          */
@@ -224,41 +201,6 @@ export class AuthService {
         };
         await UserActivityLogger.write(logData);
         return tokens;
-    }
-
-    /**
-     * Generate and get pair of the 'access-token' and
-     * an appropriate 'refresh' one
-     */
-    private async generateJwtTokens(
-        user: UserEntity,
-    ): Promise<JwtCompleteData[]> {
-        /**
-         * Generate refresh token
-         */
-        const refreshTokenGenerator = new UserTokenGenerator(
-            user,
-            UserTokenType.REFRESH,
-            +this.configService.get('JWT_REFRESH_LIFETIME'),
-        );
-        await refreshTokenGenerator.generateAndSave();
-        await refreshTokenGenerator.sign();
-        /**
-         * Generate access token
-         */
-        const accessTokenGenerator = new UserTokenGenerator(
-            user,
-            UserTokenType.ACCESS,
-            +this.configService.get('JWT_ACCESS_LIFETIME'),
-            refreshTokenGenerator.record.id,
-        );
-        await accessTokenGenerator.generateAndSave();
-        await accessTokenGenerator.sign();
-
-        return [
-            accessTokenGenerator.tokenData,
-            refreshTokenGenerator.tokenData,
-        ];
     }
 
     /**
@@ -296,7 +238,7 @@ export class AuthService {
             );
         }
         await Promise.all(tasks);
-        return this.generateJwtTokens(refreshToken.user);
+        return this.utility.generateJwtTokens(refreshToken.user);
     }
 
     /**

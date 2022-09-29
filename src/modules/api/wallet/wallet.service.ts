@@ -1,8 +1,5 @@
 import * as i18next from 'i18next';
-import {
-    BadRequestException,
-    Injectable,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { LoggerTemplate, UserAction, Currency } from '../../../common/enums';
 import { WalletsListResult } from '../../../common/types/wallet.type';

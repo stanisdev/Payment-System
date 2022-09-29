@@ -3,7 +3,6 @@ import * as moment from 'moment';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MathOperator, TransferType } from '../../../common/enums';
-import { FindWalletCriteria } from '../../../common/types/wallet.type';
 import { Pagination } from '../../../common/types/other.type';
 import {
     InternalTransferResult,
@@ -31,6 +30,7 @@ import { TransferServiceRepository } from './transfer.repository';
 import { RefundDto } from './dto/refund.dto';
 import { InvoiceCreateDto } from './dto/invoice-create.dto';
 import { FeeProvider } from 'src/common/providers/fee/index';
+import { TransferUtility } from './transfer.utility';
 import {
     FeeBasicParams,
     FeeRefundParams,
@@ -41,6 +41,7 @@ export class TransferService {
     constructor(
         private readonly repository: TransferServiceRepository,
         private readonly configService: ConfigService,
+        private readonly utility: TransferUtility,
     ) {}
 
     /**
@@ -52,7 +53,7 @@ export class TransferService {
         user: UserEntity,
         payee: PayeeEntity,
     ): Promise<InternalTransferResult> {
-        const senderWallet = await this.getWallet({
+        const senderWallet = await this.utility.getWallet({
             user,
             currencyId: dto.currencyId,
             identifier: dto.walletIdentifier,
@@ -149,7 +150,7 @@ export class TransferService {
         dto: WithdrawalDto,
         user: UserEntity,
     ): Promise<WithdrawalResult> {
-        const wallet = await this.getWallet({
+        const wallet = await this.utility.getWallet({
             user,
             currencyId: dto.currencyId,
             identifier: dto.walletIdentifier,
@@ -201,7 +202,7 @@ export class TransferService {
         dto: ReplenishmentDto,
         client: ClientEntity,
     ): Promise<ReplenishmentResult> {
-        const wallet = await this.getWallet({
+        const wallet = await this.utility.getWallet({
             currencyId: dto.currencyId,
             identifier: dto.walletIdentifier,
         });
@@ -405,19 +406,6 @@ export class TransferService {
                 );
             },
         );
-    }
-
-    /**
-     * Find and get a wallet by the given search criteria
-     */
-    private async getWallet(
-        data: FindWalletCriteria,
-    ): Promise<WalletEntity | never> {
-        const wallet = await this.repository.getWallet(data);
-        if (!(wallet instanceof WalletEntity)) {
-            throw new BadRequestException(i18next.t('wallet-not-found'));
-        }
-        return wallet;
     }
 
     /**
