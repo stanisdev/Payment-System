@@ -1,3 +1,4 @@
+import { strictEqual as equal } from 'assert';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { UserTokenType } from 'src/common/enums';
 import { Jwt } from 'src/common/providers/jwt/index';
@@ -9,7 +10,8 @@ export class AuthApiGuard implements CanActivate {
         const request = context.switchToHttp().getRequest();
         const jwtInstance = new Jwt(new ApiAuthStrategy(UserTokenType.ACCESS));
         try {
-            const [, encryptedToken] = request.headers.authorization.split(' ');
+            const [attribute, encryptedToken] = request.headers.authorization.split(' ');
+            equal(attribute, 'Bearer');
             const decryptedData = await jwtInstance.verify(encryptedToken);
             const authStrategy = jwtInstance.getStrategy();
 
