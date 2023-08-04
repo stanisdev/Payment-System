@@ -1,13 +1,12 @@
 import { appDataSource } from '../dataSource';
-import * as glob from 'glob';
-import { promisify } from 'util';
+import { glob } from 'glob';
 import { join, dirname } from 'path';
 
 (async () => {
     await appDataSource.initialize();
 
     const queryRunner = appDataSource.createQueryRunner();
-    const migrations = await promisify(glob)(
+    const migrations = await glob(
         join(dirname(__dirname), 'migrations', '*.ts'),
     );
     for (const migrationPath of migrations.reverse()) {
