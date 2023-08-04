@@ -7,11 +7,11 @@ export class FeeRefund implements FeeHandler {
 
     async calculate(): Promise<number> {
         if (this.transferAmount >= 100) {
-            const feeMetadata = await feeRepository.findOneBy({
+            const feeRecord = await feeRepository.findOneBy({
                 name: Fee.REFUND_MORE_OR_EQUAL_100,
             });
-            if (feeMetadata.isAvailable) {
-                return feeMetadata.calculatePercentage(this.systemIncome);
+            if (feeRecord.isAvailable) {
+                return feeRecord.calculatePercentage(this.systemIncome);
             }
         }
         return 0;

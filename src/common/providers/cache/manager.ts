@@ -10,7 +10,7 @@ export class CacheManager {
     constructor(private provider: CacheProvider) {}
 
     /**
-     * Execute a method that was chosen by the provider
+     * Execute a method specified by the provider
      */
     execute(): Promise<PlainRecord | null> {
         return this[this.provider.template]();

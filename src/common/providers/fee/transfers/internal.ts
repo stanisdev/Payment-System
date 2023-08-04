@@ -7,11 +7,11 @@ export class FeeInternalTransfer implements FeeHandler {
 
     async calculate(): Promise<number> {
         if (this.amount > 100) {
-            const feeMetadata = await feeRepository.findOneBy({
+            const feeRecord = await feeRepository.findOneBy({
                 name: Fee.INTERNAL_TRANSFER_MORE_THAN_100,
             });
-            if (feeMetadata.isAvailable) {
-                return feeMetadata.calculatePercentage(this.amount);
+            if (feeRecord.isAvailable) {
+                return feeRecord.calculatePercentage(this.amount);
             }
         }
         return 0;

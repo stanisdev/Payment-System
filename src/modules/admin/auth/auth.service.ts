@@ -8,7 +8,7 @@ import {
     Injectable,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AdminEntity } from 'src/db/entities';
+import { AdminEntity } from '../../../db/entities';
 import { adminRepository } from '../../../db/repositories';
 import { LoginDto } from './dto/login.dto';
 import { AdminStatus } from 'src/common/enums';

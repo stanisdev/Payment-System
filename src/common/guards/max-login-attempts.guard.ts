@@ -7,11 +7,11 @@ export class MaxLoginAttempts implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const { body } = context.switchToHttp().getRequest();
 
-        const data = await CacheProvider.build({
+        const cachedValue = await CacheProvider.build({
             template: CacheTemplate.API_LOGIN_ATTEMPTS,
             identifier: body.memberId,
         }).find();
-        const attemptsCount = Number.parseInt(data);
+        const attemptsCount = Number.parseInt(cachedValue);
 
         if (
             !Number.isNaN(attemptsCount) &&
