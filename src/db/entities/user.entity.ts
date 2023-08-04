@@ -82,7 +82,7 @@ export class UserEntity {
             this.recentPassword !== this.password &&
             typeof this.password == 'string'
         ) {
-            this.salt = await Utils.generateRandomString({
+            this.salt = Utils.generateRandomString({
                 length: 5,
             });
             const salt = await bcrypt.genSalt();

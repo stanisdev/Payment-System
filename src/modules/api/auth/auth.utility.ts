@@ -19,10 +19,10 @@ export class AuthUtility {
     async generateUserMemberId(): Promise<number> {
         let memberId: number;
         for (let a = 0; a < 100; a++) {
-            memberId = +(await Utils.generateRandomString({
+            memberId = +Utils.generateRandomString({
                 onlyDigits: true,
                 length: 7,
-            }));
+            });
             const user = await userRepository.findOneBy({
                 memberId,
             });

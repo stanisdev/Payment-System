@@ -19,7 +19,7 @@ export class UserTokenGenerator {
     ) {}
 
     async generateAndSave(): Promise<void> {
-        const code = await Utils.generateRandomString({ length: 20 });
+        const code = Utils.generateRandomString({ length: 20 });
         const expireAt = moment().add(this.lifetime, 'hour').toDate();
 
         const userToken = new UserTokenEntity();

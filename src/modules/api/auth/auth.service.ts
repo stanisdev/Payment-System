@@ -75,7 +75,7 @@ export class AuthService {
             status: UserStatus.EMAIL_NOT_CONFIRMED,
         };
         const confirmCode = {
-            code: await Utils.generateRandomString({
+            code: Utils.generateRandomString({
                 length: +this.configService.get('EMAIL_CONFIRM_CODE_LENGTH'),
             }),
             expireAt: moment()
@@ -363,7 +363,7 @@ export class AuthService {
          * Generate and save the code to proceed the process
          * of resetting a password
          */
-        const code = await Utils.generateRandomString({
+        const code = Utils.generateRandomString({
             onlyDigits: true,
             length: +configService.get('RESTORE_PASSWORD_CODE_LENGTH'),
         });
@@ -402,7 +402,7 @@ export class AuthService {
             code,
             UserAction.RESTORE_PASSWORD_INITIATE,
         );
-        const completeCode = await Utils.generateRandomString({
+        const completeCode = Utils.generateRandomString({
             length: 8,
             onlyDigits: true,
         });

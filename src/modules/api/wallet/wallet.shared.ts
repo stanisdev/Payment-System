@@ -37,10 +37,10 @@ export class WalletSharedService {
         currencyId: Currency,
     ): Promise<number | never> {
         for (let a = 0; a < 100; a++) {
-            const identifier = +(await Utils.generateRandomString({
+            const identifier = +Utils.generateRandomString({
                 length: 8,
                 onlyDigits: true,
-            }));
+            });
             const record = await walletRepository.findOneBy({
                 identifier,
                 currencyId,

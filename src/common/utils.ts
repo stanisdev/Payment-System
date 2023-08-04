@@ -1,14 +1,37 @@
-import { nanoid, customAlphabet } from 'nanoid/async';
 import { RandomStringOptions } from './types/other.type';
 
 export class Utils {
-    static async generateRandomString(
-        options: RandomStringOptions,
-    ): Promise<string> {
-        if (options.onlyDigits) {
-            return customAlphabet('1234567890')(options.length);
+    private static symbols = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_';
+
+    static generateRandomString({
+            onlyDigits,
+            length,
+        }: RandomStringOptions,
+    ): string {
+        let result = '';
+        if (onlyDigits) {
+            for (let index = 0; index < length; index++) {
+                result += this.getNumber();
+            }
         } else {
-            return await nanoid(options.length);
+            for (let index = 0; index < length; index++) {
+                const symbolPosition = this.getSymbolPosition();
+                result += this.symbols.substring(symbolPosition, symbolPosition + 1);
+            }
         }
+        return result;
+    }
+
+    private static getSymbolPosition(): number {
+        while (true) {
+            const symbolPosition = +(this.getNumber() + this.getNumber());
+            if (symbolPosition <= this.symbols.length - 1) {
+                return symbolPosition;
+            }
+        }
+    }
+
+    private static getNumber(): string {
+        return Math.random().toString().substring(3, 4);
     }
 }
