@@ -10,20 +10,22 @@ import {
     INestApplication,
     ValidationPipe,
 } from '@nestjs/common';
-import { AppModule } from '../../src/modules/app.module';
-import { appDataSource } from '../../src/db/dataSource';
-import { redisClient } from '../../src/common/providers/redis';
-import { Mailer } from '../../src/common/providers/mailer';
+import { AppModule } from '../../../src/modules/app.module';
+import { appDataSource } from '../../../src/db/dataSource';
+import { redisClient } from '../../../src/common/providers/redis';
+import { Mailer } from '../../../src/common/providers/mailer';
 import {
     userCodeRepository,
     userRepository,
     userTokenRepository,
-} from '../../src/db/repositories';
-import { UserCodeEntity, UserEntity } from '../../src/db/entities';
-import { UserStatus, UserAction, UserTokenType } from '../../src/common/enums';
-import { AuthSeeder } from '../seeders/auth';
-import { Utils } from '../utils';
+} from '../../../src/db/repositories';
+import { UserCodeEntity, UserEntity } from '../../../src/db/entities';
+import { UserStatus, UserAction, UserTokenType } from '../../../src/common/enums';
+import { AuthSeeder } from '../../seeders/auth';
+import { Utils } from '../../utils';
 const { env } = process;
+
+const prefix = '/api';
 
 describe('Auth controller', () => {
     let app: INestApplication;
@@ -48,7 +50,7 @@ describe('Auth controller', () => {
             const data = AuthSeeder['sign-up.user'];
 
             const response = await request(server)
-                .post('/auth/sign-up')
+                .post(prefix + '/auth/sign-up')
                 .send(data);
             expect(response.body).toStrictEqual({});
             expect(response.statusCode).toBe(HttpStatus.CREATED);
@@ -67,7 +69,7 @@ describe('Auth controller', () => {
             expect(user.info.fullName).toBe(data.fullName);
             expect(user.info.country).toBe(data.country);
             expect(user.info.address).toBe(data.address);
-            expect(user.info.zipCode).toBe(data.zipCode);
+            expect(+user.info.zipCode).toBe(+data.zipCode);
             expect(user.info.phone).toBe(data.phone);
             expect(user.info.accountType).toBe(data.accountType);
             expect(user.status).toBe(UserStatus.EMAIL_NOT_CONFIRMED);
@@ -96,7 +98,7 @@ describe('Auth controller', () => {
                 .values(data)
                 .execute();
             const response = await request(server)
-                .post('/auth/sign-up')
+                .post(prefix + '/auth/sign-up')
                 .send(data);
             expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
         });
@@ -106,7 +108,7 @@ describe('Auth controller', () => {
             data.accountType = 'unknownType';
 
             const response = await request(server)
-                .post('/auth/sign-up')
+                .post(prefix + '/auth/sign-up')
                 .send(data);
             expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
         });
@@ -116,7 +118,7 @@ describe('Auth controller', () => {
             data.email = 'what?';
 
             const response = await request(server)
-                .post('/auth/sign-up')
+                .post(prefix + '/auth/sign-up')
                 .send(data);
             expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
         });
@@ -126,7 +128,7 @@ describe('Auth controller', () => {
             delete data.password;
 
             const response = await request(server)
-                .post('/auth/sign-up')
+                .post(prefix + '/auth/sign-up')
                 .send(data);
             expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
         });
@@ -136,7 +138,7 @@ describe('Auth controller', () => {
             delete data.fullName;
 
             const response = await request(server)
-                .post('/auth/sign-up')
+                .post(prefix + '/auth/sign-up')
                 .send(data);
             expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
         });
@@ -146,7 +148,7 @@ describe('Auth controller', () => {
             delete data.city;
 
             const response = await request(server)
-                .post('/auth/sign-up')
+                .post(prefix + '/auth/sign-up')
                 .send(data);
             expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
         });
@@ -156,7 +158,7 @@ describe('Auth controller', () => {
             delete data.country;
 
             const response = await request(server)
-                .post('/auth/sign-up')
+                .post(prefix + '/auth/sign-up')
                 .send(data);
             expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
         });
@@ -166,7 +168,7 @@ describe('Auth controller', () => {
             delete data.zipCode;
 
             const response = await request(server)
-                .post('/auth/sign-up')
+                .post(prefix + '/auth/sign-up')
                 .send(data);
             expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
         });
@@ -176,7 +178,7 @@ describe('Auth controller', () => {
             delete data.phone;
 
             const response = await request(server)
-                .post('/auth/sign-up')
+                .post(prefix + '/auth/sign-up')
                 .send(data);
             expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
         });
@@ -186,7 +188,7 @@ describe('Auth controller', () => {
             delete data.email;
 
             const response = await request(server)
-                .post('/auth/sign-up')
+                .post(prefix + '/auth/sign-up')
                 .send(data);
             expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
         });
@@ -199,7 +201,7 @@ describe('Auth controller', () => {
                 password,
             } = await Utils.createUserAndGetData();
             const { body, statusCode } = await request(server)
-                .post('/auth/login')
+                .post(prefix + '/auth/login')
                 .send({
                     memberId: memberId,
                     password,
@@ -235,7 +237,7 @@ describe('Auth controller', () => {
         test('It should login and get valid access token', async () => {
             const { data, password } = await Utils.createUserAndGetData();
             const loginResponse = await request(server)
-                .post('/auth/login')
+                .post(prefix + '/auth/login')
                 .send({
                     memberId: data.memberId,
                     password,
@@ -246,7 +248,7 @@ describe('Auth controller', () => {
             );
 
             const userMeResponse = await request(server)
-                .get('/user/me')
+                .get(prefix + '/user/me')
                 .set('Authorization', `Bearer ${accessToken.token}`);
             expect(userMeResponse.statusCode).toBe(HttpStatus.OK);
             expect(userMeResponse.body.email).toBe(data.email);
@@ -265,7 +267,7 @@ describe('Auth controller', () => {
                 password,
             } = await Utils.createUserAndGetData();
             const loginResponse = await request(server)
-                .post('/auth/login')
+                .post(prefix + '/auth/login')
                 .send({
                     memberId,
                     password,
@@ -276,7 +278,7 @@ describe('Auth controller', () => {
             );
 
             const updateTokenResponse = await request(server)
-                .post('/auth/update-token')
+                .post(prefix + '/auth/update-token')
                 .send({
                     refreshToken: refreshToken.token,
                 });
@@ -291,7 +293,7 @@ describe('Auth controller', () => {
                 password,
             } = await Utils.createUserAndGetData();
             const response = await request(server)
-                .post('/auth/login')
+                .post(prefix + '/auth/login')
                 .send({
                     memberId: +`${memberId}9`,
                     password,
@@ -307,7 +309,7 @@ describe('Auth controller', () => {
                 password,
             } = await Utils.createUserAndGetData();
             const response = await request(server)
-                .post('/auth/login')
+                .post(prefix + '/auth/login')
                 .send({
                     memberId,
                     password: password + '?',
@@ -324,7 +326,7 @@ describe('Auth controller', () => {
             } = await Utils.createUserAndGetData(
                 UserStatus.EMAIL_NOT_CONFIRMED,
             );
-            const response = await request(server).post('/auth/login').send({
+            const response = await request(server).post(prefix + '/auth/login').send({
                 memberId,
                 password,
             });
@@ -338,7 +340,7 @@ describe('Auth controller', () => {
                 data: { memberId },
                 password,
             } = await Utils.createUserAndGetData(UserStatus.BLOCKED);
-            const response = await request(server).post('/auth/login').send({
+            const response = await request(server).post(prefix + '/auth/login').send({
                 memberId,
                 password,
             });
@@ -355,7 +357,7 @@ describe('Auth controller', () => {
 
             for (let a = 0; a < +env.MAX_LOGIN_ATTEMPTS; a++) {
                 const response = await request(server)
-                    .post('/auth/login')
+                    .post(prefix + '/auth/login')
                     .send({
                         memberId,
                         password: password + '?',
@@ -365,7 +367,7 @@ describe('Auth controller', () => {
                 expect(response.body.statusCode).toBe(HttpStatus.FORBIDDEN);
             }
             const response = await request(server)
-                .post('/auth/login')
+                .post(prefix + '/auth/login')
                 .send({
                     memberId,
                     password: password + '?',
@@ -379,12 +381,12 @@ describe('Auth controller', () => {
     describe('POST: /auth/logout', () => {
         test('It should logout successfully from one device', async () => {
             const { data, password } = await Utils.createUserAndGetData();
-            await request(server).post('/auth/login').send({
+            await request(server).post(prefix + '/auth/login').send({
                 memberId: data.memberId,
                 password,
             });
             const loginResponse = await request(server)
-                .post('/auth/login')
+                .post(prefix + '/auth/login')
                 .send({
                     memberId: data.memberId,
                     password,
@@ -394,7 +396,7 @@ describe('Auth controller', () => {
             );
 
             const logoutResponse = await request(server)
-                .get('/auth/logout')
+                .get(prefix + '/auth/logout')
                 .set('Authorization', `Bearer ${accessToken.token}`);
             expect(logoutResponse.statusCode).toBe(HttpStatus.OK);
             expect(Object.keys(logoutResponse.body).length).toBe(0);
@@ -412,12 +414,12 @@ describe('Auth controller', () => {
 
         test('It should logout successfully from all devices', async () => {
             const { data, password } = await Utils.createUserAndGetData();
-            await request(server).post('/auth/login').send({
+            await request(server).post(prefix + '/auth/login').send({
                 memberId: data.memberId,
                 password,
             });
             const loginResponse = await request(server)
-                .post('/auth/login')
+                .post(prefix + '/auth/login')
                 .send({
                     memberId: data.memberId,
                     password,
@@ -427,7 +429,7 @@ describe('Auth controller', () => {
             );
 
             const logoutResponse = await request(server)
-                .get('/auth/logout?allDevices=true')
+                .get(prefix + '/auth/logout?allDevices=true')
                 .set('Authorization', `Bearer ${accessToken.token}`);
             expect(logoutResponse.statusCode).toBe(HttpStatus.OK);
             expect(Object.keys(logoutResponse.body).length).toBe(0);
@@ -446,7 +448,7 @@ describe('Auth controller', () => {
         test('It should prevent double attempts to logout and throw an error', async () => {
             const { data, password } = await Utils.createUserAndGetData();
             const loginResponse = await request(server)
-                .post('/auth/login')
+                .post(prefix + '/auth/login')
                 .send({
                     memberId: data.memberId,
                     password,
@@ -456,17 +458,17 @@ describe('Auth controller', () => {
             );
 
             await request(server)
-                .get('/auth/logout')
+                .get(prefix + '/auth/logout')
                 .set('Authorization', `Bearer ${accessToken.token}`);
             const logoutResponse = await request(server)
-                .get('/auth/logout')
+                .get(prefix + '/auth/logout')
                 .set('Authorization', `Bearer ${accessToken.token}`);
             expect(logoutResponse.statusCode).toBe(HttpStatus.BAD_REQUEST);
         });
 
         test('It should throw an error if the given access token is incorrect', async () => {
             const response = await request(server)
-                .get('/auth/logout')
+                .get(prefix + '/auth/logout')
                 .set('Authorization', `Bearer JJJJJJJJJJJJJJJ`);
             expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);
         });
@@ -476,7 +478,7 @@ describe('Auth controller', () => {
         test('It should successfully update tokens by removing old ones and generating new ones', async () => {
             const { data, password } = await Utils.createUserAndGetData();
             const loginResponse = await request(server)
-                .post('/auth/login')
+                .post(prefix + '/auth/login')
                 .send({
                     memberId: data.memberId,
                     password,
@@ -485,7 +487,7 @@ describe('Auth controller', () => {
                 (token) => token.type == UserTokenType.REFRESH,
             );
             const { body, statusCode } = await request(server)
-                .post('/auth/update-token')
+                .post(prefix + '/auth/update-token')
                 .send({ refreshToken: refreshToken.token });
 
             expect(statusCode).toBe(HttpStatus.OK);
@@ -529,7 +531,7 @@ describe('Auth controller', () => {
         test('It should get a valid access token that can be used for requests to the API', async () => {
             const { data, password } = await Utils.createUserAndGetData();
             const loginResponse = await request(server)
-                .post('/auth/login')
+                .post(prefix + '/auth/login')
                 .send({
                     memberId: data.memberId,
                     password,
@@ -538,13 +540,13 @@ describe('Auth controller', () => {
                 (token) => token.type == UserTokenType.REFRESH,
             );
             const { body } = await request(server)
-                .post('/auth/update-token')
+                .post(prefix + '/auth/update-token')
                 .send({ refreshToken: refreshToken.token });
             const accessToken = body.find(
                 (token) => token.type == UserTokenType.ACCESS,
             );
             const userMeResponse = await request(server)
-                .get('/user/me')
+                .get(prefix + '/user/me')
                 .set('Authorization', `Bearer ${accessToken.token}`);
             expect(userMeResponse.statusCode).toBe(HttpStatus.OK);
             expect(userMeResponse.body.email).toBe(data.email);
@@ -559,7 +561,7 @@ describe('Auth controller', () => {
 
         test('It should remove old pairs of tokens that become invalid', async () => {
             const { data, password } = await Utils.createUserAndGetData();
-            const { body } = await request(server).post('/auth/login').send({
+            const { body } = await request(server).post(prefix + '/auth/login').send({
                 memberId: data.memberId,
                 password,
             });
@@ -570,18 +572,18 @@ describe('Auth controller', () => {
                 (token) => token.type == UserTokenType.ACCESS,
             );
             await request(server)
-                .post('/auth/update-token')
+                .post(prefix + '/auth/update-token')
                 .send({ refreshToken: refreshToken.token });
 
             const userMeResponse = await request(server)
-                .get('/user/me')
+                .get(prefix + '/user/me')
                 .set('Authorization', `Bearer ${accessToken.token}`);
             expect(userMeResponse.statusCode).toBe(HttpStatus.FORBIDDEN);
         });
 
         test('It should throw an error if the passed refresh token is broken', async () => {
             const { statusCode, body } = await request(server)
-                .post('/auth/update-token')
+                .post(prefix + '/auth/update-token')
                 .send({ refreshToken: AuthSeeder['broken-jwt-token'] });
             expect(statusCode).toBe(HttpStatus.BAD_REQUEST);
             expect(Array.isArray(body)).toBe(false);
@@ -589,7 +591,7 @@ describe('Auth controller', () => {
 
         test('It should throw an error if the passed refresh token expired', async () => {
             const { data, password } = await Utils.createUserAndGetData();
-            const { body } = await request(server).post('/auth/login').send({
+            const { body } = await request(server).post(prefix + '/auth/login').send({
                 memberId: data.memberId,
                 password,
             });
@@ -613,7 +615,7 @@ describe('Auth controller', () => {
                 .toDate();
             await userTokenRepository.save(refreshTokenRecord);
             const updateTokenResponse = await request(server)
-                .post('/auth/update-token')
+                .post(prefix + '/auth/update-token')
                 .send({ refreshToken: refreshToken.token });
             expect(updateTokenResponse.statusCode).toBe(HttpStatus.BAD_REQUEST);
             expect(Array.isArray(updateTokenResponse.body)).toBe(false);
@@ -639,7 +641,7 @@ describe('Auth controller', () => {
             const { id: userCodeId } = await Utils.createUserCode(userCodeData);
 
             const response = await request(server).get(
-                `/auth/confirm-email/${code}`,
+                prefix + `/auth/confirm-email/${code}`,
             );
 
             expect(response.statusCode).toBe(HttpStatus.OK);
@@ -672,7 +674,7 @@ describe('Auth controller', () => {
             const { id: userCodeId } = await Utils.createUserCode(userCodeData);
 
             const response = await request(server).get(
-                `/auth/confirm-email/${code}`,
+                prefix + `/auth/confirm-email/${code}`,
             );
 
             expect(response.statusCode).toBe(HttpStatus.BAD_REQUEST);

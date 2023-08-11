@@ -24,6 +24,7 @@ export class AdminLogs1656935792413 implements MigrationInterface {
         await queryRunner.query(`
             DROP TABLE IF EXISTS "UserLogs";
             DROP SEQUENCE IF EXISTS UserLogs_id_seq;
+            DROP SEQUENCE IF EXISTS AdminLogs_id_seq;
         `);
     }
 }

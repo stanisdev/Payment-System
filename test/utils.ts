@@ -1,4 +1,5 @@
 import * as bcrypt from 'bcrypt';
+import { faker } from '@faker-js/faker';
 import { userCodeRepository, userRepository } from '../src/db/repositories';
 import { UserAction, UserStatus } from '../src/common/enums';
 import { AuthSeeder } from './seeders/auth';
@@ -38,5 +39,9 @@ export class Utils {
             .execute();
         const [{ id }] = insertResult.raw;
         return { id };
+    }
+
+    static generateNumber(min: number, max: number): number {
+        return Number(faker.number.int({ min, max }));
     }
 }

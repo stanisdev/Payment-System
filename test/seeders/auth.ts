@@ -1,16 +1,17 @@
 import { faker } from '@faker-js/faker';
 import { UserStatus } from '../../src/common/enums';
+import { Utils } from '../utils';
 
 export class AuthSeeder {
     static get ['sign-up.user']() {
         return {
-            accountName: faker.name.findName(),
-            fullName: faker.name.firstName(),
-            city: faker.address.city(),
-            address: faker.address.secondaryAddress(),
+            accountName: faker.person.firstName(),
+            fullName: faker.person.fullName(),
+            city: faker.location.city(),
+            address: faker.location.streetAddress(),
             country: 'Greece',
-            zipCode: faker.datatype.number({ max: 100000 }),
-            phone: faker.phone.phoneNumber(),
+            zipCode: Utils.generateNumber(1000000, 9999999),
+            phone: faker.phone.number(),
             accountType: 'Personal',
             email: faker.internet.email(),
             password: faker.internet.password(),
@@ -19,7 +20,7 @@ export class AuthSeeder {
 
     static get ['basic.user']() {
         return {
-            memberId: faker.datatype.number({ max: 1000000 }),
+            memberId: Utils.generateNumber(10000, 999999),
             email: faker.internet.email(),
             password: faker.internet.password(),
             salt: 'AAAAA',
