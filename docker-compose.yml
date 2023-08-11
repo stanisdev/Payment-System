@@ -9,6 +9,7 @@ services:
     depends_on:
       - postgres
       - redis
+      - migration
     ports:
       - "${APP_PORT}:${APP_PORT}"
   postgres:
@@ -34,6 +35,14 @@ services:
       - .env
     ports:
       - "${REDIS_PORT}:${REDIS_PORT}"
+  migration:
+    build:
+      context: .
+    command: ["./wait-for-it/wait-for-it.sh", "postgres:5432", "--", "npm", "run", "migration:up"]
+    depends_on:
+      - postgres
+    env_file:
+      - .env
 
 volumes:
   db:

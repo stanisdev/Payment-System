@@ -33,4 +33,6 @@ COPY --chown=node:node --from=node_modules /usr/src/app/node_modules ./node_modu
 
 COPY . ./
 
+RUN git clone https://github.com/vishnubob/wait-for-it.git
+
 CMD [ "npm", "run", "start:prod" ]
