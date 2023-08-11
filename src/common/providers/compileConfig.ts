@@ -3,10 +3,12 @@ import * as dotenv from 'dotenv';
 const { env } = process;
 
 export const compileConfig = () => {
-    if (typeof env.NODE_ENV != 'string') {
-        env.NODE_ENV = 'development';
+    let path = '.env';
+
+    if (typeof env.NODE_ENV == 'string' && env.NODE_ENV != 'production') {
+        path = `.${env.NODE_ENV}.env`;
     }
     dotenv.config({
-        path: `.${env.NODE_ENV}.env`,
+        path,
     });
 };
