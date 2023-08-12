@@ -214,8 +214,10 @@ export class AuthService {
             const decryptedData = await jwtInstance.verify(encryptedToken);
             const authStrategy = jwtInstance.getStrategy();
 
+            authStrategy.validateDecryptedData(decryptedData);
+
             refreshToken = await authStrategy.getTokenInstance(decryptedData);
-            authStrategy.validate(refreshToken);
+            authStrategy.checkAdmission(refreshToken);
         } catch {
             throw new BadRequestException(i18next.t('broken-refresh-token'));
         }
@@ -250,15 +252,18 @@ export class AuthService {
         allDevices: boolean,
     ): Promise<void> {
         const jwtInstance = new Jwt(new ApiAuthStrategy(UserTokenType.ACCESS));
+
         let accessToken: UserTokenEntity;
         let decryptedData: PlainRecord;
         try {
             const [, encryptedToken] = authorizationHeader.split(' ');
-            const decryptedData = await jwtInstance.verify(encryptedToken);
+            decryptedData = await jwtInstance.verify(encryptedToken);
             const authStrategy = jwtInstance.getStrategy();
 
+            authStrategy.validateDecryptedData(decryptedData);
+
             accessToken = await authStrategy.getTokenInstance(decryptedData);
-            authStrategy.validate(accessToken);
+            authStrategy.checkAdmission(accessToken);
         } catch {
             throw new BadRequestException(i18next.t('broken-access-token'));
         }

@@ -8,7 +8,9 @@ export interface MockTransporter {
 export interface AuthStrategy<T> {
     readonly secretKey: string;
 
-    validate(tokenInstance: T): void | never;
+    checkAdmission(tokenInstance: T): void | never;
+
+    validateDecryptedData(decryptedData: PlainRecord): void | never;
 
     getTokenInstance(searchCriteria: PlainRecord): Promise<T>;
 }

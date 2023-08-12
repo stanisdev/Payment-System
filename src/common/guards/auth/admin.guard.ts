@@ -16,17 +16,19 @@ export class AuthAdminGuard implements CanActivate {
             const decryptedData = await jwtInstance.verify(encryptedToken);
             const authStrategy = jwtInstance.getStrategy();
 
-            const admin = await authStrategy.getTokenInstance(decryptedData);
-            authStrategy.validate(admin);
+            authStrategy.validateDecryptedData(decryptedData);
 
-            const [adminTokenRecord] = admin.tokens;
+            const adminRecord = await authStrategy.getTokenInstance(decryptedData);
+            authStrategy.checkAdmission(adminRecord);
+
+            const [adminTokenRecord] = adminRecord.tokens;
             const isClientTokenValid = await bcrypt.compare(
                 adminTokenRecord.clientCode + salt,
                 hash,
             );
             equal(isClientTokenValid, true);
 
-            request.admin = admin;
+            request.admin = adminRecord;
         } catch {
             return false;
         }

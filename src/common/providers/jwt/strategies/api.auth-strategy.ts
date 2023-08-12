@@ -15,15 +15,25 @@ export class ApiAuthStrategy implements AuthStrategy<UserTokenEntity> {
         public readonly secretKey: string = env.JWT_SECRET,
     ) {}
 
-    validate({ expireAt, user }: UserTokenEntity): void | never {
+    checkAdmission({ expireAt, user }: UserTokenEntity): void | never {
         equal(expireAt > new Date(), true);
         equal(user.status > 0, true);
+    }
+
+    validateDecryptedData(decryptedData: PlainRecord): void | never {
+        const { code, userId } = decryptedData;
+
+        equal(Number.isInteger(userId), true);
+        equal(<number>userId > 0, true);
+        equal(typeof code, 'string');
     }
 
     async getTokenInstance(
         searchCriteria: PlainRecord,
     ): Promise<UserTokenEntity> {
-        const { code, userId } = searchCriteria;
+        const code = <string>searchCriteria.code;
+        const userId = <number>searchCriteria.userId;
+
         /**
          * Searching while dealing with the Refresh token
          */

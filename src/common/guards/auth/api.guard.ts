@@ -15,10 +15,12 @@ export class AuthApiGuard implements CanActivate {
             const decryptedData = await jwtInstance.verify(encryptedToken);
             const authStrategy = jwtInstance.getStrategy();
 
+            authStrategy.validateDecryptedData(decryptedData);
+
             const accessToken = await authStrategy.getTokenInstance(
                 decryptedData,
             );
-            authStrategy.validate(accessToken);
+            authStrategy.checkAdmission(accessToken);
             request.user = accessToken.user;
         } catch {
             return false;

@@ -10,13 +10,24 @@ const { env } = process;
 export class AdminAuthStrategy implements AuthStrategy<AdminEntity> {
     constructor(public readonly secretKey: string = env.ADMIN_JWT_SECRET) {}
 
-    validate(admin: AdminEntity): void | never {
-        const [adminTokenRecord] = admin.tokens;
+    checkAdmission(adminRecord: AdminEntity): void | never {
+        const [adminTokenRecord] = adminRecord.tokens;
         equal(adminTokenRecord.expireAt > new Date(), true);
-        equal(admin.status !== AdminStatus.BLOCKED, true);
+        equal(adminRecord.status !== AdminStatus.BLOCKED, true);
     }
 
-    getTokenInstance({ adminId, code }: PlainRecord): Promise<AdminEntity> {
+    validateDecryptedData(decryptedData: PlainRecord): void | never {
+        const { code, adminId } = decryptedData;
+
+        equal(Number.isInteger(adminId), true);
+        equal(<number>adminId > 0, true);
+        equal(typeof code, 'string');
+    }
+
+    getTokenInstance(searchCriteria: PlainRecord): Promise<AdminEntity> {
+        const code = <string>searchCriteria.code;
+        const adminId = <number>searchCriteria.userId;
+
         return adminRepository
             .createQueryBuilder('admin')
             .leftJoinAndSelect('admin.tokens', 'adminToken')

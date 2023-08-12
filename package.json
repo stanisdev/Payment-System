@@ -28,7 +28,7 @@
         "format": "prettier --write \"src/**/*.ts\"",
         "start": "nest start",
         "start:dev": "NODE_ENV=development nest start --watch",
-        "start:debug": "nest start --debug --watch",
+        "start:debug": "NODE_ENV=development nest start --debug --watch",
         "start:prod": "NODE_ENV=production node dist/main",
         "typeorm": "typeorm-ts-node-commonjs",
         "migration:up": "MIGRATION_MODE=true ./node_modules/.bin/ts-node ./node_modules/.bin/typeorm migration:run -d src/db/dataSource.ts",
