@@ -19,6 +19,9 @@ export class UserInfoEntity {
     @JoinColumn()
     user: UserEntity;
 
+    @Column()
+    userId: number;
+
     @Column({ nullable: true })
     @Length(1, 50)
     accountName: string | null;
@@ -32,6 +35,9 @@ export class UserInfoEntity {
 
     @ManyToOne(() => CityEntity, (city) => city.userInfo)
     city: CityEntity;
+
+    @Column()
+    cityId: number;
 
     @Column({ nullable: true })
     @Length(2, 150)
