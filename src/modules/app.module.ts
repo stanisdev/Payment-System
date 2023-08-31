@@ -6,7 +6,8 @@ import { ApiModule } from './api/api.module';
 
 const { env } = process;
 const apiType = env.API_TYPE;
-let modules: typeof ApiModule[] = [];
+
+let modules: (typeof ApiModule)[] = [];
 
 if (apiType == 'api') {
     modules.push(ApiModule);

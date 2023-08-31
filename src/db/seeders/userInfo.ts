@@ -10,5 +10,5 @@ export const userInfo = [
         zipCode: 10083472,
         phone: '137775512',
         accountType: 'Personal',
-    }
+    },
 ];

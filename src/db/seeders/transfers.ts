@@ -7,5 +7,5 @@ export const transfers = [
         amount: 100,
         type: TransferType.INTERNAL,
         comment: 'With regards',
-    }
+    },
 ];

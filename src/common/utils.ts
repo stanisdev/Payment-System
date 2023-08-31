@@ -1,13 +1,13 @@
 import { RandomStringOptions } from './types/other.type';
 
 export class Utils {
-    private static symbols = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_';
+    private static symbols =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_';
 
     static generateRandomString({
-            onlyDigits,
-            length,
-        }: RandomStringOptions,
-    ): string {
+        onlyDigits,
+        length,
+    }: RandomStringOptions): string {
         let result = '';
         if (onlyDigits) {
             for (let index = 0; index < length; index++) {
@@ -16,7 +16,10 @@ export class Utils {
         } else {
             for (let index = 0; index < length; index++) {
                 const symbolPosition = this.getSymbolPosition();
-                result += this.symbols.substring(symbolPosition, symbolPosition + 1);
+                result += this.symbols.substring(
+                    symbolPosition,
+                    symbolPosition + 1,
+                );
             }
         }
         return result;

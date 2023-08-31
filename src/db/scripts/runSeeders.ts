@@ -17,7 +17,6 @@ import { appDataSource } from '../dataSource';
 const run = async () => {
     await appDataSource.initialize();
     await appDataSource.transaction(async (transactionalEntityManager) => {
-
         // Users
         const { raw: insertedUsers } = await transactionalEntityManager
             .createQueryBuilder()
@@ -46,12 +45,13 @@ const run = async () => {
             .execute();
 
         // User info
-        const userInfoPrepared: typeof userInfo = userInfo
-            .map((userInfo, index) => {
+        const userInfoPrepared: typeof userInfo = userInfo.map(
+            (userInfo, index) => {
                 userInfo.userId = insertedUsers[index].id;
                 userInfo.cityId = insertedCities[0].id;
                 return userInfo;
-            });
+            },
+        );
         await transactionalEntityManager
             .createQueryBuilder()
             .insert()
@@ -106,7 +106,6 @@ const run = async () => {
             .into(TransferEntity)
             .values(transfers)
             .execute();
-
     });
 };
 

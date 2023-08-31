@@ -18,7 +18,9 @@ export class AuthAdminGuard implements CanActivate {
 
             authStrategy.validateDecryptedData(decryptedData);
 
-            const adminRecord = await authStrategy.getTokenInstance(decryptedData);
+            const adminRecord = await authStrategy.getTokenInstance(
+                decryptedData,
+            );
             authStrategy.checkAdmission(adminRecord);
 
             const [adminTokenRecord] = adminRecord.tokens;

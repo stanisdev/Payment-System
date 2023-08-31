@@ -10,7 +10,8 @@ export class AuthApiGuard implements CanActivate {
         const request = context.switchToHttp().getRequest();
         const jwtInstance = new Jwt(new ApiAuthStrategy(UserTokenType.ACCESS));
         try {
-            const [attribute, encryptedToken] = request.headers.authorization.split(' ');
+            const [attribute, encryptedToken] =
+                request.headers.authorization.split(' ');
             equal(attribute, 'Bearer');
             const decryptedData = await jwtInstance.verify(encryptedToken);
             const authStrategy = jwtInstance.getStrategy();

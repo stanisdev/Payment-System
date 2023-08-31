@@ -15,14 +15,14 @@ export const wallets = [
         userId: 1,
         currencyId: 2, // Euro
         balance: 0,
-        identifier: 90413830
+        identifier: 90413830,
     },
     {
         id: 3,
         userId: 1,
         currencyId: 2, // Gold
         balance: 0,
-        identifier: 42588655
+        identifier: 42588655,
     },
     {
         id: 4,
@@ -38,13 +38,13 @@ export const wallets = [
         userId: 2,
         currencyId: 2,
         balance: 0,
-        identifier: 11843820
+        identifier: 11843820,
     },
     {
         id: 6,
         userId: 2,
         currencyId: 2,
         balance: 0,
-        identifier: 59217601
+        identifier: 59217601,
     },
 ];
