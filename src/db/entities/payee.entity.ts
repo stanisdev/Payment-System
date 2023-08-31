@@ -19,13 +19,17 @@ export class PayeeEntity {
     @ManyToOne(() => UserEntity, (user) => user.payees)
     user: UserEntity;
 
+    @Column()
+    @IsInt()
+    userId: number;
+
     @OneToOne(() => WalletEntity, (wallet) => wallet.payee)
     @JoinColumn()
     wallet: WalletEntity;
 
     @Column()
     @IsInt()
-    userId: number;
+    walletId: number;
 
     @Column()
     @Length(1, 100)
