@@ -20,3 +20,10 @@ export type AuthResponse = {
         code: string;
     };
 };
+
+export type RoleData = {
+    id: number;
+    name: string;
+    membersCount: number;
+    createdAt: Date;
+};

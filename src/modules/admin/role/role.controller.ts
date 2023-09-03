@@ -3,6 +3,9 @@ import { ApiTags } from '@nestjs/swagger';
 import { RoleService } from './role.service';
 import { Router } from '../../../common/providers/router';
 import { AuthAdmin } from '../../../common/decorators/auth/admin.decorator';
+import { RoleData } from 'src/common/types/admin.type';
+import { Pagination } from 'src/common/types/other.type';
+import { ParsePagination } from 'src/common/decorators/parse-pagination.decorator';
 
 const router = Router.build('admin', 'role');
 
@@ -14,7 +17,7 @@ export class RoleController {
     @Get(router.index())
     @AuthAdmin('admin')
     @HttpCode(HttpStatus.OK)
-    list(): Promise<void> {
-        return this.roleService.list();
+    list(@ParsePagination() pagination: Pagination): Promise<RoleData[]> {
+        return this.roleService.list(pagination);
     }
 }

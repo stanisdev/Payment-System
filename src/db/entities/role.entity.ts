@@ -3,8 +3,10 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    ManyToMany,
     PrimaryGeneratedColumn,
 } from 'typeorm';
+import { AdminEntity } from './admin.entity';
 
 @Entity('Roles')
 export class RoleEntity {
@@ -14,6 +16,9 @@ export class RoleEntity {
     @Column({ unique: true })
     @Length(1, 30)
     name: string;
+
+    @ManyToMany(() => AdminEntity, (admin) => admin.roles)
+    admins: AdminEntity[];
 
     @CreateDateColumn()
     @IsDate()

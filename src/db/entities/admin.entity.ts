@@ -48,7 +48,7 @@ export class AdminEntity {
     @OneToMany(() => AdminTokenEntity, (token) => token.admin)
     tokens: AdminTokenEntity[];
 
-    @ManyToMany(() => RoleEntity)
+    @ManyToMany(() => RoleEntity, (role) => role.admins)
     @JoinTable({
         name: 'AdminRoles',
         joinColumn: {
