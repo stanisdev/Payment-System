@@ -1,7 +1,7 @@
 import { strictEqual as equal } from 'assert';
 import { AuthStrategy } from 'src/common/interfaces';
 import { AdminEntity } from '../../../../db/entities';
-import { adminRepository } from 'src/db/repositories';
+import { adminRepository, adminTokenRepository } from 'src/db/repositories';
 import { PlainRecord } from 'src/common/types/other.type';
 import { AdminStatus } from 'src/common/enums';
 
@@ -26,7 +26,7 @@ export class AdminAuthStrategy implements AuthStrategy<AdminEntity> {
 
     getTokenInstance(searchCriteria: PlainRecord): Promise<AdminEntity> {
         const code = <string>searchCriteria.code;
-        const adminId = <number>searchCriteria.userId;
+        const adminId = <number>searchCriteria.adminId;
 
         return adminRepository
             .createQueryBuilder('admin')
@@ -36,11 +36,20 @@ export class AdminAuthStrategy implements AuthStrategy<AdminEntity> {
             .andWhere('adminToken.serverCode = :code', { code })
             .select([
                 'admin.id',
+                'adminToken.id',
                 'adminToken.expireAt',
                 'adminToken.clientCode',
                 'adminRoles.id',
                 'adminRoles.name',
             ])
             .getOne();
+    }
+
+    static async removeAccessTokenById(id: number): Promise<void> {
+        await adminTokenRepository
+            .createQueryBuilder()
+            .delete()
+            .where('id = :id', { id })
+            .execute();
     }
 }

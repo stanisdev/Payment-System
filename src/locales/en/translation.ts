@@ -48,5 +48,7 @@ export const translation = {
         'wrong-credentials': 'Wrong credentials',
         'your-account-is-blocked':
             'Your account is blocked. Ask the administrator to recover it',
+        'access-token-expired-or-admin-is-blocked':
+            'The access token has expired or admin is blocked',
     },
 };
