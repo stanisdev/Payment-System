@@ -2,13 +2,13 @@ import {
     CacheModifyParams,
     CacheRecordOptions,
     PlainRecord,
+    RedisHash,
 } from 'src/common/types/other.type';
 import { redisClient } from '../redis';
-import { CacheManager } from './manager';
 import { CacheTemplate } from './templates';
 
 export class CacheProvider {
-    constructor(
+    private constructor(
         public template: CacheTemplate,
         public key: string,
         public data: PlainRecord = {},
@@ -22,9 +22,11 @@ export class CacheProvider {
         identifier,
         data,
     }: CacheRecordOptions): CacheProvider {
-        const index = template.indexOf('#');
+        const substituteIndex = template.indexOf('#');
         const key =
-            template.slice(0, index) + identifier + template.slice(index + 1);
+            template.slice(0, substituteIndex) +
+            identifier +
+            template.slice(substituteIndex + 1);
 
         return new CacheProvider(template, key, data);
     }
@@ -34,6 +36,18 @@ export class CacheProvider {
      */
     find(): Promise<string | null> {
         return redisClient.get(this.key);
+    }
+
+    /**
+     * Find a hash by the key
+     */
+    async findHash(): Promise<RedisHash | null> {
+        const record: unknown = await redisClient.hgetall(this.key);
+
+        if (!(record instanceof Object) || Object.keys(record).length < 1) {
+            return null;
+        }
+        return <RedisHash>record;
     }
 
     /**
@@ -49,23 +63,23 @@ export class CacheProvider {
     }
 
     /**
-     * Remove a record by a key
+     * Save a hash with the given key
      */
-    async remove(): Promise<void> {
-        await redisClient.del(this.key);
+    async saveHash(hash: RedisHash): Promise<void> {
+        await redisClient.hmset(this.key, hash);
     }
 
     /**
-     * Try to find a hash in the Cache. If the searching
-     * failed then create a new one
+     * Set a ttl to the record with the given key
      */
-    async findOrSave(): Promise<PlainRecord | null> {
-        const record: PlainRecord = await redisClient.hgetall(this.key);
+    async setTtl(seconds: number) {
+        await redisClient.expire(this.key, seconds);
+    }
 
-        if (Object.keys(record).length < 1) {
-            const manager = new CacheManager(this);
-            return manager.execute();
-        }
-        return record;
+    /**
+     * Remove a record with the key
+     */
+    async remove(): Promise<void> {
+        await redisClient.del(this.key);
     }
 }

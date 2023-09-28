@@ -35,3 +35,4 @@ export type CacheRecordOptions = {
 
 export type EmptyObject = Record<string, never>;
 export type PlainRecord = Record<string, string | number | Date>;
+export type RedisHash = Record<string, string>;

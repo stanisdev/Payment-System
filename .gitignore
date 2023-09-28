@@ -37,3 +37,4 @@ lerna-debug.log*
 *.env
 *.http
 ormconfig.ts
+.clinic

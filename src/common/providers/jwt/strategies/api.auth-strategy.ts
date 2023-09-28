@@ -52,14 +52,42 @@ export class ApiAuthStrategy implements AuthStrategy<UserTokenEntity> {
              * Dealing with the Access token
              */
             const identifier = `${code}${userId}`;
-            const cacheRecord = await CacheProvider.build({
+            const cacheProvider = CacheProvider.build({
                 template: CacheTemplate.API_ACCESS_TOKEN,
                 identifier,
-                data: searchCriteria,
-            }).findOrSave();
+            });
+            let cacheRecord = await cacheProvider.findHash();
 
+            /**
+             * If access token params not found in the cache
+             */
             if (!(cacheRecord instanceof Object)) {
-                return null;
+                const userToken = await userTokenRepository
+                    .createQueryBuilder('userToken')
+                    .where('userToken.userId = :userId', { userId })
+                    .andWhere('userToken.code = :code', { code })
+                    .andWhere('userToken.type = :tokenType', {
+                        tokenType: UserTokenType.ACCESS,
+                    })
+                    .getOne();
+                /**
+                 * The given access token has unrecognizable security code
+                 */
+                if (!(userToken instanceof UserTokenEntity)) {
+                    return null;
+                }
+                const expirationTimestamp = userToken.expireAt.getTime();
+                const ttl = Math.round(
+                    (expirationTimestamp - Date.now()) / 1000,
+                );
+                cacheRecord = {
+                    expireAt: expirationTimestamp.toString(),
+                };
+                /**
+                 * Save access token expiration date to the cache
+                 */
+                await cacheProvider.saveHash(cacheRecord);
+                await cacheProvider.setTtl(ttl);
             }
             const user = await userRepository.findOneBy({
                 id: +userId,
