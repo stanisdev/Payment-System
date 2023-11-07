@@ -15,6 +15,7 @@ const logger = Logger.getInstance();
 
 export default class Bootstrap {
     private app: INestApplication;
+    private config: ConfigService;
 
     /**
      * Run the logic of the class
@@ -26,6 +27,7 @@ export default class Bootstrap {
             cors: true,
             logger,
         });
+        this.config = this.app.get(ConfigService);
         try {
             await this.connectExternalStorages();
         } catch (error) {
@@ -68,23 +70,26 @@ export default class Bootstrap {
      * Compile and set up swagger
      */
     private buildSwagger() {
+        const { config } = this;
+        const prefix = config.get<string>('SWAGGER_PREFIX');
+        const version = config.get<string>('SWAGGER_VERSION');
+
         const swaggerConfig = new DocumentBuilder()
             .setTitle('Payment-System')
             .setDescription('The API of the "Payment-System"')
-            .setVersion('1.0')
+            .setVersion(version)
             .build();
         const document = SwaggerModule.createDocument(this.app, swaggerConfig, {
             ignoreGlobalPrefix: false,
         });
-        SwaggerModule.setup('api', this.app, document); // @todo: retrive prefix from config
+        SwaggerModule.setup(prefix, this.app, document);
     }
 
     /**
      * Start listening to incoming requests
      */
     private listen() {
-        const configService = this.app.get(ConfigService);
-        const port = configService.get<number>('APP_PORT');
+        const port = this.config.get<number>('APP_PORT');
 
         this.app.listen(port, () => {
             logger.log(`The app started at the port: ${port}`);
