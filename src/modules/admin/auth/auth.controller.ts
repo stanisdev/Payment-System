@@ -3,7 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { AuthResponse } from 'src/common/types/admin.type';
 import { Router } from '../../../common/providers/router/index';
 import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login.dto';
+import { LoginAdminDto } from './dto/login.dto';
 
 const router = Router.build('admin', 'auth');
 
@@ -14,7 +14,7 @@ export class AuthController {
 
     @Post(router.method('login'))
     @HttpCode(HttpStatus.OK)
-    signUp(@Body() dto: LoginDto): Promise<AuthResponse> {
+    signUp(@Body() dto: LoginAdminDto): Promise<AuthResponse> {
         return this.authService.login(dto);
     }
 }

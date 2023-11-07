@@ -1,43 +1,53 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsIn, IsNotEmpty, MinLength } from 'class-validator';
+import {
+    IsEmail,
+    IsIn,
+    IsNotEmpty,
+    IsPhoneNumber,
+    MinLength,
+} from 'class-validator';
+import { AccountType } from 'src/common/enums';
 
 export class SignUpDto {
     @ApiProperty({ example: 'john' })
-    accountName: string;
+    readonly accountName: string;
 
     @ApiProperty({ example: 'John Doe' })
     @IsNotEmpty()
-    fullName: string;
+    readonly fullName: string;
 
     @ApiProperty({ example: 'Tokio' })
     @IsNotEmpty()
-    city: string;
+    readonly city: string;
 
     @ApiProperty()
-    address: string;
+    readonly address: string;
 
     @ApiProperty()
     @IsNotEmpty()
-    country: string;
+    readonly country: string;
 
     @ApiProperty({ example: 8900001 })
     @IsNotEmpty()
-    zipCode: number;
+    readonly zipCode: number;
 
     @ApiProperty()
     @IsNotEmpty()
-    phone: string;
+    @IsPhoneNumber()
+    readonly phone: string;
 
-    @ApiProperty()
+    @ApiProperty({
+        enum: AccountType,
+    })
     @IsNotEmpty()
     @IsIn(['Personal', 'Business'])
-    accountType: string;
+    readonly accountType: string;
 
     @ApiProperty({ example: 'info@world.eu' })
     @IsEmail()
-    email: string;
+    readonly email: string;
 
     @ApiProperty()
     @MinLength(3)
-    password: string;
+    readonly password: string;
 }

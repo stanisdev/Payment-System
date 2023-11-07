@@ -14,20 +14,21 @@ import {
     Param,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { JwtCompleteData, EmptyObject } from '../../../common/types/other.type';
 import { DoesEmailExistPipe } from '../../../common/pipes/does-email-exist.pipe';
 import { MaxLoginAttempts } from '../../../common/guards/max-login-attempts.guard';
 import { Router } from '../../../common/providers/router/index';
 import { AuthService } from './auth.service';
 import {
-    LoginDto,
     RestorePasswordCompleteDto,
     RestorePasswordConfirmCodeDto,
     RestorePasswordInitiateDto,
     SignUpDto,
     UpdateTokenDto,
+    LoginDto,
 } from './dto';
+import { LoginPayloadDto } from './dto/payload/login-payload.dto';
 
 const router = Router.build('api', 'auth');
 
@@ -39,6 +40,9 @@ export class AuthController {
     @Post(router.method('sign-up'))
     @UsePipes(DoesEmailExistPipe)
     @HttpCode(HttpStatus.CREATED)
+    @ApiOkResponse({
+        description: 'New user registration',
+    })
     async signUp(@Body() signUpDto: SignUpDto): Promise<EmptyObject> {
         await this.authService.signUp(signUpDto);
         return {};
@@ -47,10 +51,14 @@ export class AuthController {
     @Post(router.method('login'))
     @UseGuards(MaxLoginAttempts)
     @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({
+        description: 'Access and Refresh tokens',
+        type: [LoginPayloadDto],
+    })
     async login(
         @Body() loginDto: LoginDto,
         @Ip() ip: string,
-    ): Promise<JwtCompleteData[]> {
+    ): Promise<LoginPayloadDto[]> {
         return this.authService.login(loginDto, ip);
     }
 

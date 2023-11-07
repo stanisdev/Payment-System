@@ -2,12 +2,12 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsNotEmpty } from 'class-validator';
 
 export class LoginDto {
-    @ApiProperty({ example: 5555555 })
+    @ApiProperty({ example: 6247165 })
     @IsNotEmpty()
     @IsInt()
-    memberId: number;
+    readonly memberId: number;
 
     @ApiProperty()
     @IsNotEmpty()
-    password: string;
+    readonly password: string;
 }

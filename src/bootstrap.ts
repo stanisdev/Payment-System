@@ -81,6 +81,7 @@ export default class Bootstrap {
             .build();
         const document = SwaggerModule.createDocument(this.app, swaggerConfig, {
             ignoreGlobalPrefix: false,
+            deepScanRoutes: true,
         });
         SwaggerModule.setup(prefix, this.app, document);
     }

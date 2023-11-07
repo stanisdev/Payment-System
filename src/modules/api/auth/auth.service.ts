@@ -51,6 +51,7 @@ import {
     RestorePasswordInitiateDto,
     SignUpDto,
 } from './dto';
+import { LoginPayloadDto } from './dto/payload/login-payload.dto';
 
 @Injectable()
 export class AuthService {
@@ -159,7 +160,7 @@ export class AuthService {
     async login(
         { memberId, password }: LoginDto,
         ip: string,
-    ): Promise<JwtCompleteData[]> {
+    ): Promise<LoginPayloadDto[]> {
         const user = await userRepository.findOneBy({ memberId });
         try {
             equal(user instanceof UserEntity, true);

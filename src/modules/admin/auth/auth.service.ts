@@ -10,7 +10,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { AdminEntity } from '../../../db/entities';
 import { adminRepository } from '../../../db/repositories';
-import { LoginDto } from './dto/login.dto';
+import { LoginAdminDto } from './dto/login.dto';
 import { AdminStatus } from 'src/common/enums';
 import { CacheProvider } from '../../../common/providers/cache/index';
 import { CacheTemplate } from '../../../common/providers/cache/templates';
@@ -30,7 +30,7 @@ export class AuthService {
     /**
      * Sign in an admin by using the given username and password
      */
-    async login({ username, password }: LoginDto): Promise<AuthResponse> {
+    async login({ username, password }: LoginAdminDto): Promise<AuthResponse> {
         const { configService } = this;
         const admin = await adminRepository.findOneBy({
             username,

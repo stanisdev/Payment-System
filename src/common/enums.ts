@@ -3,6 +3,11 @@ export enum UserTokenType {
     REFRESH = 'Refresh',
 }
 
+export enum AccountType {
+    PERSONAL = 'Personal',
+    BUSINESS = 'Business',
+}
+
 export enum UserAction {
     LOGIN = 'Login',
     LOGOUT = 'Logout',

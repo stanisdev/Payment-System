@@ -46,14 +46,6 @@ export type UserLogData = {
     details: string;
 };
 
-export type UserInfoResponse = {
-    id: number;
-    memberId: number;
-    email: string;
-    status: number;
-    createdAt: Date;
-};
-
 export type UserCodeData = {
     user: UserEntity;
     code: string;
