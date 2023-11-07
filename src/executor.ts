@@ -1,7 +1,7 @@
 import * as os from 'node:os';
 import * as process from 'node:process';
 import * as notReallyCluster from 'cluster';
-import { bootstrap } from './bootstrap';
+import Bootstrap from './bootstrap';
 import { Logger } from './common/providers/loggers/system';
 
 /**
@@ -23,7 +23,7 @@ export class AppExecutor {
         if (env === 'production') {
             this.clustering();
         } else {
-            bootstrap();
+            new Bootstrap().run();
         }
     }
 
@@ -42,7 +42,7 @@ export class AppExecutor {
                 cluster.fork();
             });
         } else {
-            bootstrap();
+            new Bootstrap().run();
             logger.log(`Worker ${process.pid} started`);
         }
     }
