@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 
 export class RestorePasswordConfirmCodeDto {
-    @ApiProperty({})
+    @ApiProperty()
     @IsNotEmpty()
-    code: string;
+    confirmCode: string;
 }

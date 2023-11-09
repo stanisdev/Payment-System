@@ -14,8 +14,8 @@ import {
     Param,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { JwtCompleteData, EmptyObject } from '../../../common/types/other.type';
+import { ApiOkResponse, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { EmptyObject } from '../../../common/types/other.type';
 import { DoesEmailExistPipe } from '../../../common/pipes/does-email-exist.pipe';
 import { MaxLoginAttempts } from '../../../common/guards/max-login-attempts.guard';
 import { Router } from '../../../common/providers/router/index';
@@ -30,6 +30,7 @@ import {
 } from './dto';
 import { LoginPayloadDto } from './dto/payload/login-payload.dto';
 import { UserPayloadDto } from '../user/dto/payload/user-payload.dto';
+import { RestorePasswordCompleteCodeDto } from './dto/payload/restore-password-complete-code.dto';
 
 const router = Router.build('api', 'auth');
 
@@ -65,6 +66,10 @@ export class AuthController {
 
     @Get(router.method('confirm-email'))
     @HttpCode(HttpStatus.OK)
+    @ApiParam({
+        name: 'code',
+        description: 'The code to confirm user email',
+    })
     async confirmEmail(@Param('code') code: string): Promise<EmptyObject> {
         await this.authService.confirmEmail(code);
         return {};
@@ -72,14 +77,23 @@ export class AuthController {
 
     @Post(router.method('update-token'))
     @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({
+        description: 'New Access and Refresh tokens',
+        type: [LoginPayloadDto],
+    })
     async updateToken(
         @Body() { refreshToken }: UpdateTokenDto,
-    ): Promise<JwtCompleteData[]> {
+    ): Promise<LoginPayloadDto[]> {
         return this.authService.updateToken(refreshToken);
     }
 
     @Get(router.method('logout'))
     @HttpCode(HttpStatus.OK)
+    @ApiQuery({
+        type: Boolean,
+        name: 'allDevices',
+        description: 'If user wants to log out on all the devices',
+    })
     async logout(
         @Req() { headers }: Request,
         @Query('allDevices') allDevices?: boolean,
@@ -102,9 +116,14 @@ export class AuthController {
 
     @Post(router.method('restore-password:confirm-code'))
     @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({
+        description:
+            'The code to complete the process of restoring user password',
+        type: RestorePasswordCompleteCodeDto,
+    })
     async restorePasswordConfirmCode(
         @Body() dto: RestorePasswordConfirmCodeDto,
-    ): Promise<string> {
+    ): Promise<RestorePasswordCompleteCodeDto> {
         return this.authService.restorePasswordConfirmCode(dto);
     }
 

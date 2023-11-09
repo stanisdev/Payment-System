@@ -4,7 +4,7 @@ import { IsNotEmpty } from 'class-validator';
 export class RestorePasswordCompleteDto {
     @ApiProperty()
     @IsNotEmpty()
-    code: string;
+    completeCode: string;
 
     @ApiProperty()
     @IsNotEmpty()

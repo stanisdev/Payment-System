@@ -55,6 +55,7 @@ import {
 } from './dto';
 import { LoginPayloadDto } from './dto/payload/login-payload.dto';
 import { UserPayloadDto } from '../user/dto/payload/user-payload.dto';
+import { RestorePasswordCompleteCodeDto } from './dto/payload/restore-password-complete-code.dto';
 
 @Injectable()
 export class AuthService {
@@ -413,10 +414,10 @@ export class AuthService {
      * step of the procedure
      */
     async restorePasswordConfirmCode({
-        code,
-    }: RestorePasswordConfirmCodeDto): Promise<string> {
+        confirmCode,
+    }: RestorePasswordConfirmCodeDto): Promise<RestorePasswordCompleteCodeDto> {
         const userCode = await this.getAndValidateUserCode(
-            code,
+            confirmCode,
             UserAction.RESTORE_PASSWORD_INITIATE,
         );
         const completeCode = Utils.generateRandomString({
@@ -438,7 +439,7 @@ export class AuthService {
             this.repository.createUserCode(userCodeData),
             userCodeRepository.remove(userCode),
         ]);
-        return completeCode;
+        return { completeCode };
     }
 
     /**
@@ -446,11 +447,11 @@ export class AuthService {
      * as well as a special validation code.
      */
     async restorePasswordComplete({
-        code,
+        completeCode,
         password,
     }: RestorePasswordCompleteDto): Promise<void> {
         const userCode = await this.getAndValidateUserCode(
-            code,
+            completeCode,
             UserAction.RESTORE_PASSWORD_COMPLETE,
         );
         const { user } = userCode;
