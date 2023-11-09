@@ -15,7 +15,7 @@ export class UserService {
         const userInfo = await this.repository.getUserInfo(user.id);
 
         if (userInfo instanceof Object) {
-            payload.addFromUserInfo(userInfo);
+            payload.addUserInfo(userInfo);
         }
         return payload;
     }

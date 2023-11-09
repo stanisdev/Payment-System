@@ -49,7 +49,7 @@ export class UserPayloadDto {
         this.createdAt = user.createdAt;
     }
 
-    addFromUserInfo(userInfo: UserInfoEntity) {
+    addUserInfo(userInfo: UserInfoEntity) {
         this.accountName = userInfo.accountName;
         this.fullName = userInfo.fullName;
         this.country = userInfo.country;

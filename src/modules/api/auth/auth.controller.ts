@@ -29,6 +29,7 @@ import {
     LoginDto,
 } from './dto';
 import { LoginPayloadDto } from './dto/payload/login-payload.dto';
+import { UserPayloadDto } from '../user/dto/payload/user-payload.dto';
 
 const router = Router.build('api', 'auth');
 
@@ -42,10 +43,10 @@ export class AuthController {
     @HttpCode(HttpStatus.CREATED)
     @ApiOkResponse({
         description: 'New user registration',
+        type: UserPayloadDto,
     })
-    async signUp(@Body() signUpDto: SignUpDto): Promise<EmptyObject> {
-        await this.authService.signUp(signUpDto);
-        return {};
+    async signUp(@Body() signUpDto: SignUpDto): Promise<UserPayloadDto> {
+        return this.authService.signUp(signUpDto);
     }
 
     @Post(router.method('login'))

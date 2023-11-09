@@ -12,6 +12,7 @@ import { EntityManager } from 'typeorm';
 import { AuthServiceRepository } from './auth.repository';
 import {
     userCodeRepository,
+    userInfoRepository,
     userRepository,
     userTokenRepository,
 } from '../../../db/repositories';
@@ -34,6 +35,7 @@ import {
 import {
     UserCodeEntity,
     UserEntity,
+    UserInfoEntity,
     UserTokenEntity,
 } from '../../../db/entities';
 import { UserActivityLogger } from '../../../common/providers/loggers/userActivity';
@@ -52,6 +54,7 @@ import {
     SignUpDto,
 } from './dto';
 import { LoginPayloadDto } from './dto/payload/login-payload.dto';
+import { UserPayloadDto } from '../user/dto/payload/user-payload.dto';
 
 @Injectable()
 export class AuthService {
@@ -66,7 +69,7 @@ export class AuthService {
      * Register a new user by creating appropriate
      * records in the DB
      */
-    async signUp(dto: SignUpDto): Promise<void> {
+    async signUp(dto: SignUpDto): Promise<UserPayloadDto> {
         const memberId = await this.utility.generateUserMemberId();
 
         const userData: FullUserInfo = {
@@ -87,10 +90,12 @@ export class AuthService {
                 .toDate(),
             action: UserAction.CONFIRM_EMAIL,
         };
-        /**
-         * Save primary user data within a transaction
-         */
         let user: UserEntity;
+        let userInfo: UserInfoEntity;
+
+        /**
+         * Save primary user info within a transaction
+         */
         await appDataSource.manager.transaction(
             async (transactionalEntityManager: EntityManager) => {
                 user = await this.repository.createUser(
@@ -101,15 +106,17 @@ export class AuthService {
                     dto.city,
                     transactionalEntityManager,
                 );
+                const userCodeData: UserCodeData = {
+                    ...confirmCode,
+                    ...{ user },
+                };
                 const userInfoData = {
                     ...dto,
                     user,
                     city,
                 };
-                const userCodeData: UserCodeData = {
-                    ...confirmCode,
-                    ...{ user },
-                };
+                userInfo = userInfoRepository.create(userInfoData);
+
                 await Promise.all([
                     this.repository.createUserInfo(
                         userInfoData,
@@ -135,6 +142,9 @@ export class AuthService {
                 );
             },
         );
+        const payload = new UserPayloadDto(user);
+        payload.addUserInfo(userInfo);
+
         /**
          * Log the action of a user
          */
@@ -151,6 +161,7 @@ export class AuthService {
             template: MailerTemplate.SIGNUP,
             data: confirmCode,
         });
+        return payload;
     }
 
     /**
