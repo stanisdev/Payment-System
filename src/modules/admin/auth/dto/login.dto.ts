@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
+import { IsAcceptablePassword } from '../../../../common/decorators/validation.decorators';
 
 export class LoginAdminDto {
     @ApiProperty()
     @IsNotEmpty()
-    username: string;
+    readonly username: string;
 
-    @ApiProperty()
-    @IsNotEmpty()
-    password: string;
+    @IsAcceptablePassword()
+    readonly password: string;
 }

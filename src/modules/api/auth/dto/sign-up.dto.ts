@@ -1,11 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-    IsEmail,
-    IsIn,
-    IsNotEmpty,
-    IsPhoneNumber,
-    MinLength,
-} from 'class-validator';
+import { IsEmail, IsIn, IsNotEmpty, IsPhoneNumber } from 'class-validator';
+import { IsAcceptablePassword } from '../../../../common/decorators/validation.decorators';
 import { AccountType } from 'src/common/enums';
 
 export class SignUpDto {
@@ -47,7 +42,6 @@ export class SignUpDto {
     @IsEmail()
     readonly email: string;
 
-    @ApiProperty()
-    @MinLength(3)
+    @IsAcceptablePassword()
     readonly password: string;
 }
