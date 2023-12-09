@@ -8,6 +8,7 @@ import { WalletModule } from '../wallet/wallet.module';
 import { WalletSharedService } from '../wallet/wallet.shared';
 import { WalletServiceRepository } from '../wallet/wallet.repository';
 import { AuthUtility } from './auth.utility';
+import { CacheProvider } from 'src/common/providers/cache/index';
 
 @Module({
     imports: [WalletModule],
@@ -19,6 +20,10 @@ import { AuthUtility } from './auth.utility';
         ConfigService,
         WalletSharedService,
         WalletServiceRepository,
+        {
+            provide: 'CACHE_PROVIDER',
+            useValue: CacheProvider,
+        },
     ],
 })
 export class AuthModule implements NestModule {

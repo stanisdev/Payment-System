@@ -4,6 +4,7 @@ import * as i18next from 'i18next';
 import {
     BadRequestException,
     ForbiddenException,
+    Inject,
     Injectable,
 } from '@nestjs/common';
 import { strictEqual as equal } from 'assert';
@@ -23,7 +24,11 @@ import {
     FullUserInfo,
     UserActivityData,
 } from '../../../common/types/user.type';
-import { JwtCompleteData, PlainRecord } from '../../../common/types/other.type';
+import {
+    CacheProviderType,
+    JwtCompleteData,
+    PlainRecord,
+} from '../../../common/types/other.type';
 import {
     LoggerTemplate,
     MailerTemplate,
@@ -40,7 +45,6 @@ import {
 } from '../../../db/entities';
 import { UserActivityLogger } from '../../../common/providers/loggers/userActivity';
 import { ApiAuthStrategy } from 'src/common/providers/jwt/strategies/api.auth-strategy';
-import { CacheProvider } from 'src/common/providers/cache/index';
 import { CacheTemplate } from 'src/common/providers/cache/templates';
 import { Jwt } from 'src/common/providers/jwt/index';
 import { Mailer } from '../../../common/providers/mailer/index';
@@ -64,6 +68,8 @@ export class AuthService {
         private readonly utility: AuthUtility,
         private readonly configService: ConfigService,
         private readonly walletSharedService: WalletSharedService,
+        @Inject('CACHE_PROVIDER')
+        private readonly cacheProvider: CacheProviderType,
     ) {}
 
     /**
@@ -184,13 +190,15 @@ export class AuthService {
                 const seconds = +this.configService.get(
                     'MAX_LOGIN_ATTEMPTS_EXPIRATION',
                 );
-                await CacheProvider.build({
-                    template: CacheTemplate.API_LOGIN_ATTEMPTS,
-                    identifier: memberId.toString(),
-                }).save({
-                    increase: true,
-                    expiration: seconds,
-                });
+                await this.cacheProvider
+                    .build({
+                        template: CacheTemplate.API_LOGIN_ATTEMPTS,
+                        identifier: memberId.toString(),
+                    })
+                    .save({
+                        increase: true,
+                        expiration: seconds,
+                    });
                 equal(1, 0);
             }
         } catch {
@@ -246,10 +254,12 @@ export class AuthService {
         if (accessToken instanceof UserTokenEntity) {
             const identifier = `${accessToken.code}${accessToken.userId}`;
             tasks.push(
-                CacheProvider.build({
-                    template: CacheTemplate.API_ACCESS_TOKEN,
-                    identifier,
-                }).remove(),
+                this.cacheProvider
+                    .build({
+                        template: CacheTemplate.API_ACCESS_TOKEN,
+                        identifier,
+                    })
+                    .remove(),
             );
         }
         await Promise.all(tasks);
@@ -295,10 +305,12 @@ export class AuthService {
             ];
             for (const { code, userId } of userTokens) {
                 tasks.push(
-                    CacheProvider.build({
-                        template: CacheTemplate.API_ACCESS_TOKEN,
-                        identifier: `${code}${userId}`,
-                    }).remove(),
+                    this.cacheProvider
+                        .build({
+                            template: CacheTemplate.API_ACCESS_TOKEN,
+                            identifier: `${code}${userId}`,
+                        })
+                        .remove(),
                 );
             }
             await Promise.all(tasks);
@@ -316,10 +328,12 @@ export class AuthService {
                 type: UserTokenType.ACCESS,
             });
             await Promise.all([
-                CacheProvider.build({
-                    template: CacheTemplate.API_ACCESS_TOKEN,
-                    identifier,
-                }).remove(),
+                this.cacheProvider
+                    .build({
+                        template: CacheTemplate.API_ACCESS_TOKEN,
+                        identifier,
+                    })
+                    .remove(),
                 this.repository.deletePairOfTokens(userToken.relatedTokenId),
             ]);
         }

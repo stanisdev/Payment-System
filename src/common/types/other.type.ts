@@ -1,3 +1,4 @@
+import { CacheProvider } from '../providers/cache';
 import { CacheTemplate } from '../providers/cache/templates';
 
 export type RandomStringOptions = {
@@ -36,3 +37,5 @@ export type CacheRecordOptions = {
 export type EmptyObject = Record<string, never>;
 export type PlainRecord = Record<string, string | number | Date>;
 export type RedisHash = Record<string, string>;
+
+export type CacheProviderType = typeof CacheProvider;
