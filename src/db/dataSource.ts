@@ -1,5 +1,4 @@
 import { DataSource } from 'typeorm';
-import { compileConfig } from '../common/providers/compileConfig';
 import {
     UserEntity,
     UserInfoEntity,
@@ -22,7 +21,6 @@ import {
 } from './entities';
 
 const { env } = process;
-compileConfig();
 
 let migrationsPath: string[];
 if (typeof env.MIGRATION_MODE == 'string') {

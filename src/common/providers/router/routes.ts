@@ -1,6 +1,3 @@
-import { compileConfig } from '../compileConfig';
-
-compileConfig();
 const { env } = process;
 
 export const modules = {
