@@ -87,11 +87,15 @@ export class AuthService {
         };
         const confirmCode = {
             code: Utils.generateRandomString({
-                length: +this.configService.get('EMAIL_CONFIRM_CODE_LENGTH'),
+                length: +this.configService.getOrThrow(
+                    'miscellaneous.email-confirm-code-length',
+                ),
             }),
             expireAt: moment()
                 .add(
-                    +this.configService.get('CONFIRM_EMAIL_EXPIRATION'),
+                    +this.configService.getOrThrow(
+                        'restrictions.confirm-email-expiration',
+                    ),
                     'minute',
                 )
                 .toDate(),
@@ -187,8 +191,8 @@ export class AuthService {
                 user.password,
             );
             if (!isPasswordValid) {
-                const seconds = +this.configService.get(
-                    'MAX_LOGIN_ATTEMPTS_EXPIRATION',
+                const seconds = +this.configService.getOrThrow(
+                    'restrictions.max-login-attempts',
                 );
                 await this.cacheProvider
                     .build({
@@ -438,8 +442,8 @@ export class AuthService {
             length: 8,
             onlyDigits: true,
         });
-        const lifetime = +this.configService.get(
-            'RESTORE_PASSWORD_COMPLETE_CODE_EXPIRATION',
+        const lifetime = +this.configService.getOrThrow(
+            'restrictions.restore-password-complete-code-expiration',
         );
         const expireAt = moment().add(lifetime, 'minute').toDate();
 

@@ -3,6 +3,10 @@ import { ConfigModule } from '@nestjs/config';
 import { LoggerMiddleware } from '../common/middlewares/logger.middleware';
 import { AdminModule } from './admin/admin.module';
 import { ApiModule } from './api/api.module';
+import databaseConfig from 'src/config/database.config';
+import restrictionsConfig from 'src/config/restrictions.config';
+import miscellaneousConfig from 'src/config/miscellaneous.config';
+import jwtConfig from 'src/config/jwt.config';
 
 const { env } = process;
 const apiType = env.API_TYPE;
@@ -20,7 +24,18 @@ if (apiType == 'api') {
 }
 
 @Module({
-    imports: [ConfigModule.forRoot({}), ...modules],
+    imports: [
+        ConfigModule.forRoot({
+            isGlobal: true,
+            load: [
+                databaseConfig,
+                restrictionsConfig,
+                miscellaneousConfig,
+                jwtConfig,
+            ],
+        }),
+        ...modules,
+    ],
 })
 export class AppModule {
     configure(consumer: MiddlewareConsumer) {

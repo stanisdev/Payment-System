@@ -46,7 +46,7 @@ export class AuthUtility {
         const refreshTokenGenerator = new UserTokenGenerator(
             user,
             UserTokenType.REFRESH,
-            +this.configService.get('JWT_REFRESH_LIFETIME'),
+            +this.configService.getOrThrow('jwt.refresh-lifetime'),
         );
         await refreshTokenGenerator.generateAndSave();
         await refreshTokenGenerator.sign();
@@ -56,7 +56,7 @@ export class AuthUtility {
         const accessTokenGenerator = new UserTokenGenerator(
             user,
             UserTokenType.ACCESS,
-            +this.configService.get('JWT_ACCESS_LIFETIME'),
+            +this.configService.getOrThrow('jwt.access-lifetime'),
             refreshTokenGenerator.record.id,
         );
         await accessTokenGenerator.generateAndSave();

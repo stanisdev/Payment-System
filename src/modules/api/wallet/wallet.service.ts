@@ -27,7 +27,10 @@ export class WalletService {
         }
         const walletsCount = await this.repository.count(user, currencyId);
 
-        if (walletsCount >= +this.configService.get('MAX_WALLETS_PER_USER')) {
+        if (
+            walletsCount >=
+            +this.configService.getOrThrow('restrictions.max-wallets-per-user')
+        ) {
             throw new BadRequestException(
                 i18next.t('exceeded-amount-of-wallets'),
             );

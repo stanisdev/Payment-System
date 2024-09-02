@@ -302,7 +302,9 @@ export class TransferService {
         /**
          * Check whether the transfer can be reverted
          */
-        const refundPeriod = +this.configService.get('REFUND_ALLOWED_PERIOD');
+        const refundPeriod = +this.configService.getOrThrow(
+            'restrictions.refund-allowed-period',
+        );
         const transferExpiration = moment()
             .subtract(refundPeriod, 'hour')
             .toDate();

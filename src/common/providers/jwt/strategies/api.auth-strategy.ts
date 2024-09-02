@@ -12,7 +12,7 @@ const { env } = process;
 export class ApiAuthStrategy implements AuthStrategy<UserTokenEntity> {
     constructor(
         private tokenType: UserTokenType,
-        public readonly secretKey: string = env.JWT_SECRET,
+        public readonly secretKey: string = env.API_JWT_SECRET,
     ) {}
 
     checkAdmission({ expireAt, user }: UserTokenEntity): void | never {
