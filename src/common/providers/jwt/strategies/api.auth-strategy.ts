@@ -4,8 +4,8 @@ import { AuthStrategy } from 'src/common/interfaces';
 import { PlainRecord } from 'src/common/types/other.type';
 import { UserTokenEntity } from 'src/db/entities';
 import { userRepository, userTokenRepository } from 'src/db/repositories';
-import { CacheProvider } from '../../cache';
-import { CacheTemplate } from '../../cache/templates';
+import { CacheProvider } from '../../cache/cache.provider';
+import { CacheTemplate } from '../../cache/cache.template';
 
 const { env } = process;
 
@@ -52,11 +52,11 @@ export class ApiAuthStrategy implements AuthStrategy<UserTokenEntity> {
              * Dealing with the Access token
              */
             const identifier = `${code}${userId}`;
-            const cacheProvider = CacheProvider.build({
+            const cacheManager = new CacheProvider().buildManager({
                 template: CacheTemplate.API_ACCESS_TOKEN,
                 identifier,
             });
-            let cacheRecord = await cacheProvider.findHash();
+            let cacheRecord = await cacheManager.findHash();
 
             /**
              * If access token params not found in the cache
@@ -86,8 +86,8 @@ export class ApiAuthStrategy implements AuthStrategy<UserTokenEntity> {
                 /**
                  * Save access token expiration date to the cache
                  */
-                await cacheProvider.saveHash(cacheRecord);
-                await cacheProvider.setTtl(ttl);
+                await cacheManager.saveHash(cacheRecord);
+                await cacheManager.setTtl(ttl);
             }
             const user = await userRepository.findOneBy({
                 id: +userId,

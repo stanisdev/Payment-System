@@ -328,7 +328,9 @@ export class TransferService {
                 type: TransferType.INTERNAL,
             },
         };
-        const internalTransferFeeValue = await this.feeProvider.calculate(feeParams);
+        const internalTransferFeeValue = await this.feeProvider.calculate(
+            feeParams,
+        );
 
         let refundFeeValue = 0;
         if (internalTransferFeeValue > 0) {
@@ -374,7 +376,8 @@ export class TransferService {
                     ),
                 ];
                 if (refundFeeValue > 0) {
-                    const systemIncomeSubtraction = internalTransferFeeValue - refundFeeValue;
+                    const systemIncomeSubtraction =
+                        internalTransferFeeValue - refundFeeValue;
 
                     senderWalletData.balance += systemIncomeSubtraction;
                     const updateSystemIncomeParams = {

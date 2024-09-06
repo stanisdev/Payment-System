@@ -1,35 +1,12 @@
 import {
     CacheModifyParams,
-    CacheRecordOptions,
     PlainRecord,
     RedisHash,
 } from 'src/common/types/other.type';
 import { redisClient } from '../redis';
-import { CacheTemplate } from './templates';
 
-export class CacheProvider {
-    private constructor(
-        public template: CacheTemplate,
-        public key: string,
-        public data: PlainRecord = {},
-    ) {}
-
-    /**
-     * Create and return an instance of the class
-     */
-    static build({
-        template,
-        identifier,
-        data,
-    }: CacheRecordOptions): CacheProvider {
-        const substituteIndex = template.indexOf('#');
-        const key =
-            template.slice(0, substituteIndex) +
-            identifier +
-            template.slice(substituteIndex + 1);
-
-        return new CacheProvider(template, key, data);
-    }
+export class CacheManager {
+    constructor(public key: string, public data: PlainRecord = {}) {}
 
     /**
      * Find a record by a key
@@ -72,7 +49,7 @@ export class CacheProvider {
     /**
      * Set a ttl to the record with the given key
      */
-    async setTtl(seconds: number) {
+    async setTtl(seconds: number): Promise<void> {
         await redisClient.expire(this.key, seconds);
     }
 

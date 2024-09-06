@@ -12,8 +12,8 @@ import { AdminEntity } from '../../../db/entities';
 import { adminRepository } from '../../../db/repositories';
 import { LoginAdminDto } from './dto/login.dto';
 import { AdminStatus } from 'src/common/enums';
-import { CacheProvider } from '../../../common/providers/cache/index';
-import { CacheTemplate } from '../../../common/providers/cache/templates';
+import { CacheProvider } from '../../../common/providers/cache/cache.provider';
+import { CacheTemplate } from '../../../common/providers/cache/cache.template';
 import { AuthServiceRepository } from './auth.repository';
 import { Utils } from 'src/common/utils';
 import { AuthResponse } from 'src/common/types/admin.type';
@@ -48,12 +48,13 @@ export class AuthService {
              * of failed login attempts achieved the maximum value
              */
             if (admin.status == AdminStatus.ACTIVE) {
-                const cache = CacheProvider.build({
+                const cacheManager = new CacheProvider().buildManager({
                     template: CacheTemplate.ADMIN_LOGIN_ATTEMPTS,
                     identifier: username,
                 });
-                const data = await cache.find();
-                const attemptsCount = Number.parseInt(data);
+                const attemptsCount = Number.parseInt(
+                    await cacheManager.find(),
+                );
 
                 if (
                     Number.isInteger(attemptsCount) &&
@@ -64,10 +65,10 @@ export class AuthService {
                         this.repository.updateAdmin(admin.id, {
                             status: AdminStatus.BLOCKED,
                         }),
-                        await cache.remove(),
+                        await cacheManager.remove(),
                     ]);
                 } else {
-                    await cache.save({
+                    await cacheManager.save({
                         increase: true,
                     });
                 }

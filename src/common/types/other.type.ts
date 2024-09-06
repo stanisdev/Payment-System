@@ -1,5 +1,5 @@
-import { CacheProvider } from '../providers/cache';
-import { CacheTemplate } from '../providers/cache/templates';
+import { CacheProvider } from '../providers/cache/cache.provider';
+import { CacheTemplate } from '../providers/cache/cache.template';
 
 export type RandomStringOptions = {
     onlyDigits?: boolean;

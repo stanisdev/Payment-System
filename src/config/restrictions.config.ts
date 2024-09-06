@@ -5,6 +5,7 @@ const { env } = process;
 export default registerAs('restrictions', () => {
     return {
         ['max-login-attempts']: env.MAX_LOGIN_ATTEMPTS,
+        ['max-login-attempts-expiration']: env.MAX_LOGIN_ATTEMPTS_EXPIRATION,
         ['restore-password-complete-code-expiration']:
             env.RESTORE_PASSWORD_COMPLETE_CODE_EXPIRATION,
         ['confirm-email-expiration']: env.CONFIRM_EMAIL_EXPIRATION,

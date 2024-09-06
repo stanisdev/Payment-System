@@ -8,7 +8,7 @@ import { WalletModule } from '../wallet/wallet.module';
 import { WalletSharedService } from '../wallet/wallet.shared';
 import { WalletServiceRepository } from '../wallet/wallet.repository';
 import { AuthUtility } from './auth.utility';
-import { CacheProvider } from 'src/common/providers/cache/index';
+import { CacheProvider } from 'src/common/providers/cache/cache.provider';
 
 @Module({
     imports: [WalletModule],
