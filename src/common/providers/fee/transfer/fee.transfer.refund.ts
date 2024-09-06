@@ -2,7 +2,7 @@ import { Fee } from 'src/common/enums';
 import { FeeHandler } from 'src/common/interfaces';
 import { feeRepository } from 'src/db/repositories';
 
-export class FeeRefund implements FeeHandler {
+export class FeeRefundTransfer implements FeeHandler {
     constructor(private transferAmount: number, private systemIncome: number) {}
 
     async calculate(): Promise<number> {

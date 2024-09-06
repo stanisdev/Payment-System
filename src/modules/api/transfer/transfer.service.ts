@@ -29,12 +29,12 @@ import { WithdrawalDto } from './dto/withdrawal.dto';
 import { TransferServiceRepository } from './transfer.repository';
 import { RefundDto } from './dto/refund.dto';
 import { InvoiceCreateDto } from './dto/invoice-create.dto';
-import { FeeProvider } from 'src/common/providers/fee/index';
+import { FeeProvider } from 'src/common/providers/fee/fee.provider';
 import { TransferUtility } from './transfer.utility';
 import {
     FeeBasicParams,
     FeeRefundParams,
-} from '../../../common/providers/fee/types';
+} from '../../../common/providers/fee/fee.types';
 
 @Injectable()
 export class TransferService {
@@ -42,6 +42,7 @@ export class TransferService {
         private readonly repository: TransferServiceRepository,
         private readonly configService: ConfigService,
         private readonly utility: TransferUtility,
+        private readonly feeProvider: FeeProvider,
     ) {}
 
     /**
@@ -74,8 +75,7 @@ export class TransferService {
                 type: TransferType.INTERNAL,
             },
         };
-        const fee = new FeeProvider(feeParams);
-        await fee.calculate();
+        const feeValue = await this.feeProvider.calculate(feeParams);
         /**
          * Exectue a transaction implementing the task
          */
@@ -98,11 +98,11 @@ export class TransferService {
         await appDataSource.transaction(
             async (transactionalEntityManager: EntityManager) => {
                 const tasks: Promise<void>[] = [];
-                if (fee.isAvailable()) {
-                    updateSenderData.balance -= fee.value;
+                if (feeValue > 0) {
+                    updateSenderData.balance -= feeValue;
 
                     const updateSystemIncomeParams = {
-                        amount: fee.value,
+                        amount: feeValue,
                         operator: MathOperator.INCREASE,
                         currencyId: senderWallet.currencyId,
                     };
@@ -328,11 +328,10 @@ export class TransferService {
                 type: TransferType.INTERNAL,
             },
         };
-        const internalTransferFee = new FeeProvider(feeParams);
-        await internalTransferFee.calculate();
+        const internalTransferFeeValue = await this.feeProvider.calculate(feeParams);
 
-        let refundFee: FeeProvider;
-        if (internalTransferFee.isAvailable()) {
+        let refundFeeValue = 0;
+        if (internalTransferFeeValue > 0) {
             /**
              * Calculate the fee of refund
              */
@@ -341,10 +340,9 @@ export class TransferService {
                     amount,
                     type: TransferType.REFUND,
                 },
-                systemIncome: internalTransferFee.value,
+                systemIncome: internalTransferFeeValue,
             };
-            refundFee = new FeeProvider(feeParams);
-            await refundFee.calculate();
+            refundFeeValue = await this.feeProvider.calculate(feeParams);
         }
         /**
          * Prepare the data for making changes
@@ -375,12 +373,8 @@ export class TransferService {
                         transactionalEntityManager,
                     ),
                 ];
-                if (
-                    refundFee instanceof FeeProvider &&
-                    refundFee.isAvailable()
-                ) {
-                    const systemIncomeSubtraction =
-                        internalTransferFee.value - refundFee.value;
+                if (refundFeeValue > 0) {
+                    const systemIncomeSubtraction = internalTransferFeeValue - refundFeeValue;
 
                     senderWalletData.balance += systemIncomeSubtraction;
                     const updateSystemIncomeParams = {
@@ -476,8 +470,7 @@ export class TransferService {
                 type: TransferType.INVOICE_PAID,
             },
         };
-        const fee = new FeeProvider(feeParams);
-        await fee.calculate();
+        const invoicePaidFeeValue = await this.feeProvider.calculate(feeParams);
 
         const { walletSender, walletRecipient } = transfer;
         const updateSenderData = {
@@ -507,10 +500,10 @@ export class TransferService {
                 /**
                  * Implement fee charging if the fee is intended
                  */
-                if (fee.isAvailable()) {
-                    updateSenderData.balance -= fee.value;
+                if (invoicePaidFeeValue > 0) {
+                    updateSenderData.balance -= invoicePaidFeeValue;
                     const updateSystemIncomeParams = {
-                        amount: fee.value,
+                        amount: invoicePaidFeeValue,
                         operator: MathOperator.INCREASE,
                         currencyId: transfer.walletSender.currency.id,
                     };

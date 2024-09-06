@@ -7,6 +7,7 @@ import databaseConfig from 'src/config/database.config';
 import restrictionsConfig from 'src/config/restrictions.config';
 import miscellaneousConfig from 'src/config/miscellaneous.config';
 import jwtConfig from 'src/config/jwt.config';
+import { FeeModule } from 'src/common/providers/fee/fee.module';
 
 const { env } = process;
 const apiType = env.API_TYPE;
@@ -34,6 +35,7 @@ if (apiType == 'api') {
                 jwtConfig,
             ],
         }),
+        FeeModule,
         ...modules,
     ],
 })
