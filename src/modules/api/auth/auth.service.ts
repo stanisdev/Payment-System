@@ -178,8 +178,12 @@ export class AuthService {
         { memberId, password }: LoginDto,
         ip: string,
     ): Promise<LoginPayloadDto[]> {
-        // @todo: replace by a method from the 'AuthServiceRepository'
-        const user = await userRepository.findOneBy({ memberId });
+        const user = await this.repository.findUserByParams({ memberId }, [
+            'user.id',
+            'user.password',
+            'user.salt',
+            'user.status',
+        ]);
         try {
             equal(user instanceof UserEntity, true);
             const isPasswordValid = await bcrypt.compare(
@@ -373,7 +377,10 @@ export class AuthService {
         memberId,
     }: RestorePasswordInitiateDto): Promise<void> {
         const { configService } = this;
-        const user = await userRepository.findOneBy({ email, memberId });
+        const user = await this.repository.findUserByParams(
+            { email, memberId },
+            ['user.id'],
+        );
         if (!(user instanceof UserEntity)) {
             return;
         }

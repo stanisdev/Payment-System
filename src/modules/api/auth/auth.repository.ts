@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { EntityManager, SelectQueryBuilder } from 'typeorm';
+import { EntityManager, SelectQueryBuilder, ObjectLiteral } from 'typeorm';
 import {
     CityEntity,
     UserCodeEntity,
@@ -15,6 +15,7 @@ import {
 import {
     cityRepository,
     userCodeRepository,
+    userRepository,
     userTokenRepository,
 } from '../../../db/repositories';
 import { UserAction, UserTokenType } from '../../../common/enums';
@@ -145,6 +146,17 @@ export class AuthServiceRepository {
             .andWhere('"userToken".type = :type', {
                 type: UserTokenType.ACCESS,
             })
+            .getOne();
+    }
+
+    findUserByParams(
+        searchCriteria: ObjectLiteral,
+        selection: string[],
+    ): Promise<UserEntity> {
+        return userRepository
+            .createQueryBuilder('user')
+            .where(searchCriteria)
+            .select(selection)
             .getOne();
     }
 }
