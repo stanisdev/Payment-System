@@ -8,6 +8,7 @@ import restrictionsConfig from 'src/config/restrictions.config';
 import miscellaneousConfig from 'src/config/miscellaneous.config';
 import jwtConfig from 'src/config/jwt.config';
 import { FeeModule } from 'src/common/providers/fee/fee.module';
+import { CacheModule } from 'src/common/providers/cache/cache.module';
 
 const { env } = process;
 const apiType = env.API_TYPE;
@@ -36,6 +37,7 @@ if (apiType == 'api') {
             ],
         }),
         FeeModule,
+        CacheModule,
         ...modules,
     ],
 })

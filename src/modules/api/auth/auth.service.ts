@@ -64,6 +64,7 @@ export class AuthService {
         private readonly utility: AuthUtility,
         private readonly configService: ConfigService,
         private readonly walletSharedService: WalletSharedService,
+        private readonly cacheProvider: CacheProvider,
     ) {}
 
     /**
@@ -177,6 +178,7 @@ export class AuthService {
         { memberId, password }: LoginDto,
         ip: string,
     ): Promise<LoginPayloadDto[]> {
+        // @todo: replace by a method from the 'AuthServiceRepository'
         const user = await userRepository.findOneBy({ memberId });
         try {
             equal(user instanceof UserEntity, true);
@@ -188,7 +190,7 @@ export class AuthService {
                 const seconds = +this.configService.getOrThrow(
                     'restrictions.max-login-attempts-expiration',
                 );
-                await new CacheProvider()
+                await this.cacheProvider
                     .buildManager({
                         template: CacheTemplate.API_LOGIN_ATTEMPTS,
                         identifier: memberId.toString(),
@@ -252,7 +254,7 @@ export class AuthService {
         if (accessToken instanceof UserTokenEntity) {
             const identifier = `${accessToken.code}${accessToken.userId}`;
             tasks.push(
-                new CacheProvider()
+                this.cacheProvider
                     .buildManager({
                         template: CacheTemplate.API_ACCESS_TOKEN,
                         identifier,
@@ -303,7 +305,7 @@ export class AuthService {
             ];
             for (const { code, userId } of userTokens) {
                 tasks.push(
-                    new CacheProvider()
+                    this.cacheProvider
                         .buildManager({
                             template: CacheTemplate.API_ACCESS_TOKEN,
                             identifier: `${code}${userId}`,
@@ -326,7 +328,7 @@ export class AuthService {
                 type: UserTokenType.ACCESS,
             });
             await Promise.all([
-                new CacheProvider()
+                this.cacheProvider
                     .buildManager({
                         template: CacheTemplate.API_ACCESS_TOKEN,
                         identifier,

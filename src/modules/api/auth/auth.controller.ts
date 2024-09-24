@@ -92,7 +92,7 @@ export class AuthController {
     @ApiQuery({
         type: Boolean,
         name: 'allDevices',
-        description: 'If user wants to log out on all the devices',
+        description: 'If user wants to log out of all the devices',
     })
     async logout(
         @Req() { headers }: Request,

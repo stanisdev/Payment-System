@@ -25,6 +25,7 @@ export class AuthService {
     constructor(
         private readonly configService: ConfigService,
         private readonly repository: AuthServiceRepository,
+        private readonly cacheProvider: CacheProvider,
     ) {}
 
     /**
@@ -48,7 +49,7 @@ export class AuthService {
              * of failed login attempts achieved the maximum value
              */
             if (admin.status == AdminStatus.ACTIVE) {
-                const cacheManager = new CacheProvider().buildManager({
+                const cacheManager = this.cacheProvider.buildManager({
                     template: CacheTemplate.ADMIN_LOGIN_ATTEMPTS,
                     identifier: username,
                 });
