@@ -11,7 +11,7 @@ cd Payment-System
 ```
 3. Create the '.env' file
 ```sh
-cp .env.example .env.developement.local
+cp .env.example .env.development.local
 ```
 
 4. Run the application
