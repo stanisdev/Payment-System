@@ -14,7 +14,9 @@ cd Payment-System
 cp .env.example .env.development.local
 ```
 
-4. Run the application
+4. Edit necessary sections in the '.env' file
+
+5. Run the application
 ```sh
 docker compose up -d
 ```
