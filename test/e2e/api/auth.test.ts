@@ -20,7 +20,11 @@ import {
     userTokenRepository,
 } from '../../../src/db/repositories';
 import { UserCodeEntity, UserEntity } from '../../../src/db/entities';
-import { UserStatus, UserAction, UserTokenType } from '../../../src/common/enums';
+import {
+    UserStatus,
+    UserAction,
+    UserTokenType,
+} from '../../../src/common/enums';
 import { AuthSeeder } from '../../seeders/auth';
 import { Utils } from '../../utils';
 const { env } = process;
@@ -326,10 +330,12 @@ describe('Auth controller', () => {
             } = await Utils.createUserAndGetData(
                 UserStatus.EMAIL_NOT_CONFIRMED,
             );
-            const response = await request(server).post(prefix + '/auth/login').send({
-                memberId,
-                password,
-            });
+            const response = await request(server)
+                .post(prefix + '/auth/login')
+                .send({
+                    memberId,
+                    password,
+                });
             expect(response.statusCode).toBe(HttpStatus.FORBIDDEN);
             expect(Array.isArray(response.body)).toBe(false);
             expect(response.body.statusCode).toBe(HttpStatus.FORBIDDEN);
@@ -340,10 +346,12 @@ describe('Auth controller', () => {
                 data: { memberId },
                 password,
             } = await Utils.createUserAndGetData(UserStatus.BLOCKED);
-            const response = await request(server).post(prefix + '/auth/login').send({
-                memberId,
-                password,
-            });
+            const response = await request(server)
+                .post(prefix + '/auth/login')
+                .send({
+                    memberId,
+                    password,
+                });
             expect(response.statusCode).toBe(HttpStatus.FORBIDDEN);
             expect(Array.isArray(response.body)).toBe(false);
             expect(response.body.statusCode).toBe(HttpStatus.FORBIDDEN);
@@ -381,10 +389,12 @@ describe('Auth controller', () => {
     describe('POST: /auth/logout', () => {
         test('It should logout successfully from one device', async () => {
             const { data, password } = await Utils.createUserAndGetData();
-            await request(server).post(prefix + '/auth/login').send({
-                memberId: data.memberId,
-                password,
-            });
+            await request(server)
+                .post(prefix + '/auth/login')
+                .send({
+                    memberId: data.memberId,
+                    password,
+                });
             const loginResponse = await request(server)
                 .post(prefix + '/auth/login')
                 .send({
@@ -414,10 +424,12 @@ describe('Auth controller', () => {
 
         test('It should logout successfully from all devices', async () => {
             const { data, password } = await Utils.createUserAndGetData();
-            await request(server).post(prefix + '/auth/login').send({
-                memberId: data.memberId,
-                password,
-            });
+            await request(server)
+                .post(prefix + '/auth/login')
+                .send({
+                    memberId: data.memberId,
+                    password,
+                });
             const loginResponse = await request(server)
                 .post(prefix + '/auth/login')
                 .send({
@@ -561,10 +573,12 @@ describe('Auth controller', () => {
 
         test('It should remove old pairs of tokens that become invalid', async () => {
             const { data, password } = await Utils.createUserAndGetData();
-            const { body } = await request(server).post(prefix + '/auth/login').send({
-                memberId: data.memberId,
-                password,
-            });
+            const { body } = await request(server)
+                .post(prefix + '/auth/login')
+                .send({
+                    memberId: data.memberId,
+                    password,
+                });
             const refreshToken = body.find(
                 (token) => token.type == UserTokenType.REFRESH,
             );
@@ -591,10 +605,12 @@ describe('Auth controller', () => {
 
         test('It should throw an error if the passed refresh token expired', async () => {
             const { data, password } = await Utils.createUserAndGetData();
-            const { body } = await request(server).post(prefix + '/auth/login').send({
-                memberId: data.memberId,
-                password,
-            });
+            const { body } = await request(server)
+                .post(prefix + '/auth/login')
+                .send({
+                    memberId: data.memberId,
+                    password,
+                });
             const refreshToken = body.find(
                 (token) => token.type == UserTokenType.REFRESH,
             );

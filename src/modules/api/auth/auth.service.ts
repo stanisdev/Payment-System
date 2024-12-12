@@ -9,7 +9,7 @@ import {
 import { strictEqual as equal } from 'assert';
 import { ConfigService } from '@nestjs/config';
 import { EntityManager } from 'typeorm';
-import { AuthServiceRepository } from './auth.repository';
+import { AuthServiceRepository } from './repositories/auth.repository';
 import {
     userCodeRepository,
     userInfoRepository,
@@ -20,7 +20,7 @@ import { Utils } from '../../../common/utils';
 import { appDataSource } from '../../../db/dataSource';
 import {
     UserCodeData,
-    FullUserInfo,
+    PrimaryUserInfo,
     UserActivityData,
 } from '../../../common/types/user.type';
 import { JwtCompleteData, PlainRecord } from '../../../common/types/other.type';
@@ -56,6 +56,7 @@ import { LoginPayloadDto } from './dto/payload/login-payload.dto';
 import { UserPayloadDto } from '../user/dto/payload/user-payload.dto';
 import { RestorePasswordCompleteCodeDto } from './dto/payload/restore-password-complete-code.dto';
 import { CacheProvider } from 'src/common/providers/cache/cache.provider';
+import { AuthTransactionalRepository } from './repositories/auth.repository.transactional';
 
 @Injectable()
 export class AuthService {
@@ -74,7 +75,7 @@ export class AuthService {
     async signUp(dto: SignUpDto): Promise<UserPayloadDto> {
         const memberId = await this.utility.generateUserMemberId();
 
-        const userData: FullUserInfo = {
+        const userData: PrimaryUserInfo = {
             memberId,
             email: dto.email,
             password: dto.password,
@@ -104,14 +105,12 @@ export class AuthService {
          */
         await appDataSource.manager.transaction(
             async (transactionalEntityManager: EntityManager) => {
-                user = await this.repository.createUser(
-                    userData,
+                const transactionalRepository = new AuthTransactionalRepository(
                     transactionalEntityManager,
                 );
-                const city = await this.repository.createCity(
-                    dto.city,
-                    transactionalEntityManager,
-                );
+                user = await transactionalRepository.createUser(userData);
+                const city = await transactionalRepository.createCity(dto.city);
+
                 const userCodeData: UserCodeData = {
                     ...confirmCode,
                     ...{ user },
@@ -124,14 +123,8 @@ export class AuthService {
                 userInfo = userInfoRepository.create(userInfoData);
 
                 await Promise.all([
-                    this.repository.createUserInfo(
-                        userInfoData,
-                        transactionalEntityManager,
-                    ),
-                    this.repository.createUserCode(
-                        userCodeData,
-                        transactionalEntityManager,
-                    ),
+                    transactionalRepository.createUserInfo(userInfoData),
+                    transactionalRepository.createUserCode(userCodeData),
                 ]);
                 /**
                  * Create initial user's wallets

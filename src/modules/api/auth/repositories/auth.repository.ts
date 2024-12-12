@@ -1,68 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { EntityManager, SelectQueryBuilder, ObjectLiteral } from 'typeorm';
+import { ObjectLiteral } from 'typeorm';
 import {
-    CityEntity,
     UserCodeEntity,
     UserEntity,
-    UserInfoEntity,
     UserTokenEntity,
-} from '../../../db/entities';
+} from '../../../../db/entities';
+import { UserCodeData } from '../../../../common/types/user.type';
 import {
-    UserCodeData,
-    FullUserInfo,
-    UserInfoData,
-} from '../../../common/types/user.type';
-import {
-    cityRepository,
     userCodeRepository,
     userRepository,
     userTokenRepository,
-} from '../../../db/repositories';
-import { UserAction, UserTokenType } from '../../../common/enums';
+} from '../../../../db/repositories';
+import { UserAction, UserTokenType } from '../../../../common/enums';
 
 @Injectable()
 export class AuthServiceRepository {
-    async createUser(
-        data: FullUserInfo,
-        transactionalEntityManager: EntityManager,
-    ): Promise<UserEntity> {
-        const user = new UserEntity();
-        user.memberId = data.memberId;
-        user.email = data.email;
-        user.password = data.password;
-        user.status = data.status;
-
-        await transactionalEntityManager.save(user);
-        return user;
-    }
-
-    async createCity(
-        name: string,
-        transactionalEntityManager: EntityManager,
-    ): Promise<CityEntity> {
-        let city = await cityRepository.findOneBy({
-            name,
-        });
-        if (!(city instanceof Object)) {
-            city = new CityEntity();
-            city.name = name;
-            await transactionalEntityManager.save(city);
-        }
-        return city;
-    }
-
-    async createUserInfo(
-        data: UserInfoData,
-        transactionalEntityManager: EntityManager,
-    ): Promise<void> {
-        await transactionalEntityManager
-            .createQueryBuilder()
-            .insert()
-            .into(UserInfoEntity)
-            .values(data)
-            .execute();
-    }
-
     async deletePairOfTokens(refreshTokenId: number): Promise<void> {
         await userTokenRepository
             .createQueryBuilder()
@@ -80,18 +32,14 @@ export class AuthServiceRepository {
             .execute();
     }
 
-    async createUserCode(
-        { user, code, action, expireAt }: UserCodeData,
-        transactionalEntityManager?: EntityManager,
-    ): Promise<void> {
-        let queryBuilder: SelectQueryBuilder<UserCodeEntity>;
-
-        if (transactionalEntityManager) {
-            queryBuilder = transactionalEntityManager.createQueryBuilder();
-        } else {
-            queryBuilder = userCodeRepository.createQueryBuilder();
-        }
-        await queryBuilder
+    async createUserCode({
+        user,
+        code,
+        action,
+        expireAt,
+    }: UserCodeData): Promise<void> {
+        await userCodeRepository
+            .createQueryBuilder()
             .insert()
             .into(UserCodeEntity)
             .values({

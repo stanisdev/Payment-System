@@ -6,7 +6,7 @@ import {
     UserTokenType,
 } from '../enums';
 
-export type FullUserInfo = {
+export type PrimaryUserInfo = {
     memberId: number;
     email: string;
     password: string;

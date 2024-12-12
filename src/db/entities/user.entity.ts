@@ -18,6 +18,7 @@ import { UserLogEntity } from './userLog.entity';
 import { WalletEntity } from './wallet.entity';
 import { UserCodeEntity } from './userCode.entity';
 import { PayeeEntity } from './payee.entity';
+import { PrimaryUserInfo } from 'src/common/types/user.type';
 
 @Entity('Users')
 export class UserEntity {
@@ -89,5 +90,12 @@ export class UserEntity {
             const hash = await bcrypt.hash(this.password + this.salt, salt);
             this.password = hash;
         }
+    }
+
+    setPrimaryInfo(params: PrimaryUserInfo): void {
+        this.memberId = params.memberId;
+        this.email = params.email;
+        this.password = params.password;
+        this.status = params.status;
     }
 }
