@@ -52,3 +52,10 @@ export type UserCodeData = {
     action: UserAction;
     expireAt: Date;
 };
+
+export type UserTokenParameters = {
+    user: UserEntity;
+    tokenType: UserTokenType;
+    lifetime: number;
+    relatedTokenId?: number;
+};

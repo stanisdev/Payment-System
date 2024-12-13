@@ -6,17 +6,23 @@ import { UserTokenType } from '../../enums';
 import { Utils } from '../../utils';
 import { Jwt } from '../jwt/index';
 import { ApiAuthStrategy } from '../jwt/strategies/api.auth-strategy';
+import { UserTokenParameters } from 'src/common/types/user.type';
 
 export class UserTokenGenerator {
     tokenData: JwtCompleteData;
     record: UserTokenEntity;
 
-    constructor(
-        private user: UserEntity,
-        private tokenType: UserTokenType,
-        private lifetime: number,
-        private relatedTokenId?: number,
-    ) {}
+    private user: UserEntity;
+    private tokenType: UserTokenType;
+    private lifetime: number;
+    private relatedTokenId: number;
+
+    setParameters(params: UserTokenParameters): void {
+        this.user = params.user;
+        this.tokenType = params.tokenType;
+        this.lifetime = params.lifetime;
+        this.relatedTokenId = params.relatedTokenId;
+    }
 
     async generateAndSave(): Promise<void> {
         const code = Utils.generateRandomString({ length: 20 });

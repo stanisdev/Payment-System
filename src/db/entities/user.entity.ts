@@ -98,4 +98,8 @@ export class UserEntity {
         this.password = params.password;
         this.status = params.status;
     }
+
+    async isPasswordValid(password: string): Promise<boolean> {
+        return bcrypt.compare(password + this.salt, this.password);
+    }
 }

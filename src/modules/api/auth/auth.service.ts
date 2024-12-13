@@ -165,7 +165,7 @@ export class AuthService {
 
     /**
      * Login a user using the given 'memberId' and password
-     * then return pair of the tokens
+     * then return 'access' and 'refresh' tokens
      */
     async login(
         { memberId, password }: LoginDto,
@@ -178,12 +178,7 @@ export class AuthService {
             'user.status',
         ]);
         try {
-            equal(user instanceof UserEntity, true);
-            const isPasswordValid = await bcrypt.compare(
-                password + user.salt,
-                user.password,
-            );
-            if (!isPasswordValid) {
+            if (!(await user.isPasswordValid(password))) {
                 const seconds = +this.configService.getOrThrow(
                     'restrictions.max-login-attempts-expiration',
                 );

@@ -43,28 +43,28 @@ export class AuthUtility {
         /**
          * Generate refresh token
          */
-        const refreshTokenGenerator = new UserTokenGenerator(
+        const refreshToken = new UserTokenGenerator();
+        refreshToken.setParameters({
             user,
-            UserTokenType.REFRESH,
-            +this.configService.getOrThrow('jwt.refresh-lifetime'),
-        );
-        await refreshTokenGenerator.generateAndSave();
-        await refreshTokenGenerator.sign();
+            tokenType: UserTokenType.REFRESH,
+            lifetime: +this.configService.getOrThrow('jwt.refresh-lifetime'),
+        });
+        await refreshToken.generateAndSave();
+        await refreshToken.sign();
+
         /**
          * Generate access token
          */
-        const accessTokenGenerator = new UserTokenGenerator(
+        const accessToken = new UserTokenGenerator();
+        accessToken.setParameters({
             user,
-            UserTokenType.ACCESS,
-            +this.configService.getOrThrow('jwt.access-lifetime'),
-            refreshTokenGenerator.record.id,
-        );
-        await accessTokenGenerator.generateAndSave();
-        await accessTokenGenerator.sign();
+            tokenType: UserTokenType.ACCESS,
+            lifetime: +this.configService.getOrThrow('jwt.access-lifetime'),
+            relatedTokenId: refreshToken.record.id,
+        });
+        await accessToken.generateAndSave();
+        await accessToken.sign();
 
-        return [
-            accessTokenGenerator.tokenData,
-            refreshTokenGenerator.tokenData,
-        ];
+        return [accessToken.tokenData, refreshToken.tokenData];
     }
 }
