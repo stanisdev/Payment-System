@@ -57,6 +57,8 @@ import { UserPayloadDto } from '../user/dto/payload/user-payload.dto';
 import { RestorePasswordCompleteCodeDto } from './dto/payload/restore-password-complete-code.dto';
 import { CacheProvider } from 'src/common/providers/cache/cache.provider';
 import { AuthTransactionalRepository } from './repositories/auth.repository.transactional';
+import { RabbitmqProvider } from 'src/common/providers/rabbitmq/rabbitmq.provider';
+import { RabbitmqExchanges } from 'src/common/providers/rabbitmq/rabbitmq.config';
 
 @Injectable()
 export class AuthService {
@@ -66,6 +68,7 @@ export class AuthService {
         private readonly configService: ConfigService,
         private readonly walletSharedService: WalletSharedService,
         private readonly cacheProvider: CacheProvider,
+        private readonly rabbitmqProvider: RabbitmqProvider,
     ) {}
 
     /**
@@ -154,6 +157,11 @@ export class AuthService {
             metadata: memberId.toString(),
         };
         await UserActivityLogger.write(logData);
+        /**
+         * @todo: move Mailer to the Notification service
+         *
+         * this.rabbitmqProvider.sendMessage(RabbitmqExchanges.Notifications, {});
+         */
         Mailer.sendMail({
             to: dto.email,
             subject: i18next.t('mailer.signup-subject'),

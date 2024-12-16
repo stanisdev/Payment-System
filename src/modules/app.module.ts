@@ -9,6 +9,8 @@ import miscellaneousConfig from 'src/config/miscellaneous.config';
 import jwtConfig from 'src/config/jwt.config';
 import { FeeModule } from 'src/common/providers/fee/fee.module';
 import { CacheModule } from 'src/common/providers/cache/cache.module';
+import { RabbitmqModule } from 'src/common/providers/rabbitmq/rabbitmq.module';
+import rabbitmqConfig from 'src/config/rabbitmq.config';
 
 const { env } = process;
 const apiType = env.API_TYPE;
@@ -33,11 +35,13 @@ if (apiType == 'api') {
                 databaseConfig,
                 restrictionsConfig,
                 miscellaneousConfig,
+                rabbitmqConfig,
                 jwtConfig,
             ],
         }),
         FeeModule,
         CacheModule,
+        RabbitmqModule,
         ...modules,
     ],
 })

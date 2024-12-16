@@ -9,9 +9,10 @@ import { WalletSharedService } from '../wallet/wallet.shared';
 import { WalletServiceRepository } from '../wallet/wallet.repository';
 import { AuthUtility } from './auth.utility';
 import { CacheModule } from 'src/common/providers/cache/cache.module';
+import { RabbitmqModule } from 'src/common/providers/rabbitmq/rabbitmq.module';
 
 @Module({
-    imports: [WalletModule, CacheModule],
+    imports: [WalletModule, CacheModule, RabbitmqModule],
     controllers: [AuthController],
     providers: [
         AuthService,
