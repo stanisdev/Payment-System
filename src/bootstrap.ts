@@ -9,13 +9,12 @@ import { AppModule } from './modules/app.module';
 import { appDataSource } from './db/dataSource';
 import { redisClient } from './common/providers/redis';
 import { Mailer } from './common/providers/mailer/index';
-import { Logger } from './common/providers/loggers/system';
-
-const logger = Logger.getInstance();
+import { LoggerProvider } from './common/providers/logger/logger.provider';
 
 export default class Bootstrap {
     private app: INestApplication;
     private config: ConfigService;
+    private logger: LoggerProvider;
 
     /**
      * Run the logic of the class
@@ -25,13 +24,14 @@ export default class Bootstrap {
 
         this.app = await NestFactory.create(AppModule, {
             cors: true,
-            logger,
+            logger: false,
         });
+        this.logger = this.app.get(LoggerProvider);
         this.config = this.app.get(ConfigService);
         try {
             await this.connectExternalStorages();
         } catch (error) {
-            logger.error(error);
+            this.logger.error(error);
             process.exit(1);
         }
         this.buildSwagger();
@@ -46,13 +46,13 @@ export default class Bootstrap {
         try {
             await appDataSource.initialize();
         } catch (error) {
-            logger.error(error);
+            this.logger.error(error);
             throw new Error('Failed to connect to database');
         }
         try {
             await promisify(redisClient.ping.bind(redisClient))();
         } catch (error) {
-            logger.error(error);
+            this.logger.error(error);
             throw new Error('Cannot connect to Redis');
         }
     }
@@ -93,7 +93,7 @@ export default class Bootstrap {
         const port = this.config.get<number>('APP_PORT');
 
         this.app.listen(port, () => {
-            logger.log(`The app started at the port: ${port}`);
+            this.logger.log(`The app started at the port: ${port}`);
         });
     }
 }

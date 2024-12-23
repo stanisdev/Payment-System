@@ -11,6 +11,7 @@ import { FeeModule } from 'src/common/providers/fee/fee.module';
 import { CacheModule } from 'src/common/providers/cache/cache.module';
 import { RabbitmqModule } from 'src/common/providers/rabbitmq/rabbitmq.module';
 import rabbitmqConfig from 'src/config/rabbitmq.config';
+import { LoggerModule } from 'src/common/providers/logger/logger.module';
 
 const { env } = process;
 const apiType = env.API_TYPE;
@@ -39,6 +40,7 @@ if (apiType == 'api') {
                 jwtConfig,
             ],
         }),
+        LoggerModule,
         FeeModule,
         CacheModule,
         RabbitmqModule,

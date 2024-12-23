@@ -2,7 +2,7 @@ import * as os from 'node:os';
 import * as process from 'node:process';
 import * as notReallyCluster from 'cluster';
 import Bootstrap from './bootstrap';
-import { Logger } from './common/providers/loggers/system';
+import { LoggerProvider } from './common/providers/logger/logger.provider';
 
 /**
  * The workaround below is an attempt to fix a system bug
@@ -15,12 +15,11 @@ import { Logger } from './common/providers/loggers/system';
 const cluster = notReallyCluster as unknown as notReallyCluster.Cluster;
 
 const numCPUs = os.availableParallelism();
-const logger = Logger.getInstance();
-const env = process.env.NODE_ENV;
+const logger = new LoggerProvider();
 
 export class AppExecutor {
     start() {
-        if (env === 'production') {
+        if (process.env.NODE_ENV === 'production') {
             this.clustering();
         } else {
             new Bootstrap().run();

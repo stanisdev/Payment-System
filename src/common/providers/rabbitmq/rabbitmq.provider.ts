@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PlainRecord } from 'src/common/types/other.type';
 import { RabbitmqExchanges, rabbitmqExchangesConfig } from './rabbitmq.config';
+import { LoggerProvider } from '../logger/logger.provider';
 
 @Injectable()
 export class RabbitmqProvider {
@@ -10,7 +11,10 @@ export class RabbitmqProvider {
     private channel: amqplib.Channel;
     private url: string;
 
-    constructor(private readonly configService: ConfigService) {
+    constructor(
+        private readonly configService: ConfigService,
+        private readonly logger: LoggerProvider,
+    ) {
         const host = this.configService.getOrThrow('rabbitmq.host');
         const port = this.configService.getOrThrow('rabbitmq.port');
         this.url = `amqp://${host}:${port}`;
@@ -20,10 +24,10 @@ export class RabbitmqProvider {
         try {
             this.connection = await amqplib.connect(this.url);
         } catch (error) {
-            console.error('Cannot connect to RabbitMQ', error); // @todo: use system logger
+            this.logger.error('Cannot connect to RabbitMQ: ' + error);
             process.exit(1);
         }
-        console.log('RabbitMQ connected'); // @todo: use system logger
+        this.logger.log('RabbitMQ connected');
     }
 
     async assertChannels(): Promise<void> {
@@ -32,7 +36,6 @@ export class RabbitmqProvider {
         for (const [exchangeTitle, exchangeConfig] of Object.entries(
             rabbitmqExchangesConfig,
         )) {
-            console.log(exchangeTitle);
             const exchangeName = this.configService.getOrThrow(
                 `rabbitmq.exchange.${exchangeTitle}`,
             );

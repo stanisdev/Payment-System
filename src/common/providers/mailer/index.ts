@@ -4,6 +4,9 @@ import { join } from 'path';
 import { MailerTemplate } from '../../enums';
 import { MockTransporter } from '../../interfaces';
 
+/**
+ * @todo: Remove this class
+ */
 export class Mailer {
     private static transporter: nodemailer.Transporter | MockTransporter;
     private static templatesPath: string;
