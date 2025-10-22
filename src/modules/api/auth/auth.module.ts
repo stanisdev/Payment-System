@@ -1,4 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AuthServiceRepository } from './repositories/auth.repository';
@@ -12,7 +13,12 @@ import { CacheModule } from 'src/common/providers/cache/cache.module';
 import { RabbitmqModule } from 'src/common/providers/rabbitmq/rabbitmq.module';
 
 @Module({
-    imports: [WalletModule, CacheModule, RabbitmqModule],
+    imports: [
+        WalletModule,
+        CacheModule,
+        RabbitmqModule,
+        JwtModule.register({}),
+    ],
     controllers: [AuthController],
     providers: [
         AuthService,

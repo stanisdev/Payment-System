@@ -56,6 +56,7 @@ export type UserCodeData = {
 export type UserTokenParameters = {
     user: UserEntity;
     tokenType: UserTokenType;
-    lifetime: number;
+    expireAt: Date;
+    code: string,
     relatedTokenId?: number;
 };
