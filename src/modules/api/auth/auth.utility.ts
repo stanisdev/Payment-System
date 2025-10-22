@@ -1,16 +1,22 @@
 import i18next from 'i18next';
+import * as moment from 'moment';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { UserEntity } from 'src/db/entities';
-import { userRepository } from 'src/db/repositories';
+import { userRepository, userTokenRepository } from 'src/db/repositories';
 import { Utils } from '../../../common/utils';
 import { JwtCompleteData } from 'src/common/types/other.type';
-import { UserTokenGenerator } from 'src/common/providers/generators/userToken';
 import { UserTokenType } from 'src/common/enums';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { UserTokenParameters } from 'src/common/types/user.type';
+import { InsertResult } from 'typeorm';
 
 @Injectable()
 export class AuthUtility {
-    constructor(private readonly configService: ConfigService) {}
+    constructor(
+        private readonly configService: ConfigService,
+        private jwtService: JwtService,
+    ) {}
 
     /**
      * Generate and get a unique "memberId" of
@@ -43,28 +49,92 @@ export class AuthUtility {
         /**
          * Generate refresh token
          */
-        const refreshToken = new UserTokenGenerator();
-        refreshToken.setParameters({
+        const refreshTokenData = {
+            expiration: this.addHoursToDate(
+                +this.configService.getOrThrow('jwt.refresh-lifetime'),
+            ),
+            code: this.generateCode(),
+        };
+        const refreshToken = await this.saveUserToken({
             user,
             tokenType: UserTokenType.REFRESH,
-            lifetime: +this.configService.getOrThrow('jwt.refresh-lifetime'),
+            expireAt: refreshTokenData.expiration,
+            code: refreshTokenData.code,
         });
-        await refreshToken.generateAndSave();
-        await refreshToken.sign();
 
         /**
          * Generate access token
          */
-        const accessToken = new UserTokenGenerator();
-        accessToken.setParameters({
+        const accessTokenData = {
+            expiration: this.addHoursToDate(
+                +this.configService.getOrThrow('jwt.access-lifetime'),
+            ),
+            code: this.generateCode(),
+        };
+        await this.saveUserToken({
             user,
             tokenType: UserTokenType.ACCESS,
-            lifetime: +this.configService.getOrThrow('jwt.access-lifetime'),
-            relatedTokenId: refreshToken.record.id,
+            expireAt: accessTokenData.expiration,
+            code: accessTokenData.code,
+            relatedTokenId: refreshToken.raw[0].id,
         });
-        await accessToken.generateAndSave();
-        await accessToken.sign();
 
-        return [accessToken.tokenData, refreshToken.tokenData];
+        const jwtRefresh = await this.signData(
+            user.id,
+            refreshTokenData.code,
+            refreshTokenData.expiration.getTime(),
+        );
+        const jwtAccess = await this.signData(
+            user.id,
+            accessTokenData.code,
+            accessTokenData.expiration.getTime(),
+        );
+        return [
+            {
+                type: UserTokenType.REFRESH,
+                token: jwtRefresh,
+                expireAt: refreshTokenData.expiration,
+            },
+            {
+                type: UserTokenType.ACCESS,
+                token: jwtAccess,
+                expireAt: accessTokenData.expiration,
+            }
+        ];
+    }
+
+    signData(userId: number, code: string, expiresIn: number) {
+        return this.jwtService.signAsync(
+            {
+                userId,
+                code,
+            },
+            {
+                secret: this.configService.getOrThrow('jwt.api-secret'),
+                expiresIn,
+            }
+        );
+    }
+
+    async saveUserToken(params: UserTokenParameters): Promise<InsertResult> {
+        return userTokenRepository
+            .createQueryBuilder()
+            .insert()
+            .values({
+                user: params.user,
+                type: params.tokenType,
+                code: params.code,
+                expireAt: params.expireAt,
+                relatedTokenId: params.relatedTokenId ?? null,
+            })
+            .execute();
+    }
+
+    addHoursToDate(hours: number): Date {
+        return moment().add(hours, 'hour').toDate();
+    }
+
+    generateCode(): string {
+        return Utils.generateRandomString({ length: 20 });
     }
 }
