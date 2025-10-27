@@ -10,12 +10,12 @@ import { ParsePagination } from 'src/common/decorators/parse-pagination.decorato
 const router = Router.build('admin', 'role');
 
 @ApiTags('Role')
+@AuthAdmin('admin')
 @Controller(router.controller())
 export class RoleController {
     constructor(private readonly roleService: RoleService) {}
 
     @Get(router.index())
-    @AuthAdmin('admin')
     @HttpCode(HttpStatus.OK)
     list(@ParsePagination() pagination: Pagination): Promise<RoleData[]> {
         return this.roleService.list(pagination);

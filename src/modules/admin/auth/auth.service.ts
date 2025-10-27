@@ -7,6 +7,7 @@ import {
     ForbiddenException,
     Injectable,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AdminEntity } from '../../../db/entities';
 import { adminRepository } from '../../../db/repositories';
@@ -17,8 +18,6 @@ import { CacheTemplate } from '../../../common/providers/cache/cache.template';
 import { AuthServiceRepository } from './auth.repository';
 import { Utils } from 'src/common/utils';
 import { AuthResponse } from 'src/common/types/admin.type';
-import { Jwt } from 'src/common/providers/jwt/index';
-import { AdminAuthStrategy } from 'src/common/providers/jwt/strategies/admin.auth-strategy';
 
 @Injectable()
 export class AuthService {
@@ -26,6 +25,7 @@ export class AuthService {
         private readonly configService: ConfigService,
         private readonly repository: AuthServiceRepository,
         private readonly cacheProvider: CacheProvider,
+        private jwtService: JwtService,
     ) {}
 
     /**
@@ -56,7 +56,6 @@ export class AuthService {
                 const attemptsCount = Number.parseInt(
                     await cacheManager.find(),
                 );
-
                 if (
                     Number.isInteger(attemptsCount) &&
                     attemptsCount >=
@@ -102,19 +101,21 @@ export class AuthService {
             expireAt,
         });
         /**
-         * Obtain JWT
+         * Generate JWT
          */
-        const jwtInstance = new Jwt(new AdminAuthStrategy());
-        const jwtSignParams = {
-            data: {
+        const token = await this.jwtService.signAsync(
+            {
                 adminId: admin.id,
                 code: serverCode,
             },
-            expiresIn: expireAt.getTime(),
-        };
+            {
+                secret: this.configService.getOrThrow('jwt.admin-secret'),
+                expiresIn: expireAt.getTime(),
+            },
+        );
         return {
             jwt: {
-                token: await jwtInstance.sign(jwtSignParams),
+                token,
                 expireAt,
             },
             client: {

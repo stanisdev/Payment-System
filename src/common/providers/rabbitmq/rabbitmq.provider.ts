@@ -7,7 +7,7 @@ import { LoggerProvider } from '../logger/logger.provider';
 
 @Injectable()
 export class RabbitmqProvider {
-    private connection: amqplib.ChannelModel;
+    private connection: any;
     private channel: amqplib.Channel;
     private url: string;
 
